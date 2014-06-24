@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+        android:paddingLeft="4dp" android:paddingTop="4dp" android:paddingRight="4dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:text=" — Всю эту байду написал cab404. Кроме Android, да. Android написала команда архиняш. А, и Apache HTTP Library, тоже няши, да. Вот."
+              android:id="@+id/text" android:layout_gravity="left|top" android:background="@color/light_secondary_color"
+              android:padding="8dp" android:textColor="@color/dark_primary_color"/>
+    <View android:layout_width="match_parent" android:layout_height="2dp"
+          android:layout_below="@+id/text" android:layout_alignParentLeft="true"
+          android:layout_alignParentStart="true" android:background="@color/dark_secondary_color"/>
+</RelativeLayout>
