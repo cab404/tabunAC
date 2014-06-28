@@ -4,3 +4,4 @@ build/
 gen/
 bin/
 .idea/
+.navigation/

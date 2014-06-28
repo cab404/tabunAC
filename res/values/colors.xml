@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="dark_primary_color">#ff3a743a</color>
-    <color name="primary_color">#ff53bc53</color>
-    <color name="light_primary_color">#ff69ff69</color>
 
-    <color name="dark_secondary_color">#ffa8b34b</color>
-    <color name="secondary_color">#ffced85b</color>
-    <color name="light_secondary_color">#ffecf768</color>
+    <color name="bar_bg">#55224845</color>
+    <color name="main_bg">#ff224845</color>
+    <color name="command_font_color">#ff94b6c3</color>
+    <color name="commands_bg">#ff253a46</color>
+
+    <color name="item_bg">#ff1b3a31</color>
+    <color name="font_color">#ffa8c3d8</color>
+
+
+
+    <dimen name="icons_size">48dp</dimen>
 </resources>

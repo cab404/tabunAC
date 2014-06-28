@@ -1,28 +1,31 @@
 package com.cab404.ponyscape.parts;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import com.cab404.acli.base.Part;
-import com.cab404.jconsol.annotations.Command;
-import com.cab404.jconsol.annotations.CommandClass;
+import com.cab404.jconsol.CommandHolder;
+import com.cab404.ponyscape.Static;
+
+import java.util.Arrays;
 
 /**
  * @author cab404
  */
 
-@CommandClass(prefix = "")
-public class Help extends Part {
+public class Help extends AbstractTextPart {
 
-    @Command(command = "help")
-    public void displayHelp() {
+
+    @Override protected CharSequence getText() {
+
+        StringBuilder data = new StringBuilder();
+        for (CommandHolder h : Static.cm.registered()) {
+            data
+                    .append((h.prefix + " " + h.annnotation.command()).trim()).append(" ")
+                    .append(Arrays.toString(h.annnotation.params())).append("\n");
+        }
+        return data;
 
     }
 
-    @Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
-        return null;
+    @Override public void onClick(View view) {
+        delete();
     }
-
-
 }
