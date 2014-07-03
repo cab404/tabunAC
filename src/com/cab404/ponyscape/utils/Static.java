@@ -1,4 +1,4 @@
-package com.cab404.ponyscape;
+package com.cab404.ponyscape.utils;
 
 import android.content.Context;
 import android.os.Handler;

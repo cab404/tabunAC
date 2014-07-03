@@ -1,4 +1,4 @@
-package com.cab404.ponyscape;
+package com.cab404.ponyscape.android;
 
 import android.animation.Animator;
 import android.app.Activity;
@@ -17,15 +17,18 @@ import com.cab404.acli.base.ACLIList;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.events.Commands;
+import com.cab404.ponyscape.events.Login;
+import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.commands.Core;
-import com.cab404.ponyscape.commands.Load;
-import com.cab404.ponyscape.events.Events;
+import com.cab404.ponyscape.commands.Page;
+import com.cab404.ponyscape.commands.Post;
 import com.cab404.ponyscape.utils.Bus;
 
 public class MainActivity extends Activity {
     private TextView line;
     private Handler handler;
-    private float dpi;
 
     private static final int TOKEN_REQUEST_CODE = 42;
 
@@ -35,19 +38,17 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.main);
 
-        dpi = getResources().getDisplayMetrics().density;
-
+        /* Инициализируем статику. */
         Static.list = new ACLIList((ViewGroup) findViewById(R.id.data));
         Static.cm = new CommandManager();
         Static.user = new TabunAccessProfile();
         Static.app_context = getApplicationContext();
         Static.handler = new Handler(getMainLooper());
 
+        /* Привязываем локальные переменные */
         line = (TextView) findViewById(R.id.input);
-
         line.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override public boolean onEditorAction(TextView textView, int ime, KeyEvent kE) {
                 if (kE == null || kE.getAction() == KeyEvent.ACTION_UP)
@@ -56,18 +57,23 @@ public class MainActivity extends Activity {
             }
         });
 
+        /* Регестрируем обработчики команд */
         Static.cm.register(Core.class);
-        Static.cm.register(Load.class);
+        Static.cm.register(Post.class);
+        Static.cm.register(Page.class);
 
-
+        /* Регестрируемся для приема сообщений */
         Bus.register(this);
 
-        hideHelp(0);
+        /* Убираем меню помощи */
+        hideMenu(0);
 
     }
 
 
-    /* Invoked on button press */
+    /**
+     * Запускает команду в окошке и блокирует его изменение
+     */
     public void execute() {
         CharSequence data = line.getText();
         try {
@@ -85,16 +91,17 @@ public class MainActivity extends Activity {
         /* Получили что-то от профилей. */
         if (requestCode == TOKEN_REQUEST_CODE)
             if (resultCode == RESULT_OK) {
-                Bus.send(new Events.LoginSuccess());
+                Bus.send(new Login.Success());
                 Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
             } else {
-                Bus.send(new Events.LoginFailure());
+                Bus.send(new Login.Failure());
             }
 
     }
 
+    /* Вызывает Tabun.Auth */
     @Bus.Handler
-    public void login(Events.LoginRequested event) {
+    public void login(Login.Requested event) {
         try {
             startActivityForResult(new Intent("everypony.tabun.auth.TOKEN_REQUEST"), TOKEN_REQUEST_CODE);
         } catch (ActivityNotFoundException e) {
@@ -108,8 +115,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /* Выставляет в командную строку выданную команду и запускает её. */
     @Bus.Handler
-    public void runCommand(final Events.RunCommand event) {
+    public void runCommand(final Commands.Run event) {
         handler.post(new Runnable() {
             @Override public void run() {
                 line.setText(event.command);
@@ -123,17 +131,19 @@ public class MainActivity extends Activity {
         Bus.unregister(this);
     }
 
-    private boolean bg_active = false;
 
-    public void activateBG(View view) {
-        if (bg_active = !bg_active)
-            showHelp(50);
+    private boolean
+            menu_active = false;
+
+    public void toggleMenu(View view) {
+        if (menu_active)
+            hideMenu(50);
         else
-            hideHelp(50);
-
+            showMenu(50);
     }
 
-    private void hideHelp(final int delay_per_item) {
+    private void hideMenu(final int delay_per_item) {
+
         final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
         findViewById(R.id.command_bg).animate().scaleX(1).scaleY(1)
                 .setDuration(items.getChildCount() * delay_per_item);
@@ -145,6 +155,7 @@ public class MainActivity extends Activity {
                     new Runnable() {
                         public void run() {
                             anim.animate()
+                                    .setDuration(delay_per_item * 2)
                                     .x(items.getWidth() * 2);
                         }
                     },
@@ -159,6 +170,7 @@ public class MainActivity extends Activity {
             @Override public void onAnimationStart(Animator animator) {}
             @Override public void onAnimationEnd(Animator animator) {
                 findViewById(R.id.fade_bg).setVisibility(View.GONE);
+                menu_active = false;
             }
             @Override public void onAnimationCancel(Animator animator) {}
             @Override public void onAnimationRepeat(Animator animator) {}
@@ -168,12 +180,16 @@ public class MainActivity extends Activity {
 
     /**
      * Вызывается, если пользователь нажал на затемненный фон.
+     * Скрывает меню.
      */
     public void onFadePresseed(View view) {
-        hideHelp(50);
+        hideMenu(50);
     }
 
-    private void showHelp(final int delay_per_item) {
+    private void showMenu(final int delay_per_item) {
+        if (menu_active) return;
+        menu_active = true;
+
         final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
         findViewById(R.id.command_bg).animate()
                 .scaleX(items.getChildCount() * 3)
@@ -190,16 +206,17 @@ public class MainActivity extends Activity {
                     new Runnable() {
                         public void run() {
                             anim.animate()
+                                    .setDuration(delay_per_item * 2)
                                     .x(items.getWidth() - anim.getWidth());
                         }
                     },
-                    i * delay_per_item
+                    (items.getChildCount() - i) * delay_per_item
             );
 
         }
 
         findViewById(R.id.fade_bg).animate()
-                .setDuration(items.getChildCount() * delay_per_item)
+                .setDuration(items.getChildCount() * delay_per_item + delay_per_item)
                 .alpha(1).setListener(new Animator.AnimatorListener() {
             @Override public void onAnimationStart(Animator animator) {
                 findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);

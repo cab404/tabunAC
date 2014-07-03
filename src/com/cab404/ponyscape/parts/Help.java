@@ -2,7 +2,7 @@ package com.cab404.ponyscape.parts;
 
 import android.view.View;
 import com.cab404.jconsol.CommandHolder;
-import com.cab404.ponyscape.Static;
+import com.cab404.ponyscape.utils.Static;
 
 import java.util.Arrays;
 

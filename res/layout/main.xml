@@ -14,7 +14,7 @@
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" android:id="@+id/data" android:paddingBottom="64dp">
+                android:layout_height="wrap_content" android:id="@+id/data" android:paddingBottom="50dp">
         </LinearLayout>
     </ScrollView>
     <EditText
@@ -58,7 +58,7 @@
             android:id="@+id/command_button"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:onClick="activateBG" android:layout_marginBottom="1dp" android:layout_marginRight="4dp"
+            android:onClick="toggleMenu" android:layout_marginBottom="1dp" android:layout_marginRight="4dp"
             android:layout_marginTop="2dp"/>
     <include android:layout_width="wrap_content"
              android:layout_height="wrap_content"

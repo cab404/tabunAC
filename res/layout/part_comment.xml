@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@color/item_bg"
+        >
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/linearLayout3">
+    </LinearLayout>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/text"
+              android:layout_gravity="left|top" android:textColor="@color/font_color" android:linksClickable="true"
+              android:text="Вы не должны этого видеть этот текст." android:textSize="@dimen/primary_text_size"
+              android:padding="8dp" android:layout_below="@+id/data" android:layout_alignLeft="@+id/data"
+              android:layout_alignStart="@+id/data"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#3000" android:gravity="right" android:paddingTop="2dp" android:paddingBottom="2dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" android:layout_below="@+id/text">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="#2441153" android:textColor="@color/font_color"
+                  android:id="@+id/id"
+                  android:singleLine="false" android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
+                  android:layout_alignParentStart="true" android:layout_alignParentRight="true"
+                  android:layout_alignParentEnd="true" android:layout_weight="1"
+                  android:layout_gravity="center_vertical" android:paddingLeft="8dp"/>
+        <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/plus" android:layout_gravity="center_vertical"
+                android:soundEffectsEnabled="false" android:src="@drawable/ic_plus" android:padding="2dp"
+                android:layout_marginRight="8dp"/>
+        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/minus"
+                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
+                   android:src="@drawable/ic_minus" android:padding="2dp" android:layout_marginRight="8dp"/>
+        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/reply"
+                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
+                   android:src="@drawable/ic_pencil" android:padding="2dp" android:layout_marginRight="8dp"/>
+        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/favourite"
+                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
+                   android:src="@drawable/ic_fav" android:padding="2dp" android:layout_marginRight="8dp"/>
+    </LinearLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="cab404, в 20:49"
+            android:textColor="@color/font_color"
+            android:id="@+id/data"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" android:singleLine="false"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" android:layout_alignParentTop="true"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/rating"
+              android:textColor="@color/font_color" android:linksClickable="true"
+              android:text="+123" android:textSize="@dimen/primary_text_size"
+              android:textAlignment="gravity"
+              android:textStyle="bold"
+              android:gravity="center_vertical"
+              android:singleLine="true" android:layout_weight="1" android:layout_alignParentTop="true"
+              android:layout_above="@+id/text"
+              android:layout_alignParentRight="true" android:layout_alignParentEnd="true"
+              android:layout_marginRight="8dp"/>
+
+</RelativeLayout>

@@ -4,8 +4,7 @@
               android:orientation="vertical"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content" android:gravity="right" android:paddingLeft="8dp"
-              android:measureWithLargestChild="true">
-
+              >
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="wrap_content"
@@ -15,7 +14,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Войти"
-                android:id="@+id/textView" android:textColor="@color/command_font_color" android:typeface="normal"/>
+                android:id="@+id/text" android:textColor="@color/command_font_color" android:typeface="normal"/>
         <ImageView
                 android:layout_width="@dimen/icons_size"
                 android:layout_height="@dimen/icons_size"
@@ -27,7 +26,8 @@
                   android:baselineAligned="false" android:gravity="center_vertical">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Блоги"
                   android:textColor="@color/command_font_color" android:typeface="normal"/>
-        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size" android:src="@drawable/ic_post"
+        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"
+                   android:src="@drawable/ic_post"
                    android:layout_marginLeft="8dp" android:padding="2dp"/>
     </LinearLayout>
     <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
@@ -35,7 +35,17 @@
                   android:baselineAligned="false" android:gravity="center_vertical">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Брони"
                   android:textColor="@color/command_font_color" android:typeface="normal"/>
-        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size" android:src="@drawable/ic_ponies"
+        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"
+                   android:src="@drawable/ic_ponies"
+                   android:layout_marginLeft="8dp" android:padding="2dp"/>
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
+                  android:layout_height="wrap_content" android:paddingTop="2dp" android:paddingBottom="2dp"
+                  android:baselineAligned="false" android:gravity="center_vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Очистить список"
+                  android:textColor="@color/command_font_color" android:typeface="normal"/>
+        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"
+                   android:src="@drawable/ic_close"
                    android:layout_marginLeft="8dp" android:padding="2dp"/>
     </LinearLayout>
     <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
@@ -43,7 +53,8 @@
                   android:baselineAligned="false" android:gravity="center_vertical">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Параметры"
                   android:textColor="@color/command_font_color" android:typeface="normal"/>
-        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size" android:src="@drawable/ic_settings"
+        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"
+                   android:src="@drawable/ic_settings"
                    android:layout_marginLeft="8dp" android:padding="2dp"/>
     </LinearLayout>
 </LinearLayout>

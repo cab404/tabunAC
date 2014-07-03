@@ -6,28 +6,27 @@ import com.cab404.jconsol.converters.Int;
 import com.cab404.libtabun.data.Comment;
 import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.pages.TopicPage;
-import com.cab404.ponyscape.Static;
-import com.cab404.ponyscape.parts.AbstractTextPart;
+import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.parts.CommentPart;
+import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 
 /**
  * @author cab404
  */
 @CommandClass(prefix = "post")
-public class Load {
+public class Post {
 
     @Command(command = "load", params = Int.class)
     public void post(final Integer id) {
-        final AbstractTextPart loading = new AbstractTextPart() {
-            @Override protected CharSequence getText() {
-                return "Загружаю пост...";
-            }
-        };
+        final StaticTextPart loading = new StaticTextPart();
         Static.list.add(loading);
+        loading.setText("Загружаю пост...");
+
         new Thread(new Runnable() {
             @Override public void run() {
                 new TopicPage(id) {
+
                     @Override public void handle(final Object object, final int key) {
                         super.handle(object, key);
                         switch (key) {

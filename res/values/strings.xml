@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Ponyscape</string>
     <string name="command_line_hint">pony@tabun:$</string>
+
+    <plurals name="minutes_ago">
+        <item quantity="zero">минут назад</item>
+        <item quantity="one">минуту назад</item>
+        <item quantity="two">минуты назад</item>
+        <item quantity="few">минуты назад</item>
+        <item quantity="many">минут назад</item>
+        <item quantity="other">минут вперед</item>
+    </plurals>
+
+    <plurals name="seconds_ago">
+        <item quantity="zero">секунд назад</item>
+        <item quantity="one">секунду назад</item>
+        <item quantity="two">секунды назад</item>
+        <item quantity="few">секунды назад</item>
+        <item quantity="many">секунд назад</item>
+        <item quantity="other">секунд вперед</item>
+    </plurals>
+
 </resources>
