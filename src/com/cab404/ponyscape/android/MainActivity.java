@@ -1,7 +1,6 @@
 package com.cab404.ponyscape.android;
 
 import android.animation.Animator;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,15 +17,15 @@ import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.events.Commands;
-import com.cab404.ponyscape.events.Login;
-import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.commands.Core;
 import com.cab404.ponyscape.commands.Page;
 import com.cab404.ponyscape.commands.Post;
+import com.cab404.ponyscape.events.Commands;
+import com.cab404.ponyscape.events.Login;
 import com.cab404.ponyscape.utils.Bus;
+import com.cab404.ponyscape.utils.Static;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AbstractActivity {
     private TextView line;
     private Handler handler;
 
@@ -198,7 +197,7 @@ public class MainActivity extends Activity {
 
         for (int i = 0; i < items.getChildCount(); i++) {
             final View anim = items.getChildAt(i);
-            /** Передвигаем элементы в начальное положение только первый раз. */
+            /* Передвигаем элементы в начальное положение только первый раз. */
             if (items.getVisibility() == View.INVISIBLE)
                 anim.setX(items.getWidth() * 2);
 

@@ -61,6 +61,7 @@ public class Bus {
     private static List<PendingMethod> handlers = new ArrayList<>();
 
     public static void register(Object obj) {
+        unregister(obj);
         Log.v("Bus", "Handling object " + obj);
         for (Method method : obj.getClass().getMethods())
             if (method.getAnnotation(Handler.class) != null)
