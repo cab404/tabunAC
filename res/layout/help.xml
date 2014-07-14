@@ -24,6 +24,15 @@
     <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
                   android:layout_height="wrap_content" android:paddingTop="2dp" android:paddingBottom="2dp"
                   android:baselineAligned="false" android:gravity="center_vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Создать что-то"
+                  android:textColor="@color/command_font_color" android:typeface="normal"/>
+        <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"
+                   android:src="@drawable/ic_pencil"
+                   android:layout_marginLeft="8dp" android:padding="2dp"/>
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
+                  android:layout_height="wrap_content" android:paddingTop="2dp" android:paddingBottom="2dp"
+                  android:baselineAligned="false" android:gravity="center_vertical">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Блоги"
                   android:textColor="@color/command_font_color" android:typeface="normal"/>
         <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"

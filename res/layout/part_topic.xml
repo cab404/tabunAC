@@ -1,97 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="4dp"
-        android:background="@color/item_bg"
-        >
+<LinearLayout
+		android:layout_width="match_parent"
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical"
+		android:layout_height="wrap_content"
 
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-    </LinearLayout>
-    <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/title"
-            android:layout_gravity="left|top"
-            android:textColor="@color/font_color"
-            android:linksClickable="true"
-            android:text="Вы не должны этого видеть этот заголовок. И он очень, очень длинный."
-            android:textSize="@dimen/title_text_size"
-            android:textStyle="bold" android:padding="8dp"
-            android:layout_toLeftOf="@+id/rating" android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/rating"
-              android:layout_gravity="left|top" android:textColor="@color/font_color" android:linksClickable="true"
-              android:text="+123" android:textSize="@dimen/title_text_size"
-              android:textAlignment="gravity"
-              android:textStyle="bold"
-              android:layout_alignParentRight="true"
-              android:layout_alignParentEnd="true" android:gravity="center_vertical"
-              android:layout_alignTop="@+id/title"
-              android:singleLine="true" android:layout_above="@+id/data" android:paddingLeft="8dp"
-              android:paddingRight="8dp"/>
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/text"
-              android:layout_gravity="left|top" android:textColor="@color/font_color" android:linksClickable="true"
-              android:text="Вы не должны этого видеть этот текст." android:textSize="@dimen/primary_text_size"
-              android:padding="8dp" android:layout_below="@+id/data" android:layout_alignLeft="@+id/data"
-              android:layout_alignStart="@+id/data"/>
-    <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="вы, не, должны, видеть, эти, теги"
-            android:id="@+id/tags"
-            android:layout_below="@+id/text" android:layout_alignLeft="@+id/text"
-            android:layout_alignRight="@+id/text"
-            android:paddingLeft="8dp" android:paddingTop="4dp" android:paddingBottom="4dp" android:background="#3000"
-            android:textSize="@dimen/small_text_size" android:textColor="@color/font_color" android:gravity="right"
-            android:paddingRight="8dp"/>
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="#3000" android:gravity="right" android:paddingTop="2dp" android:paddingBottom="2dp"
-            android:layout_below="@+id/tags" android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="#13444"
-                  android:textColor="@color/font_color" android:id="@+id/id" android:singleLine="false"
-                  android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-                  android:layout_alignParentStart="true" android:layout_alignParentRight="true"
-                  android:layout_alignParentEnd="true" android:layout_weight="1"
-                  android:paddingLeft="8dp" android:layout_gravity="center_vertical"/>
-        <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:id="@+id/plus" android:layout_gravity="center_vertical"
-                android:soundEffectsEnabled="false" android:src="@drawable/ic_plus" android:padding="2dp"
-                android:layout_marginRight="8dp"/>
-        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/zero"
-                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
-                   android:src="@drawable/ic_null" android:padding="2dp" android:layout_marginRight="8dp"/>
-        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/minus"
-                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
-                   android:src="@drawable/ic_minus" android:padding="2dp" android:layout_marginRight="8dp"/>
-        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/reply"
-                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
-                   android:src="@drawable/ic_pencil" android:padding="2dp" android:layout_marginRight="8dp"/>
-        <ImageView android:layout_width="32dp" android:layout_height="32dp" android:id="@+id/favourite"
-                   android:layout_gravity="center_vertical" android:soundEffectsEnabled="false"
-                   android:src="@drawable/ic_fav" android:padding="2dp" android:layout_marginRight="8dp"/>
-    </LinearLayout>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="cab404, в 20:49"
-            android:textColor="@color/font_color"
-            android:id="@+id/data" android:layout_below="@+id/title" android:layout_alignLeft="@+id/title"
-            android:layout_alignStart="@+id/title" android:paddingLeft="8dp" android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" android:paddingTop="2dp"
-            android:paddingBottom="2dp" android:singleLine="false"/>
+		android:layout_marginTop="4dp"
+		android:layout_marginLeft="4dp"
+		android:layout_marginRight="4dp"
 
-</RelativeLayout>
+		android:background="@drawable/item_background"
+		>
+	<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical">
+		<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:id="@+id/title"
+				android:layout_gravity="left|top"
+				android:linksClickable="true"
+				android:text="Вы не должны этого видеть этот заголовок. И он очень, очень длинный."
+				android:textSize="@dimen/title_text_size"
+				android:padding="8dp"
+				android:layout_weight="1"/>
+
+		<TextView android:layout_width="wrap_content"
+		          android:layout_height="match_parent"
+		          android:id="@+id/rating"
+		          android:layout_gravity="left|top"
+		          android:linksClickable="true"
+		          android:text="+123"
+		          android:textSize="@dimen/title_text_size"
+		          android:textStyle="bold"
+		          android:gravity="center_vertical"
+		          android:singleLine="true"
+		          android:paddingLeft="8dp"
+		          android:paddingRight="8dp"/>
+
+	</LinearLayout>
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="cab404, в 20:49"
+			android:id="@+id/data"
+			android:paddingLeft="8dp"
+			android:paddingTop="2dp"
+			android:paddingBottom="2dp"
+			android:singleLine="false"/>
+
+	<TextView android:layout_width="match_parent"
+	          android:layout_height="wrap_content"
+	          android:id="@+id/text"
+	          android:layout_gravity="left|top"
+	          android:linksClickable="true"
+	          android:text="Вы не должны этого видеть этот текст."
+	          android:textSize="@dimen/primary_text_size"
+	          android:padding="8dp"
+			/>
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="вы, не, должны, видеть, эти, теги"
+			android:id="@+id/tags"
+			android:paddingLeft="8dp"
+			android:paddingTop="4dp"
+			android:paddingBottom="4dp"
+			android:background="#3000"
+			android:textSize="@dimen/small_text_size"
+			android:gravity="right"
+			android:paddingRight="8dp"/>
+
+	<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:background="@drawable/item_footer_background"
+			android:gravity="right"
+			android:paddingTop="2dp"
+			android:paddingBottom="2dp"
+			>
+
+		<TextView android:layout_width="wrap_content"
+		          android:layout_height="wrap_content"
+		          android:text="#13444"
+		          android:id="@+id/id"
+		          android:singleLine="false"
+		          android:layout_weight="1"
+		          android:paddingLeft="8dp"
+		          android:layout_gravity="center_vertical"/>
+
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
+		           android:id="@+id/plus"
+		           android:layout_gravity="center_vertical"
+		           android:src="@drawable/ic_bar_plus"
+		           android:padding="2dp"
+		           android:layout_marginRight="8dp"/>
+
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
+		           android:id="@+id/zero"
+		           android:layout_gravity="center_vertical"
+		           android:src="@drawable/ic_bar_zero"
+		           android:padding="2dp"
+		           android:layout_marginRight="8dp"/>
+
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
+		           android:id="@+id/minus"
+		           android:layout_gravity="center_vertical"
+		           android:src="@drawable/ic_bar_minus"
+		           android:padding="2dp"
+		           android:layout_marginRight="8dp"/>
+
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
+		           android:id="@+id/reply"
+		           android:layout_gravity="center_vertical"
+		           android:src="@drawable/ic_bar_pencil"
+		           android:padding="2dp"
+		           android:layout_marginRight="8dp"/>
+
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
+		           android:id="@+id/favourite"
+		           android:layout_gravity="center_vertical"
+		           android:src="@drawable/ic_bar_fav"
+		           android:padding="2dp"
+		           android:layout_marginRight="8dp"/>
+
+	</LinearLayout>
+
+</LinearLayout>

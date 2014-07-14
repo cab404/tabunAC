@@ -13,19 +13,19 @@ import java.util.Arrays;
 public class Help extends AbstractTextPart {
 
 
-    @Override protected CharSequence getText() {
+	@Override protected CharSequence getText() {
 
-        StringBuilder data = new StringBuilder();
-        for (CommandHolder h : Static.cm.registered()) {
-            data
-                    .append((h.prefix + " " + h.annnotation.command()).trim()).append(" ")
-                    .append(Arrays.toString(h.annnotation.params())).append("\n");
-        }
-        return data;
+		StringBuilder data = new StringBuilder();
+		for (CommandHolder h : Static.cm.registered()) {
+			data
+					.append((h.prefix + " " + h.annnotation.command()).trim()).append(" ")
+					.append(Arrays.toString(h.annnotation.params())).append("\n");
+		}
+		return data;
 
-    }
+	}
 
-    @Override public void onClick(View view) {
-        delete();
-    }
+	@Override public void onClick(View view) {
+		delete();
+	}
 }
