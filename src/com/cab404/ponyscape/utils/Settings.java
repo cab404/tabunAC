@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.*;
 import java.util.HashMap;
@@ -16,42 +17,62 @@ public class Settings {
 	private Map<String, Object> data = new HashMap<>();
 	private File file;
 
-	public Map<String, Object> getData() {
-		return data;
-	}
-
 	public Settings(Context context, String filename) {
 		file = new File(context.getFilesDir(), filename);
 	}
 
-	public void save() {
-		try {
-			ObjectOutput out = null;
-			try {
-				out = new ObjectOutputStream(new FileOutputStream(file));
-				out.writeObject(data);
-			} finally {
-				if (out != null)
-					out.close();
+	private final Object
+			readLock = new Object(),
+			writeLock = new Object();
+
+	public void put(String key, Object value) {
+		synchronized (writeLock) {
+			synchronized (readLock) {
+				data.put(key, value);
 			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T get(String key) {
+		synchronized (readLock) {
+			return (T) data.get(key);
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public <T> T remove(String key) {
+		synchronized (writeLock) {
+			synchronized (readLock) {
+				return (T) data.remove(key);
+			}
+		}
+	}
+
+
+	public void save() {
+		Log.v("Settings", "Saving...");
+		try {
+			ObjectOutput out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+			out.writeObject(data);
+			out.close();
+			Log.v("Settings", "Saved!");
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Save error!", e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public void load() {
+		Log.v("Settings", "Loading...");
 		try {
-			ObjectInput in = new ObjectInputStream(new FileInputStream(file));
-			try {
-				data = (Map<String, Object>) in.readObject();
-			} catch (ClassCastException e) {
-				data = new HashMap<>();
-			}
+			ObjectInput in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
+			data = (Map<String, Object>) in.readObject();
 			in.close();
-
-		} catch (IOException | ClassNotFoundException e) {
-			throw new RuntimeException(e);
+			Log.v("Settings", "Loaded! " + data);
+		} catch (ClassCastException | IOException | ClassNotFoundException e) {
+			Log.e("Settings", "Load error!", e);
+			save();
+			data = new HashMap<>();
 		}
 	}
 

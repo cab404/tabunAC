@@ -4,6 +4,7 @@ import android.widget.Toast;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
+import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.events.Commands;
 import com.cab404.ponyscape.events.Login;
 import com.cab404.ponyscape.events.Parts;
@@ -44,6 +45,18 @@ public class Core {
 	@Command(command = "login")
 	public void login() {
 		Bus.send(new Login.Requested());
+		Bus.send(new Commands.Finished());
+		Bus.send(new Commands.Clear());
+	}
+
+	@Command(command = "search", params = Str.class)
+	public void search(final String term) {
+		/*Постим, дабы выйти из первой процедуры запуска.*/
+		Static.handler.post(new Runnable() {
+			@Override public void run() {
+				Bus.send(new Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
+			}
+		});
 		Bus.send(new Commands.Finished());
 		Bus.send(new Commands.Clear());
 	}

@@ -23,9 +23,13 @@ public class CommentPart extends Part {
 		this.comment = comment;
 	}
 
-	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, final Context context) {
+	@Override public View create(LayoutInflater inflater, ViewGroup viewGroup, final Context context) {
 		View view = inflater.inflate(R.layout.part_comment, viewGroup, false);
+		convert(view, context);
+		return view;
+	}
 
+	public void convert(View view, Context context) {
 		((TextView) view.findViewById(R.id.text))
 				.setText(TextEscaper.simpleEscape(comment.text, context));
 		((TextView) view.findViewById(R.id.data))
@@ -33,10 +37,11 @@ public class CommentPart extends Part {
 		((TextView) view.findViewById(R.id.rating))
 				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
 
-		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 
-		return view;
+
+		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 	}
+
 	@Override protected void update(View view, ViewGroup parent, Context context) {
 		super.update(view, parent, context);
 		((TextView) view.findViewById(R.id.data))

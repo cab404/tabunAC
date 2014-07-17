@@ -4,8 +4,6 @@ import android.view.View;
 import com.cab404.jconsol.CommandHolder;
 import com.cab404.ponyscape.utils.Static;
 
-import java.util.Arrays;
-
 /**
  * @author cab404
  */
@@ -18,9 +16,13 @@ public class Help extends AbstractTextPart {
 		StringBuilder data = new StringBuilder();
 		for (CommandHolder h : Static.cm.registered()) {
 			data
-					.append((h.prefix + " " + h.annnotation.command()).trim()).append(" ")
-					.append(Arrays.toString(h.annnotation.params())).append("\n");
+					.append((h.prefix + " " + h.annnotation.command()).trim()).append(" ");
+			for (Class clazz : h.annnotation.params()) {
+				data.append(clazz.getSimpleName()).append(" ");
+			}
+			data.append("\n");
 		}
+		data.deleteCharAt(data.length() - 1);
 		return data;
 
 	}

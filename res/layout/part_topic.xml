@@ -6,9 +6,9 @@
 		android:orientation="vertical"
 		android:layout_height="wrap_content"
 
-		android:layout_marginTop="4dp"
-		android:layout_marginLeft="4dp"
-		android:layout_marginRight="4dp"
+		android:layout_marginTop="@dimen/margins"
+		android:layout_marginLeft="@dimen/margins"
+		android:layout_marginRight="@dimen/margins"
 
 		android:background="@drawable/item_background"
 		>
@@ -58,6 +58,7 @@
 	          android:id="@+id/text"
 	          android:layout_gravity="left|top"
 	          android:linksClickable="true"
+	          android:clickable="true"
 	          android:text="Вы не должны этого видеть этот текст."
 	          android:textSize="@dimen/primary_text_size"
 	          android:padding="8dp"
@@ -71,7 +72,7 @@
 			android:paddingLeft="8dp"
 			android:paddingTop="4dp"
 			android:paddingBottom="4dp"
-			android:background="#3000"
+			android:background="@color/tint"
 			android:textSize="@dimen/small_text_size"
 			android:gravity="right"
 			android:paddingRight="8dp"/>
@@ -100,40 +101,40 @@
 		           android:id="@+id/plus"
 		           android:layout_gravity="center_vertical"
 		           android:src="@drawable/ic_bar_plus"
-		           android:padding="2dp"
-		           android:layout_marginRight="8dp"/>
+		           android:layout_marginRight="8dp"
+		           android:padding="4dp"/>
 
 		<ImageView android:layout_width="32dp"
 		           android:layout_height="32dp"
 		           android:id="@+id/zero"
 		           android:layout_gravity="center_vertical"
 		           android:src="@drawable/ic_bar_zero"
-		           android:padding="2dp"
-		           android:layout_marginRight="8dp"/>
+		           android:layout_marginRight="8dp"
+		           android:padding="4dp"/>
 
 		<ImageView android:layout_width="32dp"
 		           android:layout_height="32dp"
 		           android:id="@+id/minus"
 		           android:layout_gravity="center_vertical"
 		           android:src="@drawable/ic_bar_minus"
-		           android:padding="2dp"
-		           android:layout_marginRight="8dp"/>
+		           android:layout_marginRight="8dp"
+		           android:padding="4dp"/>
 
 		<ImageView android:layout_width="32dp"
 		           android:layout_height="32dp"
 		           android:id="@+id/reply"
 		           android:layout_gravity="center_vertical"
 		           android:src="@drawable/ic_bar_pencil"
-		           android:padding="2dp"
-		           android:layout_marginRight="8dp"/>
+		           android:layout_marginRight="8dp"
+		           android:padding="4dp"/>
 
 		<ImageView android:layout_width="32dp"
 		           android:layout_height="32dp"
 		           android:id="@+id/favourite"
 		           android:layout_gravity="center_vertical"
 		           android:src="@drawable/ic_bar_fav"
-		           android:padding="2dp"
-		           android:layout_marginRight="8dp"/>
+		           android:layout_marginRight="8dp"
+		           android:padding="4dp"/>
 
 	</LinearLayout>
 

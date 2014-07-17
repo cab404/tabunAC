@@ -8,27 +8,29 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.cab404.acli.ACLIList;
-import com.cab404.acli.Part;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.commands.Core;
-import com.cab404.ponyscape.commands.Page;
-import com.cab404.ponyscape.commands.Post;
+import com.cab404.ponyscape.commands.*;
 import com.cab404.ponyscape.events.Commands;
 import com.cab404.ponyscape.events.Login;
 import com.cab404.ponyscape.events.Parts;
+import com.cab404.ponyscape.events.Shortcuts;
 import com.cab404.ponyscape.utils.Bus;
+import com.cab404.ponyscape.utils.Settings;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.views.Anim;
+import com.cab404.ponyscape.utils.views.FollowableScrollView;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 public class MainActivity extends AbstractActivity {
 	private TextView line;
@@ -52,6 +54,8 @@ public class MainActivity extends AbstractActivity {
 		Static.user = new TabunAccessProfile();
 		Static.app_context = getApplicationContext();
 		Static.handler = new Handler(getMainLooper());
+		Static.settings = new Settings(this, "settings.bin");
+		Static.settings.load();
 
         /* Привязываем локальные переменные */
 		line = (TextView) findViewById(R.id.input);
@@ -67,49 +71,57 @@ public class MainActivity extends AbstractActivity {
 		Static.cm.register(Core.class);
 		Static.cm.register(Post.class);
 		Static.cm.register(Page.class);
+		Static.cm.register(Vote.class);
+		Static.cm.register(Make.class);
 
-        /* Убираем меню помощи */
+		/* Обновляем меню ссылок*/
+		updateShortcutList();
+
+        /* Убираем меню ссылок */
 		hideMenu(0);
 
-		final Runnable adder = new Runnable() {
-			@Override public void run() {
-				if (!MainActivity.this.isDestroyed()) {
-					Static.handler.postDelayed(this, 20);
-					if (!addQueue.isEmpty())
-						list.add(addQueue.remove());
+		/* Тут проставлено скрытие/показ бара */
+		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
+		view.setHandler(new FollowableScrollView.ScrollHandler() {
+			boolean hidden;
+			@Override public void onScrolled(int y, int old_y) {
+				if (y > old_y) {
+					hidden = true;
+					hideBar();
 				}
+				if (y < old_y) {
+					hidden = false;
+					showBar();
+				}
+
 			}
-		};
-		adder.run();
+			@Override public void onOverScrolled(float y, boolean clamped) {}
+		});
 
 	}
 
 	@Bus.Handler
 	public void clear(Parts.Clear clear) {
-		addQueue.clear();
 		while (list.size() > 0)
 			list.remove(list.partAt(0));
 	}
 
 
-	private Queue<Part> addQueue = new LinkedList<>();
-
 	@Bus.Handler
 	public void add(Parts.Add add) {
-		addQueue.add(add.part);
+		list.add(add.part);
 	}
 
 	@Bus.Handler
 	public void remove(Parts.Remove remove) {
-		if (addQueue.contains(remove.part))
-			addQueue.remove(remove.part);
-		else
-			list.add(remove.part);
+		list.remove(remove.part);
 	}
 
 	/**
 	 * Запускает команду в окошке и блокирует его изменение
 	 */
+
+	private boolean command_running = false;
 	public void execute() {
 		CharSequence data = line.getText();
 		line.setError(null);
@@ -117,7 +129,8 @@ public class MainActivity extends AbstractActivity {
 		if (data.length() != 0)
 			try {
 				findViewById(R.id.execution).setVisibility(View.VISIBLE);
-				line.setEnabled(false);
+				command_running = true;
+				updateInput();
 				Static.cm.run(data.toString());
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
@@ -146,6 +159,7 @@ public class MainActivity extends AbstractActivity {
 	@Override protected void onDestroy() {
 		super.onDestroy();
 		Bus.unregister(this);
+		Static.settings.save();
 	}
 
     /*    / / / BUS
@@ -170,7 +184,8 @@ public class MainActivity extends AbstractActivity {
 
 	@Bus.Handler
 	public void unlock(Commands.Finished event) {
-		line.setEnabled(true);
+		command_running = false;
+		updateInput();
 		findViewById(R.id.execution).setVisibility(View.GONE);
 	}
 
@@ -182,12 +197,20 @@ public class MainActivity extends AbstractActivity {
 	/* Выставляет в командную строку выданную команду и запускает её. */
 	@Bus.Handler
 	public void runCommand(final Commands.Run event) {
-		Static.handler.post(new Runnable() {
-			@Override public void run() {
-				line.setText(event.command);
-				execute();
-			}
-		});
+		if (!command_running)
+			Static.handler.post(new Runnable() {
+				@Override public void run() {
+					line.setText(event.command);
+					execute();
+				}
+			});
+	}
+
+	@Bus.Handler
+	public void updateShortcuts(Shortcuts.Update event) {
+		updateShortcutList();
+		showMenu(0);
+		hideMenu(0);
 	}
 
 	/*    / / / UI
@@ -196,14 +219,17 @@ public class MainActivity extends AbstractActivity {
 	private boolean menu_active = false;
 
 	public void toggleMenu(View view) {
-		hideBar();
-//		if (menu_active)
-//			hideMenu(30);
-//		else
-//			showMenu(30);
+		if (menu_active)
+			hideMenu(30);
+		else
+			showMenu(30);
 	}
 
 	private void hideMenu(final int delay_per_item) {
+		if (!menu_active) return;
+
+		menu_active = false;
+		updateInput();
 
 		final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
 		findViewById(R.id.command_bg).animate().scaleX(1).scaleY(1)
@@ -232,7 +258,6 @@ public class MainActivity extends AbstractActivity {
 			@Override public void onAnimationEnd(Animator animator) {
 				findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
 				findViewById(R.id.fade_bg).setVisibility(View.GONE);
-				menu_active = false;
 			}
 			@Override public void onAnimationCancel(Animator animator) {}
 			@Override public void onAnimationRepeat(Animator animator) {}
@@ -250,13 +275,17 @@ public class MainActivity extends AbstractActivity {
 
 	private void showMenu(final int delay_per_item) {
 		if (menu_active) return;
+
 		menu_active = true;
+		updateInput();
 
 		final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
+		final View button = findViewById(R.id.command_bg);
 
 		findViewById(R.id.command_bg).animate()
-				.scaleX(items.getChildCount() * 3)
-				.scaleY(items.getChildCount() * 3)
+				/* Размер иконки уможен на 4, т.к лень вручную вбивать размер.*/
+				.scaleX(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
+				.scaleY(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
 				.setDuration(items.getChildCount() * delay_per_item);
 
 		for (int i = 0; i < items.getChildCount(); i++) {
@@ -290,25 +319,74 @@ public class MainActivity extends AbstractActivity {
 		findViewById(R.id.menu_scroll_pane).setVisibility(View.VISIBLE);
 	}
 
+
+	private boolean bar_enabled = true;
+
 	protected void hideBar() {
-		findViewById(R.id.input).animate().setDuration(100).alpha(0);
-		findViewById(R.id.command_bg).animate().setDuration(100).alpha(0);
-		findViewById(R.id.command_button).animate().setDuration(100).alpha(0);
-		Static.handler.post(new Runnable() {
-			@Override public void run() {
-				findViewById(R.id.input).setVisibility(View.GONE);
-				findViewById(R.id.command_bg).setVisibility(View.GONE);
-				findViewById(R.id.command_button).setVisibility(View.GONE);
-			}
-		});
+		if (!findViewById(R.id.input).isEnabled()) return;
+
+		bar_enabled = false;
+		updateInput();
+
+		Anim.fadeOut(findViewById(R.id.input));
+		Anim.fadeOut(findViewById(R.id.command_bg));
+		Anim.fadeOut(findViewById(R.id.command_button));
+
 	}
 
 	protected void showBar() {
-		findViewById(R.id.input).setVisibility(View.GONE);
-		findViewById(R.id.command_bg).setVisibility(View.GONE);
-		findViewById(R.id.command_button).setVisibility(View.GONE);
-		findViewById(R.id.input).animate().setDuration(100).alpha(1);
-		findViewById(R.id.command_bg).animate().setDuration(100).alpha(1);
-		findViewById(R.id.command_button).animate().setDuration(100).alpha(1).setListener(null);
+		if (findViewById(R.id.input).isEnabled()) return;
+
+		bar_enabled = true;
+		updateInput();
+
+		Anim.fadeIn(findViewById(R.id.input));
+		Anim.fadeIn(findViewById(R.id.command_bg));
+		Anim.fadeIn(findViewById(R.id.command_button));
+
+	}
+
+	protected void updateInput() {
+		line.setEnabled(!command_running && bar_enabled && !menu_active);
+	}
+
+	public static class LaunchShortcut implements Serializable {
+		private static final long serialVersionUID = 0L;
+
+		String name;
+		String command;
+
+		public LaunchShortcut(String name, String command) {
+			this.name = name;
+			this.command = command;
+		}
+	}
+
+	@Bus.Handler
+	protected void lockListScroll(Parts.Lock event) {
+		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
+	}
+
+	protected void updateShortcutList() {
+		ArrayList<LaunchShortcut> shortcuts = Static.settings.get("main.shortcuts");
+		if (shortcuts == null) shortcuts = new ArrayList<>();
+
+		LayoutInflater inflater = getLayoutInflater();
+		LinearLayout views = (LinearLayout) findViewById(R.id.commands_root);
+		views.removeViews(0, views.getChildCount());
+
+		for (final LaunchShortcut shortcut : shortcuts) {
+			View view = inflater.inflate(R.layout.shortcut, views, false);
+			((TextView) view.findViewById(R.id.label)).setText(shortcut.name);
+			view.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View view) {
+					Bus.send(new Commands.Run(shortcut.command));
+				}
+			});
+			views.addView(view);
+		}
+
+		Static.settings.put("main.shortcuts", shortcuts);
+		Static.settings.save();
 	}
 }

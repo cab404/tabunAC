@@ -35,6 +35,7 @@ public class ACLIList implements FragmentedList {
 		parts.add(index, part);
 
 		View view = part.create(LayoutInflater.from(root.getContext()), root, root.getContext());
+		if (view == null) throw new RuntimeException("Part returning null view!");
 
 		root.addView(view, index);
 

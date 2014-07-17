@@ -40,6 +40,8 @@ public class FollowableScrollView extends ScrollView {
 		void onOverScrolled(float y, boolean clamped);
 	}
 
+	boolean scroll_enabled = true;
+
 	@Override public boolean onTouchEvent(MotionEvent ev) {
 		boolean b = super.onTouchEvent(ev);
 
@@ -64,6 +66,14 @@ public class FollowableScrollView extends ScrollView {
 		return b;
 	}
 
+	public boolean isScrollEnabled() {
+		return scroll_enabled;
+	}
+
+	public void setScrollEnabled(boolean scroll_enabled) {
+		this.scroll_enabled = scroll_enabled;
+	}
+
 	private float delta = 0; // Хранит delta Y.
 
 	public float getDelta() {
@@ -77,7 +87,8 @@ public class FollowableScrollView extends ScrollView {
 	}
 
 	@Override protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-		super.onScrollChanged(l, t, oldl, oldt);
+		if (scroll_enabled)
+			super.onScrollChanged(l, t, oldl, oldt);
 		if (handler != null)
 			handler.onScrolled(t, oldt);
 	}

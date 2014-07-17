@@ -11,10 +11,12 @@ import com.cab404.libtabun.util.TabunAccessProfile;
  */
 public class Static {
 	public static CommandManager cm = null;
+	public static Settings settings = null;
 
 	public static TabunAccessProfile user = null;
 	public static TabunPage last_page = null;
 
 	public static Context app_context = null;
 	public static Handler handler = null;
+
 }

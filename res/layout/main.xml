@@ -16,41 +16,27 @@
 			android:layout_alignParentTop="true"
 			android:id="@+id/data_root"
 			android:layout_alignBottom="@+id/input"
-			>
+			android:focusable="true">
 		<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:id="@+id/data"
-				android:paddingBottom="50dp">
+				android:paddingBottom="@dimen/list_bottom_padding">
 		</LinearLayout>
 
 	</com.cab404.ponyscape.utils.views.FollowableScrollView>
-
-	<View
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:id="@+id/fade_bg"
-			android:visibility="gone"
-			android:onClick="closeMenu"
-			android:background="#a000"
-			/>
 
 	<EditText
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/input"
 
-			android:textColor="@color/command_font_color"
-
-			android:textColorHint="@color/command_font_color"
 			android:hint="@string/command_line_hint"
-			android:textCursorDrawable="@null"
 			android:singleLine="true"
 
 			android:layout_alignParentStart="true"
 			android:layout_alignParentBottom="true"
-			android:layout_alignParentRight="true"
 			android:layout_alignParentLeft="true"
 
 			android:paddingTop="12dp"
@@ -61,9 +47,18 @@
 
 			android:layout_alignTop="@+id/command_button"
 
-			android:background="@color/bar_bg"
-			/>
+			android:background="@color/main_bg"
+			android:layout_alignRight="@+id/command_bg"
+			android:layout_alignEnd="@+id/command_bg"/>
 
+	<View
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/fade_bg"
+			android:visibility="gone"
+			android:onClick="closeMenu"
+			android:background="#a000"
+			/>
 	<View
 			android:layout_width="@dimen/icons_size"
 			android:layout_height="@dimen/icons_size"
@@ -82,7 +77,7 @@
 			android:layout_width="@dimen/icons_size"
 			android:layout_height="@dimen/icons_size"
 
-			android:padding="2dp"
+			android:padding="5dp"
 
 			android:id="@+id/command_button"
 
@@ -105,20 +100,20 @@
 			android:layout_alignRight="@+id/command_bg"
 			android:layout_alignEnd="@+id/command_bg"
 
-			android:visibility="gone"
+			android:visibility="invisible"
 
 			android:id="@+id/menu_scroll_pane"
 
 			>
-		<include
+		<LinearLayout
 				android:id="@+id/commands_root"
 
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:orientation="vertical"
 
 				android:layout_marginBottom="2dp"
 
-				layout="@layout/help"
 				/>
 	</ScrollView>
 	<ProgressBar
@@ -127,11 +122,11 @@
 
 			android:id="@+id/execution"
 
-			android:layout_toLeftOf="@+id/command_bg"
-			android:layout_alignParentBottom="true"
-
 			android:visibility="invisible"
-			android:layout_alignTop="@+id/input"
-			android:padding="10dp"/>
+			android:padding="10dp"
+			android:indeterminateDrawable="@drawable/loading"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentRight="true"
+			android:background="@color/main_bg"/>
 
 </RelativeLayout>

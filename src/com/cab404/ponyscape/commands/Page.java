@@ -23,7 +23,7 @@ public class Page {
 	@Command(command = "load", params = Str.class)
 	public void load(String str) {
 		final StaticTextPart loading = new StaticTextPart();
-		final String address = str.contains("/") ? str : "/blog/" + str;
+		final String address = str.startsWith("/") ? str : "/blog/" + str;
 
 		Bus.send(new Parts.Clear());
 		Bus.send(new Parts.Add(loading));
@@ -31,7 +31,7 @@ public class Page {
 
 		new Thread(new Runnable() {
 			@Override public void run() {
-				new TabunPage() {
+				Static.last_page = new TabunPage() {
 
 					@Override public String getURL() {
 						return address;
@@ -54,7 +54,9 @@ public class Page {
 								break;
 						}
 					}
-				}.fetch(Static.user);
+				};
+				Static.last_page.fetch(Static.user);
+
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
 						loading.delete();

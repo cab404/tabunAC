@@ -56,4 +56,8 @@ public class TopicPart extends Part {
 		((TextView) view.findViewById(R.id.data))
 				.setText(topic.author.login + ", " + DateUtils.convertToString(topic.date, context));
 	}
+
+	@Override public void delete() {
+		super.delete();
+	}
 }

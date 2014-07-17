@@ -16,7 +16,18 @@ public class Parts {
 		public Remove(Part part) {this.part = part;}
 	}
 
-	/** Очищает список.*/
-	public static class Clear {
-	}
+	/**
+	 * Очищает список.
+	 */
+	public static class Clear { }
+
+	/**
+	 * Блокирует прокрутку списка
+	 */
+	public static class Lock { }
+
+	/**
+	 * Разлокирует прокрутку списка
+	 */
+	public static class Unlock { }
 }

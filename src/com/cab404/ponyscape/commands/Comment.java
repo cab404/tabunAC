@@ -1,5 +1,6 @@
 package com.cab404.ponyscape.commands;
 
+import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 
 /**
@@ -9,7 +10,8 @@ import com.cab404.jconsol.annotations.CommandClass;
 @CommandClass(prefix = "comment")
 public class Comment {
 
-	public void comment() {
+	@Command(command = "add")
+	public void comment(Integer response, String text) {
 
 	}
 

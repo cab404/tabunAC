@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content"
-              android:paddingTop="2dp" android:paddingBottom="2dp" android:baselineAligned="false"
+<LinearLayout android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingTop="2dp"
+              android:paddingBottom="2dp"
+              android:baselineAligned="false"
               android:gravity="center_vertical"
               xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="null"
-              android:textColor="@color/command_font_color" android:typeface="normal" android:id="@+id/label"/>
-    <ImageView android:layout_width="@dimen/icons_size" android:layout_height="@dimen/icons_size"
-               android:src="@drawable/ic_null" android:layout_marginLeft="8dp" android:padding="2dp"/>
+	<TextView android:layout_width="wrap_content"
+	          android:layout_height="wrap_content"
+	          android:text="null"
+	          android:textColor="@color/command_font_color"
+	          android:typeface="normal"
+	          android:id="@+id/label"/>
+	<ImageView android:layout_width="@dimen/icons_size"
+	           android:layout_height="@dimen/icons_size"
+	           android:src="@drawable/ic_bar_play"
+	           android:layout_marginLeft="8dp"
+	           android:padding="2dp"
+			/>
 </LinearLayout>

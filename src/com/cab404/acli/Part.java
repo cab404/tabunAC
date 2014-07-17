@@ -42,6 +42,9 @@ public abstract class Part {
 	 * Inserts a new view after this one
 	 */
 	protected void insertAfter(Part part) {
+		parent.add(part, parent.indexOf(this) + 1);
+	}
+	protected void insertBefore(Part part) {
 		parent.add(part, parent.indexOf(this));
 	}
 

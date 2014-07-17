@@ -18,4 +18,5 @@ public class Commands {
 	 * Очищает бар с командой.
 	 */
 	public static class Clear { }
+
 }
