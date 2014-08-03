@@ -18,6 +18,7 @@
 	<string name="version">
 		0.1.1i
 	</string>
+	<string name="comments">Комментарии</string>
 
 	<plurals name="minutes_ago">
 		<item quantity="zero">минут назад</item>

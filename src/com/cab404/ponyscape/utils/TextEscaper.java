@@ -8,16 +8,19 @@ import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.style.*;
 import android.util.Log;
-import android.widget.LinearLayout;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import com.cab404.moonlight.parser.HTMLTree;
 import com.cab404.moonlight.parser.Tag;
+import com.cab404.moonlight.util.SU;
+import com.cab404.ponyscape.R;
 
 /**
  * @author cab404
  */
 public class TextEscaper {
-
-	LinearLayout views;
 
 	private static int indexOf(SpannableStringBuilder toProcess, int start, char ch) {
 		if (start >= toProcess.length()) return -1;
@@ -45,8 +48,7 @@ public class TextEscaper {
 
 
 	public static CharSequence simpleEscape(String text, Context context) {
-//        long time = System.nanoTime();
-
+		SU.deEntity(text);
 		SpannableStringBuilder builder = new SpannableStringBuilder(text);
 		HTMLTree tree = new HTMLTree(text);
 
@@ -159,7 +161,34 @@ public class TextEscaper {
 												tree.get(tree.getClosingTag(tag)).start,
 												0
 										);
+										break;
 								}
+							switch (tag.get("class")) {
+								case "red":
+									builder.setSpan(
+											new ForegroundColorSpan(Color.parseColor("#962323")),
+											tag.end,
+											tree.get(tree.getClosingTag(tag)).start,
+											0
+									);
+									break;
+								case "green":
+									builder.setSpan(
+											new ForegroundColorSpan(Color.parseColor("#529041")),
+											tag.end,
+											tree.get(tree.getClosingTag(tag)).start,
+											0
+									);
+									break;
+								case "blue":
+									builder.setSpan(
+											new ForegroundColorSpan(Color.parseColor("#261474")),
+											tag.end,
+											tree.get(tree.getClosingTag(tag)).start,
+											0
+									);
+									break;
+							}
 							break;
 						case "img":
 							builder.setSpan(
@@ -180,14 +209,94 @@ public class TextEscaper {
 			}
 		}
 
+
 		removeAllTags(builder);
 
 //        Au.i(tree, "Finished in " + (System.nanoTime() - time) + " ns. Text size: " + text.length() + ", tags: " + tree.copyList().size());
 		return builder;
 	}
 
-	public static void escape(String text, Context context) {
+	public static TextView form(String text, Context context) {
+		TextView view = new TextView(context);
+		view.setText(simpleEscape(text, context));
+//		view.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+//		view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+		return view;
+	}
 
+	/**
+	 * Вставляет в группу новый набар контента. Удаляет предыдущий.
+	 */
+	public static void escape(String text, ViewGroup group) {
+		group.removeViews(0, group.getChildCount());
+		HTMLTree tree = new HTMLTree(text);
+
+		int start_index = 0;
+
+		for (int i = 0; i < tree.size(); i++) {
+
+			Tag tag = tree.get(i);
+
+			// Спойлеры
+			if ("span".equals(tag.name) && "spoiler".equals(tag.get("class"))) {
+				View spoiler = formSpoiler(tree.getContents(tag), group.getContext(), group);
+				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), group.getContext());
+
+				group.addView(pre_text);
+				group.addView(spoiler);
+
+				Tag closing = tree.get(tree.getClosingTag(tag));
+				i = closing.index - tree.offset();
+				start_index = closing.end;
+			}
+
+		}
+
+		if (start_index < tree.html.length()) {
+			group.addView(
+					form(
+							tree.html.subSequence(
+									start_index,
+									tree.html.length()
+							).toString(),
+							group.getContext()
+					)
+			);
+		}
+
+	}
+
+	public static View formSpoiler(String text, Context context, ViewGroup group) {
+		final HTMLTree tree = new HTMLTree(text);
+
+		final View view = LayoutInflater.from(context).inflate(R.layout.body_spoiler, group, false);
+		Tag header = tree.xPathFirstTag("span&class=spoiler-title");
+		final Tag body = tree.xPathFirstTag("span&class=spoiler-body");
+
+		if (body == null)
+			return null;
+
+
+		if (header != null)
+			escape(tree.getContents(header), (ViewGroup) view.findViewById(R.id.header));
+		else
+			escape("Спойлер", (ViewGroup) view.findViewById(R.id.header));
+
+		view.findViewById(R.id.header).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View viewww) {
+
+				if (view.findViewById(R.id.body).getVisibility() == View.GONE)
+					view.findViewById(R.id.body).setVisibility(View.VISIBLE);
+				else
+					view.findViewById(R.id.body).setVisibility(View.GONE);
+
+				if (((ViewGroup) view.findViewById(R.id.body)).getChildCount() == 0)
+					escape(tree.getContents(body), (ViewGroup) view.findViewById(R.id.body));
+			}
+		});
+
+
+		return view;
 	}
 
 }

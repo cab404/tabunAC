@@ -1,7 +1,6 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,9 @@ import android.widget.ListView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Comment;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.bus.events.DataRequest;
+import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Static;
 
 import java.util.ArrayList;
@@ -24,8 +26,10 @@ public class CommentListPart extends Part {
 	private List<Comment> comments;
 	private Map<Integer, Integer> levels;
 	private ListView listView;
+	private ViewGroup view;
 
 	boolean topic_visible = true;
+	int saved_height = 0;
 	private TopicPart topicPart;
 
 
@@ -47,32 +51,70 @@ public class CommentListPart extends Part {
 	}
 
 	public void update() {
-		((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+		if (listView != null)
+			((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
 	}
 
-	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, final Context context) {
-		View view = inflater.inflate(R.layout.part_comment_list, viewGroup, false);
+
+	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
+		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
-		DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
 
-		listView.getLayoutParams().height =
-				displayMetrics.heightPixels -
-						context.getResources()
-								.getDimensionPixelSize(R.dimen.list_bottom_padding);
+		DataRequest.ListSize height = new DataRequest.ListSize();
+		Static.bus.send(height);
+		final int heightPixels = height.height;
 
-		view.findViewById(R.id.favourite).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
+		view.findViewById(R.id.expand_comments)
+				.setOnClickListener(new View.OnClickListener() {
+					@Override public void onClick(View onClick) {
+						if (!topic_visible) return;
+						topic_visible = false;
 
-				Static.handler.post(new Runnable() {
-					@Override public void run() {
-						if (!(topic_visible = !topic_visible))
-							topicPart.delete();
-						else
-							insertBefore(topicPart);
+						topicPart.hide();
+
+						Anim.fadeOut(view.findViewById(R.id.expand_comments));
+
+						Anim.resize(
+								view,
+								heightPixels
+										- getContext().getResources().getDimensionPixelSize(R.dimen.list_bottom_padding)
+										- getContext().getResources().getDimensionPixelSize(R.dimen.margins) * 2,
+								-1,
+								200,
+								new Runnable() {
+									@Override public void run() {
+
+									}
+								}
+						);
+						saved_height = view.getHeight();
+						Static.bus.send(new Parts.Expand());
 					}
 				});
-			}
-		});
+		view.findViewById(R.id.collapse_comments)
+				.setOnClickListener(new View.OnClickListener() {
+					@Override public void onClick(View onClick) {
+						if (topic_visible) return;
+						topic_visible = true;
+
+						topicPart.show();
+
+						Anim.fadeIn(view.findViewById(R.id.expand_comments));
+
+						Anim.resize(
+								view,
+								saved_height,
+								-1,
+								200,
+								new Runnable() {
+									@Override public void run() {
+										topic_visible = true;
+									}
+								}
+						);
+						Static.bus.send(new Parts.Collapse());
+					}
+				});
 
 
 		listView.setAdapter(new BaseAdapter() {

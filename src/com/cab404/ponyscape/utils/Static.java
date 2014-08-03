@@ -5,13 +5,19 @@ import android.os.Handler;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.sjbus.Bus;
 
 /**
+ * Static
+ *
  * @author cab404
  */
 public class Static {
+
+
 	public static CommandManager cm = null;
 	public static Settings settings = null;
+	public static Bus bus = null;
 
 	public static TabunAccessProfile user = null;
 	public static TabunPage last_page = null;

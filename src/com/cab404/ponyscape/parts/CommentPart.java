@@ -30,13 +30,16 @@ public class CommentPart extends Part {
 	}
 
 	public void convert(View view, Context context) {
-		((TextView) view.findViewById(R.id.text))
-				.setText(TextEscaper.simpleEscape(comment.text, context));
+//		((TextView) view.findViewById(R.id.text))
+//				.setText(TextEscaper.simpleEscape(comment.text, context));
+		TextEscaper.escape(
+				comment.text,
+				(ViewGroup) view.findViewById(R.id.content)
+		);
 		((TextView) view.findViewById(R.id.data))
 				.setText(comment.author.login + ", " + DateUtils.convertToString(comment.date, context));
 		((TextView) view.findViewById(R.id.rating))
 				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
-
 
 
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);

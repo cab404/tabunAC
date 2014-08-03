@@ -53,17 +53,15 @@
 			android:paddingBottom="2dp"
 			android:singleLine="false"/>
 
-	<TextView android:layout_width="match_parent"
-	          android:layout_height="wrap_content"
-	          android:id="@+id/text"
-	          android:layout_gravity="left|top"
-	          android:linksClickable="true"
-	          android:clickable="true"
-	          android:text="Вы не должны этого видеть этот текст."
-	          android:textSize="@dimen/primary_text_size"
-	          android:padding="8dp"
-			/>
+	<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
 
+			android:id="@+id/content"
+			android:padding="8dp"
+			>
+	</LinearLayout>
 	<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

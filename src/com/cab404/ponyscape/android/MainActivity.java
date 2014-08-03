@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -14,20 +13,15 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.cab404.acli.ACLIList;
-import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.commands.*;
-import com.cab404.ponyscape.events.Commands;
-import com.cab404.ponyscape.events.Login;
-import com.cab404.ponyscape.events.Parts;
-import com.cab404.ponyscape.events.Shortcuts;
-import com.cab404.ponyscape.utils.Bus;
-import com.cab404.ponyscape.utils.Settings;
+import com.cab404.ponyscape.bus.AppContextExecutor;
+import com.cab404.ponyscape.bus.events.*;
+import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.views.Anim;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
+import com.cab404.sjbus.Bus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,17 +39,9 @@ public class MainActivity extends AbstractActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.main);
+		setContentView(R.layout.activity_main);
 
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));
-
-        /* Инициализируем статику. */
-		Static.cm = new CommandManager();
-		Static.user = new TabunAccessProfile();
-		Static.app_context = getApplicationContext();
-		Static.handler = new Handler(getMainLooper());
-		Static.settings = new Settings(this, "settings.bin");
-		Static.settings.load();
 
         /* Привязываем локальные переменные */
 		line = (TextView) findViewById(R.id.input);
@@ -67,12 +53,6 @@ public class MainActivity extends AbstractActivity {
 			}
 		});
 
-        /* Регестрируем обработчики команд */
-		Static.cm.register(Core.class);
-		Static.cm.register(Post.class);
-		Static.cm.register(Page.class);
-		Static.cm.register(Vote.class);
-		Static.cm.register(Make.class);
 
 		/* Обновляем меню ссылок*/
 		updateShortcutList();
@@ -83,16 +63,11 @@ public class MainActivity extends AbstractActivity {
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
 		view.setHandler(new FollowableScrollView.ScrollHandler() {
-			boolean hidden;
 			@Override public void onScrolled(int y, int old_y) {
-				if (y > old_y) {
-					hidden = true;
+				if (y > old_y)
 					hideBar();
-				}
-				if (y < old_y) {
-					hidden = false;
+				else
 					showBar();
-				}
 
 			}
 			@Override public void onOverScrolled(float y, boolean clamped) {}
@@ -101,18 +76,52 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Bus.Handler
+	public void size(DataRequest.ListSize e) {
+		View root = findViewById(R.id.data_root);
+		e.width = root.getWidth();
+		e.height = root.getHeight();
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void expand(Parts.Expand e) {
+		findViewById(R.id.root).setPadding(0, 0, 0, 0);
+
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void collapse(Parts.Collapse e) {
+		findViewById(R.id.root).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void clear(Parts.Clear clear) {
 		while (list.size() > 0)
 			list.remove(list.partAt(0));
 	}
 
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void focus(Parts.Focus event) {
+		int index = list.indexOf(event.part);
+		int scroll = 0;
 
-	@Bus.Handler
+		LinearLayout viewById = (LinearLayout) findViewById(R.id.data);
+		FollowableScrollView scrollView = (FollowableScrollView) findViewById(R.id.data_root);
+
+		for (int i = 0; i < index; i++) {
+			scroll += viewById.getChildAt(i).getHeight();
+		}
+
+		scrollView.scrollTo(0, scroll);
+
+	}
+
+
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void add(Parts.Add add) {
 		list.add(add.part);
 	}
 
-	@Bus.Handler
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void remove(Parts.Remove remove) {
 		list.remove(remove.part);
 	}
@@ -128,16 +137,17 @@ public class MainActivity extends AbstractActivity {
 
 		if (data.length() != 0)
 			try {
+
 				findViewById(R.id.execution).setVisibility(View.VISIBLE);
 				command_running = true;
 				updateInput();
 				Static.cm.run(data.toString());
+
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
 				line.setError("Команда не найдена");
 
-				Bus.send(new Commands.Finished());
-				Bus.send(new Commands.Clear());
+				Static.bus.send(new Commands.Finished());
 			}
 
 	}
@@ -146,24 +156,23 @@ public class MainActivity extends AbstractActivity {
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		/* Получили что-то от профилей. */
-		if (requestCode == TOKEN_REQUEST_CODE)
-			if (resultCode == RESULT_OK) {
-				Bus.send(new Login.Success());
-				Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
-			} else {
-				Bus.send(new Login.Failure());
-			}
+		switch (requestCode) {
+
+			case TOKEN_REQUEST_CODE:
+
+				if (resultCode == RESULT_OK) {
+					Static.bus.send(new Login.Success());
+					Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
+				} else {
+					Static.bus.send(new Login.Failure());
+				}
+				break;
+
+		}
 
 	}
-
-	@Override protected void onDestroy() {
-		super.onDestroy();
-		Bus.unregister(this);
-		Static.settings.save();
-	}
-
-    /*    / / / BUS
-     * / / /
+	/*    / / / BUS
+	 * / / /
      */
 
 	/* Вызывает Tabun.Auth */
@@ -182,31 +191,28 @@ public class MainActivity extends AbstractActivity {
 		}
 	}
 
-	@Bus.Handler
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void unlock(Commands.Finished event) {
 		command_running = false;
 		updateInput();
 		findViewById(R.id.execution).setVisibility(View.GONE);
 	}
 
-	@Bus.Handler
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void clear(Commands.Clear event) {
 		line.setText("");
 	}
 
 	/* Выставляет в командную строку выданную команду и запускает её. */
-	@Bus.Handler
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void runCommand(final Commands.Run event) {
-		if (!command_running)
-			Static.handler.post(new Runnable() {
-				@Override public void run() {
-					line.setText(event.command);
-					execute();
-				}
-			});
+		if (!command_running) {
+			line.setText(event.command);
+			execute();
+		}
 	}
 
-	@Bus.Handler
+	@Bus.Handler(executor = AppContextExecutor.class)
 	public void updateShortcuts(Shortcuts.Update event) {
 		updateShortcutList();
 		showMenu(0);
@@ -324,7 +330,7 @@ public class MainActivity extends AbstractActivity {
 
 	protected void hideBar() {
 		if (!findViewById(R.id.input).isEnabled()) return;
-
+		Log.v("Bar", "Hidden");
 		bar_enabled = false;
 		updateInput();
 
@@ -336,6 +342,7 @@ public class MainActivity extends AbstractActivity {
 
 	protected void showBar() {
 		if (findViewById(R.id.input).isEnabled()) return;
+		Log.v("Bar", "Shown");
 
 		bar_enabled = true;
 		updateInput();
@@ -380,7 +387,8 @@ public class MainActivity extends AbstractActivity {
 			((TextView) view.findViewById(R.id.label)).setText(shortcut.name);
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Bus.send(new Commands.Run(shortcut.command));
+					Static.bus.send(new Commands.Run(shortcut.command));
+					closeMenu(view);
 				}
 			});
 			views.addView(view);
