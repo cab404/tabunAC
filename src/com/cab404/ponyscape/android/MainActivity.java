@@ -20,6 +20,7 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.*;
 import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.Web;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
 
@@ -95,8 +96,8 @@ public class MainActivity extends AbstractActivity {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void clear(Parts.Clear clear) {
-		while (list.size() > 0)
-			list.remove(list.partAt(0));
+		for (int i = list.size() - 1; i > -1; i--)
+			list.removeSlowly(list.partAt(i));
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
@@ -123,8 +124,19 @@ public class MainActivity extends AbstractActivity {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void remove(Parts.Remove remove) {
-		list.remove(remove.part);
+		list.removeSlowly(remove.part);
 	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void hide(Parts.Hide remove) {
+		list.hide(remove.part);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void hide(Parts.Show remove) {
+		list.show(remove.part);
+	}
+
 
 	/**
 	 * Запускает команду в окошке и блокирует его изменение
@@ -143,11 +155,21 @@ public class MainActivity extends AbstractActivity {
 				updateInput();
 				Static.cm.run(data.toString());
 
+			} catch (Web.NetworkNotFound nf) {
+
+				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
+				line.setError("Нет подключения к Сети");
+
+				Static.bus.send(new Commands.Finished());
+
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
 				line.setError("Команда не найдена");
 
 				Static.bus.send(new Commands.Finished());
+
+			} catch (Throwable t) {
+				throw new RuntimeException("Fatality во время выполнения команды " + data, t);
 			}
 
 	}
@@ -171,6 +193,10 @@ public class MainActivity extends AbstractActivity {
 		}
 
 	}
+
+	@Override public void onBackPressed() {
+	}
+
 	/*    / / / BUS
 	 * / / /
      */
@@ -342,8 +368,8 @@ public class MainActivity extends AbstractActivity {
 
 	protected void showBar() {
 		if (findViewById(R.id.input).isEnabled()) return;
-		Log.v("Bar", "Shown");
 
+		Log.v("Bar", "Shown");
 		bar_enabled = true;
 		updateInput();
 

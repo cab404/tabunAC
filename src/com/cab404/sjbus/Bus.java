@@ -19,9 +19,6 @@ import java.util.concurrent.Executor;
  */
 public class Bus {
 
-	/**
-	 * @author cab404
-	 */
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
 	public static @interface Handler {

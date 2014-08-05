@@ -7,8 +7,12 @@
 	<color name="item_bg">#ffffffff</color>
 	<color name="command_font_color">#ff002b47</color>
 	<color name="font_color">#ff222222</color>
-	<color name="tint">#ff96c9d0</color>
+	<color name="footer">#ff96c9d0</color>
+
 	<color name="spoiler">#9996c9d0</color>
+
+	<color name="cut_border">#995c7a80</color>
+	<color name="cut_bg">#3f5c7a80</color>
 
 	<style name="Ponyscape"
 	       parent="@android:style/Theme.Holo.Light.NoActionBar">

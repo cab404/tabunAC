@@ -4,7 +4,7 @@
     <item android:top="-3dp" android:bottom="0dp">
         <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
             <corners android:radius="3dp"/>
-            <solid android:color="@color/tint"/>
+            <solid android:color="@color/footer"/>
             <padding android:top="15dp"/>
         </shape>
     </item>

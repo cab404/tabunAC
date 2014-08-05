@@ -45,9 +45,4 @@ public class CommentPart extends Part {
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 	}
 
-	@Override protected void update(View view, ViewGroup parent, Context context) {
-		super.update(view, parent, context);
-		((TextView) view.findViewById(R.id.data))
-				.setText(comment.author.login + ", " + DateUtils.convertToString(comment.date, context));
-	}
 }

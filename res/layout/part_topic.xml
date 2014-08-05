@@ -51,7 +51,11 @@
 			android:paddingLeft="8dp"
 			android:paddingTop="2dp"
 			android:paddingBottom="2dp"
-			android:singleLine="false"/>
+			android:singleLine="true"
+			android:paddingRight="8dp"
+			android:marqueeRepeatLimit="marquee_forever"
+			android:ellipsize="marquee"
+			/>
 
 	<LinearLayout
 			android:orientation="vertical"
@@ -70,7 +74,7 @@
 			android:paddingLeft="8dp"
 			android:paddingTop="4dp"
 			android:paddingBottom="4dp"
-			android:background="@color/tint"
+			android:background="@color/footer"
 			android:textSize="@dimen/small_text_size"
 			android:gravity="right"
 			android:paddingRight="8dp"/>

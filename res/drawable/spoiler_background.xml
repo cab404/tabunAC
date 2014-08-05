@@ -3,8 +3,8 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 	<corners android:radius="4dp"/>
 
-	<stroke android:width="2dp"
-	        android:color="@color/spoiler"/>
+	<!--<stroke android:width="2dp"-->
+	        <!--android:color="@color/spoiler"/>-->
 
 	<solid android:color="@color/spoiler"/>
 </shape>

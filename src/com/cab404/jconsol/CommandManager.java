@@ -172,6 +172,8 @@ public class CommandManager {
 
 	}
 
+
+
 	public List<CommandHolder> registered() {
 		ArrayList<CommandHolder> out = new ArrayList<>();
 		for (ArrayMap<String, CommandHolder> am : data.values()) {

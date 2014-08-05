@@ -24,16 +24,6 @@ public abstract class Part {
 	protected abstract View create(LayoutInflater inflater, ViewGroup viewGroup, Context context);
 
 	/**
-	 * Called every so often, {@link Part#updateDelay()}  }
-	 */
-	protected void update(View view, ViewGroup parent, Context context) {}
-
-	/**
-	 * Specifying update period
-	 */
-	protected long updateDelay() { return 10000;}
-
-	/**
 	 * Called upon removal of fragment.
 	 */
 	protected void onRemove(View view, ViewGroup parent, Context context) {}

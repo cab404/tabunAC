@@ -11,6 +11,7 @@ import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.Web;
 
 /**
  * @author cab404
@@ -63,6 +64,8 @@ public class CoreCommands {
 
 	@Command(command = "login", params = {Str.class, Str.class})
 	public void login(final String login, final String password) {
+		Web.checkNetworkConnection();
+
 		new Thread(new Runnable() {
 			@Override public void run() {
 				final boolean success = (Static.user.login(login, password));

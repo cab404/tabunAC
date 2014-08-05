@@ -9,6 +9,7 @@ import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.VoteRequest;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.Web;
 
 /**
  * @author cab404
@@ -18,6 +19,8 @@ public class VoteCommands {
 
 	@Command(command = "post", params = {Int.class, Int.class})
 	public void post(Integer id, Integer vote) {
+		Web.checkNetworkConnection();
+
 		final VoteRequest request = new VoteRequest(id, vote, Type.COMMENT);
 
 		new Thread(new Runnable() {
@@ -39,6 +42,8 @@ public class VoteCommands {
 
 	@Command(command = "comment", params = {Int.class, Int.class})
 	public void comment(Integer id, Integer vote) {
+		Web.checkNetworkConnection();
+
 		final VoteRequest request = new VoteRequest(id, vote, Type.COMMENT);
 		new Thread(new Runnable() {
 			@Override public void run() {
@@ -60,12 +65,15 @@ public class VoteCommands {
 
 	@Command(command = "user", params = Str.class)
 	public void user(String name) {
+		Web.checkNetworkConnection();
 
 	}
 
 
 	@Command(command = "blog", params = {Int.class, Int.class})
 	public void blog(Integer id, Integer vote) {
+		Web.checkNetworkConnection();
+
 		final VoteRequest request = new VoteRequest(id, vote, Type.COMMENT);
 		new Thread(new Runnable() {
 			@Override public void run() {

@@ -78,7 +78,7 @@ public class CommentListPart extends Part {
 								view,
 								heightPixels
 										- getContext().getResources().getDimensionPixelSize(R.dimen.list_bottom_padding)
-										- getContext().getResources().getDimensionPixelSize(R.dimen.margins) * 2,
+										- getContext().getResources().getDimensionPixelSize(R.dimen.margins),
 								-1,
 								200,
 								new Runnable() {

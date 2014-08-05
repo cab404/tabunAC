@@ -2,6 +2,7 @@ package com.cab404.ponyscape.parts;
 
 import android.view.View;
 import com.cab404.jconsol.CommandHolder;
+import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Static;
 
 /**
@@ -28,6 +29,6 @@ public class HelpPart extends AbstractTextPart {
 	}
 
 	@Override public void onClick(View view) {
-		delete();
+		Static.bus.send(new Parts.Remove(this));
 	}
 }

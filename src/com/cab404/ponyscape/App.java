@@ -32,6 +32,8 @@ public class App extends Application {
 		Static.cm.register(VoteCommands.class);
 		Static.cm.register(MakeCommands.class);
 
+
+
 	}
 
 	@Override public void onTerminate() {

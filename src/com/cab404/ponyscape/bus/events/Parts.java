@@ -45,4 +45,14 @@ public class Parts {
 	 * Разлокирует прокрутку списка
 	 */
 	public static class Unlock { }
+
+	public static class Hide {
+		public final Part part;
+		public Hide(Part part) {this.part = part;}
+	}
+
+	public static class Show {
+		public final Part part;
+		public Show(Part part) {this.part = part;}
+	}
 }

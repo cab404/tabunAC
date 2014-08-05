@@ -17,7 +17,7 @@ import java.util.List;
 public class MakeCommands {
 
 	@SuppressWarnings("unchecked")
-	@Command(command = "shortcut", params = {Str.class, Str.class})
+	@Command(command = "alias", params = {Str.class, Str.class})
 	public void shortcut(String name, String command) {
 		MainActivity.LaunchShortcut shortcut = new MainActivity.LaunchShortcut(name, command);
 		((List<MainActivity.LaunchShortcut>) Static.settings.get("main.shortcuts")).add(shortcut);

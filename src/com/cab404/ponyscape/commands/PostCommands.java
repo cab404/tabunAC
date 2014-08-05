@@ -11,6 +11,7 @@ import com.cab404.ponyscape.parts.CommentListPart;
 import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.Web;
 
 /**
  * @author cab404
@@ -20,6 +21,8 @@ public class PostCommands {
 
 	@Command(command = "load", params = Int.class)
 	public void post(final Integer id) {
+		Web.checkNetworkConnection();
+
 		final StaticTextPart loading = new StaticTextPart();
 		Static.bus.send(new Parts.Clear());
 		Static.bus.send(new Parts.Add(loading));

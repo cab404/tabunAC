@@ -1,94 +1,63 @@
 package com.cab404.ponyscape.utils;
 
 import android.animation.Animator;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-
-import java.util.HashMap;
 
 /**
  * @author cab404
  */
 public class Anim {
+	private final static Runnable EMPTY = new Runnable() {
+		@Override public void run() {}
+	};
+
 	public static void fadeOut(final View view) {
-		view.animate().alpha(0).setDuration(500).setListener(new Animator.AnimatorListener() {
+		fadeOut(view, 500);
+	}
+
+	public static void fadeOut(final View view, int duration) {
+		fadeOut(view, duration, EMPTY);
+	}
+
+	public static void fadeOut(final View view, int duration, final Runnable onFinish) {
+		view.animate().alpha(0).setDuration(duration).setListener(new Animator.AnimatorListener() {
 			@Override public void onAnimationStart(Animator animator) {}
 			@Override public void onAnimationCancel(Animator animator) {}
 			@Override public void onAnimationRepeat(Animator animator) {}
 			@Override public void onAnimationEnd(Animator animator) {
 				view.setVisibility(View.INVISIBLE);
+				onFinish.run();
 			}
 		});
 	}
 
 	public static void fadeIn(final View view) {
-		view.animate().alpha(1).setDuration(500).setListener(null);
+		fadeIn(view, 500);
 	}
 
-	/**
-	 * Replaces view with it's image
-	 */
-	public static void capsulize(ViewGroup layout) {
-		layout.buildDrawingCache();
-
-		ImageView imageView = new ImageView(layout.getContext());
-		imageView.setImageDrawable(
-				new BitmapDrawable(
-						layout.getContext().getResources(),
-						layout.getDrawingCache()
-				)
-		);
-		for (int i = 0; i < layout.getChildCount(); i++)
-			layout.getChildAt(i).setVisibility(View.GONE);
-
-		layout.addView(imageView);
-
-		imageView.getLayoutParams().width =
-				imageView.getLayoutParams().height =
-						ViewGroup.LayoutParams.MATCH_PARENT;
+	public static void fadeIn(final View view, int duration) {
+		fadeIn(view, duration, EMPTY);
 	}
 
-
-	/**
-	 * Replaces view with it's image
-	 */
-	public static void decapsulize(ViewGroup layout) {
-		layout.removeViewAt(layout.getChildCount() - 1);
-		for (int i = 0; i < layout.getChildCount(); i++)
-			layout.getChildAt(i).setVisibility(View.VISIBLE);
+	public static void fadeIn(final View view, int duration, final Runnable onFinish) {
+		view.setVisibility(View.VISIBLE);
+		view.animate().alpha(1).setDuration(duration).setListener(new Animator.AnimatorListener() {
+			@Override public void onAnimationStart(Animator animator) {}
+			@Override public void onAnimationEnd(Animator animator) {
+				onFinish.run();
+			}
+			@Override public void onAnimationCancel(Animator animator) {}
+			@Override public void onAnimationRepeat(Animator animator) {}
+		});
 	}
 
-
-	public static void resize(final ViewGroup view, final int newHeight, final int newWidth, final int animLen, final Runnable onFinish) {
+	public static void resize(final View view, final int newHeight, final int newWidth, final int animLen, final Runnable onFinish) {
 		final int startWidth = view.getLayoutParams().width;
 		final int startHeight = view.getLayoutParams().height;
 
-		final HashMap<View, Integer> state = new HashMap<>();
-
-		view.buildDrawingCache();
-		ImageView imageView = new ImageView(view.getContext());
-		imageView.setImageDrawable(
-				new BitmapDrawable(
-						view.getContext().getResources(),
-						view.getDrawingCache()
-				)
-		);
-		for (int i = 0; i < view.getChildCount(); i++) {
-			state.put(view.getChildAt(i), view.getVisibility());
-			view.getChildAt(i).setVisibility(View.GONE);
-		}
-		view.addView(imageView);
-
-
-		imageView.getLayoutParams().width =
-				imageView.getLayoutParams().height =
-						ViewGroup.LayoutParams.MATCH_PARENT;
-
 		Static.handler.post(new Runnable() {
 			int go = 0;
-			int delay = 15;  // ~30 FPS
+			int delay = 17;  // ~60 FPS
 			@Override public void run() {
 				go += delay;
 				if (go < animLen) {
@@ -110,11 +79,6 @@ public class Anim {
 
 					if (onFinish != null)
 						onFinish.run();
-
-					view.removeViewAt(view.getChildCount() - 1);
-					for (int i = 0; i < view.getChildCount(); i++)
-						//noinspection ResourceType
-						view.getChildAt(i).setVisibility(state.get(view.getChildAt(i)));
 
 				}
 				view.requestLayout();

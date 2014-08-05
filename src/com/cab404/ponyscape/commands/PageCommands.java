@@ -12,6 +12,7 @@ import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.Web;
 
 /**
  * @author cab404
@@ -21,6 +22,8 @@ public class PageCommands {
 
 	@Command(command = "load", params = Str.class)
 	public void load(String str) {
+		Web.checkNetworkConnection();
+
 		final StaticTextPart loading = new StaticTextPart();
 		final String address = str.startsWith("/") ? str : "/blog/" + str;
 
