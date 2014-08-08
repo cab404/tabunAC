@@ -8,6 +8,7 @@ import com.cab404.jconsol.util.ArrayMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,11 +31,11 @@ public class CommandManager {
 
 				// Ensures what we have registered storage cell.
 				ArrayMap<String, CommandHolder> clazz_data;
-				if (data.containsKey(annotation.prefix().toLowerCase())) {
-					clazz_data = data.get(annotation.prefix().toLowerCase());
+				if (data.containsKey(annotation.prefix())) {
+					clazz_data = data.get(annotation.prefix());
 				} else {
 					clazz_data = new ArrayMap<>();
-					data.put(annotation.prefix().toLowerCase(), clazz_data);
+					data.put(annotation.prefix(), clazz_data);
 				}
 
 				// Creating new instance for running commands.
@@ -47,7 +48,7 @@ public class CommandManager {
 
 						CommandHolder holder = new CommandHolder(m, obj, annotation.prefix(), command);
 
-						clazz_data.add(command.command().toLowerCase(), holder);
+						clazz_data.add(command.command(), holder);
 
 					}
 				}
@@ -58,23 +59,58 @@ public class CommandManager {
 		}
 	}
 
+	private static boolean isEscaped(int char_index, CharSequence seq) {
+		char escape = '\\';
+		if (char_index == 0)
+			return false;
+		else if (seq.charAt(char_index - 1) == escape)
+			return !isEscaped(char_index - 1, seq);
+		else
+			return false;
+	}
+
+	public static String escapeString(String str){
+		return str
+				.replace("\"", "\\\"")
+				.replace(";", "\\;")
+				.replace(" ", "\\ ");
+	}
+
+	/**
+	 * Splits lines of script via ';'.
+	 */
+	public static List<String> splitCommandLines(String toSplit) {
+		Collection<Integer> splitPoints = new ArrayList<>();
+		for (int i = 0; i < toSplit.length(); i++)
+			if (toSplit.charAt(i) == ';')
+				if (!isEscaped(i, toSplit))
+					splitPoints.add(i);
+
+		List<String> split = new ArrayList<>();
+		int last = 0;
+		for (int splitPoint : splitPoints) {
+			split.add(toSplit.substring(last, splitPoint));
+			last = splitPoint + 1;
+		}
+		split.add(toSplit.substring(last));
+
+		return split;
+	}
 
 	/**
 	 * Splits command to String array.
 	 */
 	private static List<String> splitCommand(String toSplit) {
 		int index = 0, li = 0;
-		toSplit = toSplit.trim()
-				.replace("\\\\", "\\")
-		/* Replacing quotes with some random-ish symbols*/
-				.replace("\\\"", "\ufffc\uab40\u4fff");
 
 		int count = 0;
 
 		for (int i = 0; i < toSplit.length(); i++)
-			if (toSplit.charAt(i) == '\"')
+			if (toSplit.charAt(i) == '\"' && !isEscaped(i, toSplit))
 				count++;
-		if (count % 2 != 0) throw new RuntimeException("Non-enclosed quotes found!");
+
+		if (count % 2 != 0)
+			throw new RuntimeException("Non-enclosed quotes found!");
 
 
         /* Specifies whether we currently parsing quote-enclosed statement */
@@ -85,13 +121,18 @@ public class CommandManager {
 			String toAdd = null;
 			switch (toSplit.charAt(index)) {
 				case ' ':
+					if (isEscaped(index, toSplit)) break;
 					if (!apos) {
 						toAdd = toSplit.substring(li, index).trim();
 						if (toAdd.isEmpty()) toAdd = null;
 						li = index + 1;
+					} else {
+						// Manually adding escape character.
+						toSplit = toSplit.substring(0, index) + "\\" + toSplit.substring(index);
 					}
 					break;
 				case '\"':
+					if (isEscaped(index, toSplit)) break;
 					if (apos) {
 						toAdd = toSplit.substring(li, index);
 						apos = false;
@@ -102,13 +143,31 @@ public class CommandManager {
 					break;
 			}
 
-			if (toAdd != null)
-				data.add(toAdd.replace("\ufffc\uab40\u4fff", "\""));
-
+			if (toAdd != null) {
+				data.add(toAdd);
+			}
 			index++;
 		}
-		if (index != li)
-			data.add(toSplit.substring(li, index));
+
+
+		if (index != li) {
+			String toAdd = toSplit.substring(li, index);
+			data.add(toAdd);
+		}
+
+		/* Removing escapes. */
+		for (int i = 0; i < data.size(); i++) {
+			String entry = data.get(i);
+
+			for (int j = 0; j < entry.length(); j++)
+				switch (entry.charAt(j)) {
+					case ' ':
+					case '\"':
+						entry = entry.substring(0, j - 1) + entry.substring(j);
+				}
+
+			data.set(i, entry);
+		}
 
 		return data;
 	}
@@ -125,6 +184,7 @@ public class CommandManager {
 	}
 
 	public void run(String str) {
+
 		List<String> parts = splitCommand(str);
 
 		if (parts.isEmpty()) return;
@@ -171,7 +231,6 @@ public class CommandManager {
 		throw new CommandNotFoundException();
 
 	}
-
 
 
 	public List<CommandHolder> registered() {

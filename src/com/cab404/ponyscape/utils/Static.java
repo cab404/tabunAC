@@ -5,6 +5,7 @@ import android.os.Handler;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -14,9 +15,8 @@ import com.cab404.sjbus.Bus;
  */
 public class Static {
 
-
 	public static CommandManager cm = null;
-	public static Settings settings = null;
+	public static Settings cfg = null;
 	public static Bus bus = null;
 
 	public static TabunAccessProfile user = null;
@@ -24,5 +24,7 @@ public class Static {
 
 	public static Context app_context = null;
 	public static Handler handler = null;
+
+	public static Images img = null;
 
 }

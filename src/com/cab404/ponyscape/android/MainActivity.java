@@ -3,8 +3,10 @@ package com.cab404.ponyscape.android;
 import android.animation.Animator;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,11 +23,13 @@ import com.cab404.ponyscape.bus.events.*;
 import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AbstractActivity {
 	private TextView line;
@@ -42,21 +46,42 @@ public class MainActivity extends AbstractActivity {
 
 		setContentView(R.layout.activity_main);
 
-		list = new ACLIList((ViewGroup) findViewById(R.id.data));
-
         /* Привязываем локальные переменные */
+		list = new ACLIList((ViewGroup) findViewById(R.id.data));
 		line = (TextView) findViewById(R.id.input);
 		line.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override public boolean onEditorAction(TextView textView, int ime, KeyEvent kE) {
 				if (kE == null || kE.getAction() == KeyEvent.ACTION_UP)
-					execute();
+					Static.bus.send(new Commands.Run(textView.getText().toString()));
 				return true;
 			}
 		});
 
+		Static.img.download("http://www.cab404.ru/all/img/Ponie", new Images.BitmapHandler() {
+			@Override public void handleBitmap(String src, Bitmap bitmap) {
+				Log.v("ImagesTest", "Got bitmap of size " + bitmap.getWidth() * bitmap.getHeight() + "px!");
+			}
+			@Override public boolean handleParams(String src, String mime, int w, int h) {
+				Log.v("ImagesTest", "Got bitmap of size " + w * h + "px!");
+				Log.v("ImagesTest", "Got mimetype: " + mime);
+				return true;
+			}
+			@Override public boolean handleLoadingProgress(String src, int bytes, int full) {
+				Log.v("ImagesTest", "Progress: " + bytes + "/" + full);
+				return true;
+			}
+			@Override public void onFailure(String src, Throwable err) {
+				Log.e("ImagesTest", "You have failed!", err);
+			}
+		});
 
 		/* Обновляем меню ссылок*/
 		updateShortcutList();
+
+		/* Пытаемся подгрузить юзверя из файла. */
+		Object o = Static.cfg.get("main.profile");
+		if (o != null)
+			Static.user = TabunAccessProfile.parseString((String) o);
 
         /* Убираем меню ссылок */
 		hideMenu(0);
@@ -74,74 +99,21 @@ public class MainActivity extends AbstractActivity {
 			@Override public void onOverScrolled(float y, boolean clamped) {}
 		});
 
-	}
-
-	@Bus.Handler
-	public void size(DataRequest.ListSize e) {
-		View root = findViewById(R.id.data_root);
-		e.width = root.getWidth();
-		e.height = root.getHeight();
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void expand(Parts.Expand e) {
-		findViewById(R.id.root).setPadding(0, 0, 0, 0);
+		Static.handler.post(
+				new Runnable() {
+					@Override public void run() {
+						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()) {
+							showBar();
+						}
+						Static.handler.post(this);
+					}
+				});
 
 	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void collapse(Parts.Collapse e) {
-		findViewById(R.id.root).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void clear(Parts.Clear clear) {
-		for (int i = list.size() - 1; i > -1; i--)
-			list.removeSlowly(list.partAt(i));
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void focus(Parts.Focus event) {
-		int index = list.indexOf(event.part);
-		int scroll = 0;
-
-		LinearLayout viewById = (LinearLayout) findViewById(R.id.data);
-		FollowableScrollView scrollView = (FollowableScrollView) findViewById(R.id.data_root);
-
-		for (int i = 0; i < index; i++) {
-			scroll += viewById.getChildAt(i).getHeight();
-		}
-
-		scrollView.scrollTo(0, scroll);
-
-	}
-
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void add(Parts.Add add) {
-		list.add(add.part);
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void remove(Parts.Remove remove) {
-		list.removeSlowly(remove.part);
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void hide(Parts.Hide remove) {
-		list.hide(remove.part);
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void hide(Parts.Show remove) {
-		list.show(remove.part);
-	}
-
 
 	/**
 	 * Запускает команду в окошке и блокирует его изменение
 	 */
-
 	private boolean command_running = false;
 	public void execute() {
 		CharSequence data = line.getText();
@@ -217,24 +189,53 @@ public class MainActivity extends AbstractActivity {
 		}
 	}
 
+	/**
+	 * Скрывает вводимые символы, отменяется на {@link MainActivity#finished(Commands.Finished) finished()}
+	 */
+	@Bus.Handler
+	public void hideInputCharacters(Commands.Hide e) {
+		line.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+	}
+
+	/**
+	 * Убирает анимацию загрузки и снимает блокировку ввода.
+	 */
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void unlock(Commands.Finished event) {
+	public void finished(Commands.Finished event) {
 		command_running = false;
+		line.setInputType(InputType.TYPE_CLASS_TEXT);
 		updateInput();
+
+		/* Выставляем имя пользователя в хинт (если пользователь вошел)*/
+		if (Static.last_page != null && Static.last_page.c_inf != null) {
+			line.setHint(Static.last_page.c_inf.username + "@tabun:#");
+		} else {
+			line.setHint("pony@tabun:$");
+		}
+
 		findViewById(R.id.execution).setVisibility(View.GONE);
 	}
 
+	/**
+	 * Очищает список частей
+	 */
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void clear(Commands.Clear event) {
 		line.setText("");
 	}
 
-	/* Выставляет в командную строку выданную команду и запускает её. */
+	/**
+	 * Выставляет в командную строку выданную команду и запускает её, либо добавляет в очередь.
+	 */
+
+	private List<String> command_queue = new ArrayList<>();
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void runCommand(final Commands.Run event) {
 		if (!command_running) {
 			line.setText(event.command);
 			execute();
+		} else {
+			command_queue.add(event.command);
 		}
 	}
 
@@ -243,6 +244,75 @@ public class MainActivity extends AbstractActivity {
 		updateShortcutList();
 		showMenu(0);
 		hideMenu(0);
+	}
+
+	@Bus.Handler
+	public void size(DataRequest.ListSize e) {
+		View root = findViewById(R.id.data_root);
+		e.width = root.getWidth();
+		e.height = root.getHeight();
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void expand(Parts.Expand e) {
+		findViewById(R.id.root).setPadding(0, 0, 0, 0);
+		findViewById(R.id.root).requestLayout();
+
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void collapse(Parts.Collapse e) {
+		findViewById(R.id.root).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
+		findViewById(R.id.root).requestLayout();
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void clear(Parts.Clear clear) {
+		for (int i = list.size() - 1; i > -1; i--)
+			list.removeSlowly(list.partAt(i));
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void focus(Parts.Focus event) {
+		int index = list.indexOf(event.part);
+		int scroll = 0;
+
+		LinearLayout viewById = (LinearLayout) findViewById(R.id.data);
+		FollowableScrollView scrollView = (FollowableScrollView) findViewById(R.id.data_root);
+
+		for (int i = 0; i < index; i++) {
+			scroll += viewById.getChildAt(i).getHeight();
+		}
+
+		scrollView.scrollTo(0, scroll);
+
+	}
+
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void add(Parts.Add add) {
+		list.add(add.part);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void remove(Parts.Remove remove) {
+		list.removeSlowly(remove.part);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void hide(Parts.Hide remove) {
+		list.hide(remove.part);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void show(Parts.Show remove) {
+		list.show(remove.part);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void error(Commands.Error err) {
+		showBar();
+		line.setError(err.error);
 	}
 
 	/*    / / / UI
@@ -302,7 +372,7 @@ public class MainActivity extends AbstractActivity {
 	 * Скрывает меню.
 	 */
 	public void closeMenu(View view) {
-		hideMenu(50);
+		hideMenu(30);
 	}
 
 	private void showMenu(final int delay_per_item) {
@@ -353,29 +423,40 @@ public class MainActivity extends AbstractActivity {
 
 
 	private boolean bar_enabled = true;
+	private boolean bar_processing = false;
 
 	protected void hideBar() {
-		if (!findViewById(R.id.input).isEnabled()) return;
+		if (!bar_enabled || bar_processing || menu_active) return;
 		Log.v("Bar", "Hidden");
 		bar_enabled = false;
+		bar_processing = true;
 		updateInput();
 
-		Anim.fadeOut(findViewById(R.id.input));
-		Anim.fadeOut(findViewById(R.id.command_bg));
-		Anim.fadeOut(findViewById(R.id.command_button));
+		Anim.fadeOut(findViewById(R.id.input), 200);
+		Anim.fadeOut(findViewById(R.id.command_bg), 200);
+		Anim.fadeOut(findViewById(R.id.command_button), 200, new Runnable() {
+			@Override public void run() {
+				bar_processing = false;
+			}
+		});
 
 	}
 
 	protected void showBar() {
-		if (findViewById(R.id.input).isEnabled()) return;
+		if (bar_enabled || bar_processing) return;
 
 		Log.v("Bar", "Shown");
 		bar_enabled = true;
+		bar_processing = true;
 		updateInput();
 
-		Anim.fadeIn(findViewById(R.id.input));
-		Anim.fadeIn(findViewById(R.id.command_bg));
-		Anim.fadeIn(findViewById(R.id.command_button));
+		Anim.fadeIn(findViewById(R.id.input), 200);
+		Anim.fadeIn(findViewById(R.id.command_bg), 200);
+		Anim.fadeIn(findViewById(R.id.command_button), 200, new Runnable() {
+			@Override public void run() {
+				bar_processing = false;
+			}
+		});
 
 	}
 
@@ -393,6 +474,7 @@ public class MainActivity extends AbstractActivity {
 			this.name = name;
 			this.command = command;
 		}
+
 	}
 
 	@Bus.Handler
@@ -401,7 +483,7 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	protected void updateShortcutList() {
-		ArrayList<LaunchShortcut> shortcuts = Static.settings.get("main.shortcuts");
+		ArrayList<LaunchShortcut> shortcuts = Static.cfg.get("main.shortcuts");
 		if (shortcuts == null) shortcuts = new ArrayList<>();
 
 		LayoutInflater inflater = getLayoutInflater();
@@ -420,7 +502,7 @@ public class MainActivity extends AbstractActivity {
 			views.addView(view);
 		}
 
-		Static.settings.put("main.shortcuts", shortcuts);
-		Static.settings.save();
+		Static.cfg.put("main.shortcuts", shortcuts);
+		Static.cfg.save();
 	}
 }

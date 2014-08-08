@@ -4,9 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.*;
 import android.util.Log;
@@ -22,12 +25,34 @@ import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
+ * Rips html into view list
+ *
  * @author cab404
  */
-public class TextEscaper {
+public class HtmlRipper {
 
-	private static int indexOf(SpannableStringBuilder toProcess, int start, char ch) {
+	private final ViewGroup layout;
+	List<Runnable> onDestroy;
+
+	public HtmlRipper(ViewGroup layout) {
+		onDestroy = new ArrayList<>();
+		this.layout = layout;
+	}
+
+	public void destroy() {
+		for (Runnable runnable : onDestroy)
+			runnable.run();
+	}
+
+	public void escape(String text) {
+		escape(text, layout);
+	}
+
+	private static int indexOf(CharSequence toProcess, int start, char ch) {
 		if (start >= toProcess.length()) return -1;
 
 		for (int i = start; i < toProcess.length(); i++)
@@ -54,10 +79,10 @@ public class TextEscaper {
 	/**
 	 * Немного переписанный SU.deEntity
 	 */
-	public static void deEntity(SpannableStringBuilder data) {
+	public static void deEntity(Editable data) {
 
 		int index = 0;
-		int end_index = 0;
+		int end_index;
 
 		while ((index = SU.indexOf('&', data, index)) != -1) {
 
@@ -90,8 +115,24 @@ public class TextEscaper {
 
 	}
 
+	/**
+	 * Deletes recurring chars.<br/>
+	 * <pre>("  a  b  c", ' ') = " a b c"</pre>
+	 */
+	public static void removeRecurringChars(Editable modify, char remove) {
+
+		for (int i = 0; i < modify.length() - 1; ) {
+			if (modify.charAt(i) == remove) {
+				while ((i + 1 < modify.length() - 1) && modify.charAt(i + 1) == remove) {
+					modify.delete(i, i + 1);
+				}
+			}
+			i++;
+		}
+
+	}
+
 	public static CharSequence simpleEscape(String text, Context context) {
-		text = text.replace("\n", "");
 		SpannableStringBuilder builder = new SpannableStringBuilder(text);
 		HTMLTree tree = new HTMLTree(text);
 
@@ -144,8 +185,18 @@ public class TextEscaper {
 							);
 							break;
 						case "a":
+							String link = tag.get("href");
+
+							if (link.isEmpty())
+								continue;
+
+							if (link.startsWith("/"))
+								link = "http://" + Static.user.getHost().getHostName() + link;
+
+							Log.v("TextEscaper", "LINK '" + link + "'");
+
 							builder.setSpan(
-									new URLSpan(tag.get("href")),
+									new URLSpan(link),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
 									0
@@ -218,19 +269,19 @@ public class TextEscaper {
 											0
 									);
 									break;
+								case "spoiler-gray":
+									builder.setSpan(
+											new LitespoilerSpan(),
+											off + tag.end,
+											off + tree.get(tree.getClosingTag(tag)).start,
+											0
+									);
+									break;
 							}
-							break;
-						case "img":
-							builder.setSpan(
-									new ImageSpan(context, Uri.parse(tag.get("src"))),
-									off + tag.end,
-									off + tree.get(tree.getClosingTag(tag)).start,
-									0
-							);
 							break;
 						case "h4":
 							builder.setSpan(
-									new RelativeSizeSpan(2),
+									new RelativeSizeSpan(1.5f),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
 									0
@@ -239,7 +290,7 @@ public class TextEscaper {
 							break;
 						case "h5":
 							builder.setSpan(
-									new RelativeSizeSpan(1.5f),
+									new RelativeSizeSpan(1.25f),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
 									0
@@ -260,7 +311,29 @@ public class TextEscaper {
 							);
 							break;
 						case "br":
-							builder.insert(off++ + tag.end, "\n");
+//							builder.insert(off++ + tag.end, "\n");       // Используем расставление из html, ибо pre.
+							break;
+						case "img":
+							Log.v("TextEscaper", "IMAGE");
+							if (tag.get("src").isEmpty()) continue;
+
+							builder.insert(off + tag.start, "||image||");
+							Bitmap bm = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+							bm.eraseColor(Color.BLACK);
+
+							builder.setSpan(
+									new ImageSpan(context, bm),
+									off + tag.start,
+									off + tag.start + "||image||".length(),
+									0
+							);
+							builder.setSpan(
+									new URLSpan(tag.get("src")),
+									off + tag.start,
+									off + tag.start + "||image||".length(),
+									0
+							);
+							off += "||image||".length();
 							break;
 					}
 			} catch (HTMLTree.TagNotFoundException e) {
@@ -269,13 +342,13 @@ public class TextEscaper {
 		}
 
 		removeAllTags(builder);
+		removeRecurringChars(builder, '\n');
 		deEntity(builder);
 
-//        Au.i(tree, "Finished in " + (System.nanoTime() - time) + " ns. Text size: " + text.length() + ", tags: " + tree.copyList().size());
 		return builder;
 	}
 
-	public static TextView form(String text, Context context) {
+	private TextView form(String text, Context context) {
 		TextView view = new TextView(context);
 		view.setText(simpleEscape(text, context));
 		view.setMovementMethod(LinkMovementMethod.getInstance());
@@ -286,7 +359,7 @@ public class TextEscaper {
 	 * Вставляет в группу новый набар контента. Удаляет предыдущий.
 	 */
 	@SuppressWarnings("deprecation")
-	public static void escape(String text, ViewGroup group) {
+	private void escape(String text, ViewGroup group) {
 		Context context = group.getContext();
 		group.removeViews(0, group.getChildCount());
 		HTMLTree tree = new HTMLTree(text);
@@ -321,7 +394,7 @@ public class TextEscaper {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
 				group.addView(pre_text);
 
-				WebView iframe = new WebView(context);
+				final WebView iframe = new WebView(context);
 				String src = tag.get("src");
 
 				//noinspection Annotator
@@ -333,8 +406,14 @@ public class TextEscaper {
 
 				group.addView(iframe);
 
+				onDestroy.add(new Runnable() {
+					@Override public void run() {
+						iframe.destroy();
+					}
+				});
+
 				iframe.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-				iframe.getLayoutParams().height = context.getResources().getDisplayMetrics().heightPixels / 3;
+				iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
 
 				iframe.requestLayout();
 
@@ -352,11 +431,33 @@ public class TextEscaper {
 				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.margins);
 				// Немного костыльно, но сойдёт.
 				TextView cut = form(tag + tree.getContents(tag).trim() + "</a>", context);
-				cut.setBackgroundResource(R.drawable.cut_background);
+				cut.setBackgroundResource(R.drawable.bg_cut);
 				cut.setPadding(px_padding, px_padding, px_padding, px_padding);
 				group.addView(cut);
 				cut.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
 				cut.requestLayout();
+
+				// Закрываем и двигаем индекс.
+				Tag closing = tree.get(tree.getClosingTag(tag));
+				i = closing.index - tree.offset();
+				start_index = closing.end;
+			}
+
+			// Код
+			if ("pre".equals(tag.name) && !tag.isStandalone()) {
+				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
+				group.addView(pre_text);
+
+				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.margins);
+
+				TextView code = form(tree.getContents(tag).trim(), context);
+				code.setBackgroundResource(R.drawable.bg_code);
+				code.setPadding(px_padding, px_padding, px_padding, px_padding);
+				code.setTypeface(Typeface.MONOSPACE);
+				code.setTextSize(code.getTextSize() * 0.5f);
+				code.setTextColor(context.getResources().getColor(R.color.code_color));
+
+				group.addView(code);
 
 				// Закрываем и двигаем индекс.
 				Tag closing = tree.get(tree.getClosingTag(tag));
@@ -380,7 +481,7 @@ public class TextEscaper {
 
 	}
 
-	public static View formSpoiler(String text, Context context, ViewGroup group) {
+	private View formSpoiler(String text, Context context, ViewGroup group) {
 		final HTMLTree tree = new HTMLTree(text);
 
 		final View view = LayoutInflater.from(context).inflate(R.layout.body_spoiler, group, false);
@@ -434,4 +535,41 @@ public class TextEscaper {
 
 		return view;
 	}
+
+	private static class HandlingImageSpan extends ImageSpan {
+		private final Uri uri;
+
+		public HandlingImageSpan(Context context, Uri uri) {
+			super(context, uri);
+			this.uri = uri;
+		}
+
+		@Override public Drawable getDrawable() {
+			return super.getDrawable();
+		}
+
+
+		public void handleLoadedBitmap() {
+
+		}
+
+	}
+
+	private static class LitespoilerSpan extends ClickableSpan {
+		boolean hidden = true;
+
+		@Override public void updateDrawState(TextPaint ds) {
+			ds.bgColor = hidden ? ds.getColor() : Color.TRANSPARENT;
+		}
+
+		@Override public void onClick(View view) {
+			hidden = !hidden;
+			TextView text = (TextView) view;
+
+			// Инвалидэйтим вот так вот.
+			text.setText(text.getText());
+		}
+	}
+
+
 }

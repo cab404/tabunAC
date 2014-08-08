@@ -10,7 +10,7 @@
 		android:layout_marginLeft="@dimen/margins"
 		android:layout_marginRight="@dimen/margins"
 
-		android:background="@drawable/item_background"
+		android:background="@drawable/bg_part"
 		>
 	<LinearLayout
 			android:orientation="horizontal"
@@ -54,7 +54,7 @@
 			android:singleLine="true"
 			android:paddingRight="8dp"
 			android:marqueeRepeatLimit="marquee_forever"
-			android:ellipsize="marquee"
+			android:ellipsize="end"
 			/>
 
 	<LinearLayout
@@ -74,7 +74,7 @@
 			android:paddingLeft="8dp"
 			android:paddingTop="4dp"
 			android:paddingBottom="4dp"
-			android:background="@color/footer"
+			android:background="@color/bg_footer"
 			android:textSize="@dimen/small_text_size"
 			android:gravity="right"
 			android:paddingRight="8dp"/>
@@ -83,7 +83,7 @@
 			android:orientation="horizontal"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@drawable/item_footer_background"
+			android:background="@drawable/bg_part_footer"
 			android:gravity="right"
 			android:paddingTop="2dp"
 			android:paddingBottom="2dp"

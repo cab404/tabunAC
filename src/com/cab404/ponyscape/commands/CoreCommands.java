@@ -51,12 +51,7 @@ public class CoreCommands {
 
 	@Command(command = "search", params = Str.class)
 	public void search(final String term) {
-		/*Постим, дабы выйти из первой процедуры запуска.*/
-		Static.handler.post(new Runnable() {
-			@Override public void run() {
-				Static.bus.send(new Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
-			}
-		});
+		Static.bus.send(new Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}
@@ -66,6 +61,8 @@ public class CoreCommands {
 	public void login(final String login, final String password) {
 		Web.checkNetworkConnection();
 
+		Static.bus.send(new Commands.Hide());
+
 		new Thread(new Runnable() {
 			@Override public void run() {
 				final boolean success = (Static.user.login(login, password));
@@ -73,10 +70,12 @@ public class CoreCommands {
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
 						if (success) {
-							Toast.makeText(Static.app_context, "Yup", Toast.LENGTH_SHORT).show();
+							Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
+							Static.cfg.put("main.profile", Static.user.serialize());
+							Static.cfg.save();
 							Static.bus.send(new Commands.Clear());
 						} else
-							Toast.makeText(Static.app_context, "Nope", Toast.LENGTH_SHORT).show();
+							Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
 						Static.bus.send(new Commands.Finished());
 					}
 				});

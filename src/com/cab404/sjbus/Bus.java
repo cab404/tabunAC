@@ -1,5 +1,7 @@
 package com.cab404.sjbus;
 
+import android.util.Log;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -51,6 +53,7 @@ public class Bus {
 	}
 
 	public void register(Object obj) {
+		Log.v("SiJBus", "Registered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
 		unregister(obj);
 		for (Method method : obj.getClass().getMethods())
 			if (method.getAnnotation(Handler.class) != null)
@@ -59,12 +62,19 @@ public class Bus {
 
 
 	public void send(final Object event) {
+		boolean something_was_invoked = false;
+
+		final String log_session = Integer.toHexString((int) (Math.random() * (Math.pow(16, 4) - Math.pow(16, 3)) + Math.pow(16, 3)));
+
+		Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 		for (final PendingMethod method : handlers)
 			if (method.canBeInvokedWith(event)) {
+				something_was_invoked = true;
 				final Executor executor = getExecutor(method.starter);
 				executor.execute(new Runnable() {
 					@Override public void run() {
 						try {
+							Log.v("SiJBus:Send:" + log_session, "Invoking handler " + method.method.toGenericString() + " in object " + Integer.toHexString(method.holder.hashCode()));
 							method.invoke(event);
 						} catch (Throwable t) {
 							throw new RuntimeException(
@@ -78,6 +88,8 @@ public class Bus {
 					}
 				});
 			}
+		if (!something_was_invoked)
+			Log.v("SiJBus:Send:" + log_session, "No handlers was invoked on  event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 	}
 
 	public void unregister(Object obj) {

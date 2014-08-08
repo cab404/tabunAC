@@ -69,6 +69,10 @@ public class Settings {
 			data = (Map<String, Object>) in.readObject();
 			in.close();
 			Log.v("Settings", "Loaded! " + data);
+		} catch (FileNotFoundException e) {
+			Log.v("Settings", "Settings file was not found, creating.");
+			save();
+			data = new HashMap<>();
 		} catch (ClassCastException | IOException | ClassNotFoundException e) {
 			Log.e("Settings", "Load error!", e);
 			save();

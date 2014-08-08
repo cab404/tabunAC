@@ -8,8 +8,10 @@ import com.cab404.jconsol.converters.Str;
 import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.VoteRequest;
 import com.cab404.ponyscape.bus.events.Commands;
+import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import org.json.simple.JSONObject;
 
 /**
  * @author cab404
@@ -18,21 +20,33 @@ import com.cab404.ponyscape.utils.Web;
 public class VoteCommands {
 
 	@Command(command = "post", params = {Int.class, Int.class})
-	public void post(Integer id, Integer vote) {
+	public void post(final Integer id, final Integer vote) {
 		Web.checkNetworkConnection();
-
-		final VoteRequest request = new VoteRequest(id, vote, Type.COMMENT);
 
 		new Thread(new Runnable() {
 			@Override public void run() {
 				try {
+
+					VoteRequest request = new VoteRequest(id, vote, Type.TOPIC) {
+						@Override protected void handle(JSONObject object) {
+							super.handle(object);
+							if ((boolean) object.get("bStateError"))
+								Static.bus.send(new Commands.Error((CharSequence) object.get("sMsg")));
+							else
+								Static.bus.send(new DataAcquired.PostVote(id,
+										/* FTGJ! */Integer.parseInt(String.valueOf(object.get("iRating")))));
+
+						}
+					};
 					request.exec(Static.user, Static.last_page);
+
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
 							Static.bus.send(new Commands.Clear());
 							Static.bus.send(new Commands.Finished());
 						}
 					});
+
 				} catch (Exception e) {
 					Log.e("VOTE_POST", "ERR", e);
 				}
@@ -41,14 +55,24 @@ public class VoteCommands {
 	}
 
 	@Command(command = "comment", params = {Int.class, Int.class})
-	public void comment(Integer id, Integer vote) {
+	public void comment(final Integer id, final Integer vote) {
 		Web.checkNetworkConnection();
 
-		final VoteRequest request = new VoteRequest(id, vote, Type.COMMENT);
 		new Thread(new Runnable() {
 			@Override public void run() {
 				try {
+					VoteRequest request = new VoteRequest(id, vote, Type.COMMENT) {
+						@Override protected void handle(JSONObject object) {
+							super.handle(object);
+							if ((boolean) object.get("bStateError"))
+								Static.bus.send(new Commands.Error((CharSequence) object.get("sMsg")));
+							else
+								Static.bus.send(new DataAcquired.CommentVote(id,
+										/* FTGJ! */Integer.parseInt(String.valueOf(object.get("iRating")))));
+						}
+					};
 					request.exec(Static.user, Static.last_page);
+
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
 							Static.bus.send(new Commands.Clear());
@@ -63,8 +87,8 @@ public class VoteCommands {
 	}
 
 
-	@Command(command = "user", params = Str.class)
-	public void user(String name) {
+	@Command(command = "user", params = {Str.class, Int.class})
+	public void user(String name, Integer vote) {
 		Web.checkNetworkConnection();
 
 	}

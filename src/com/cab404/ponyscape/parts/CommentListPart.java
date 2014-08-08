@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +24,9 @@ import java.util.Map;
  * @author cab404
  */
 public class CommentListPart extends Part {
-	private List<Comment> comments;
+	private CommentListAdapter adapter;
 	private Map<Integer, Integer> levels;
+	private List<Comment> comments;
 	private ListView listView;
 	private ViewGroup view;
 
@@ -81,11 +83,7 @@ public class CommentListPart extends Part {
 										- getContext().getResources().getDimensionPixelSize(R.dimen.margins),
 								-1,
 								200,
-								new Runnable() {
-									@Override public void run() {
-
-									}
-								}
+								null
 						);
 						saved_height = view.getHeight();
 						Static.bus.send(new Parts.Expand());
@@ -117,39 +115,77 @@ public class CommentListPart extends Part {
 				});
 
 
-		listView.setAdapter(new BaseAdapter() {
-			@Override public int getCount() {
-				return comments.size();
-			}
-			@Override public Object getItem(int i) {
-				return comments.get(i);
-			}
-			@Override public long getItemId(int i) {
-				return comments.get(i).hashCode();
-			}
-
-			@SuppressWarnings("AssignmentToMethodParameter")
-			@Override public View getView(int i, View view, ViewGroup viewGroup) {
-				CommentPart part = new CommentPart(comments.get(i));
-
-				if (view == null)
-					view = part.create(LayoutInflater.from(viewGroup.getContext()), viewGroup, viewGroup.getContext());
-				else
-					part.convert(view, viewGroup.getContext());
-
-				view.getLayoutParams().width = context.getResources().getDisplayMetrics().widthPixels;
-				view.setPadding(
-						levels.get(comments.get(i).id) * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder),
-						0, 0, 0
-				);
-				view.invalidate();
-				view.requestLayout();
-
-				return view;
-			}
-		});
+		listView.setAdapter(new CommentListAdapter(context));
 
 		return view;
 	}
 
+	@Override protected void delete() {
+		super.delete();
+		for (CommentPart part : adapter.active_comments.values()) {
+			part.kill();
+		}
+	}
+	private class CommentListAdapter extends BaseAdapter {
+
+		private final Context context;
+		private HashMap<View, CommentPart> active_comments;
+		private HashMap<Comment, CommentPart> comment_cache;
+
+		public CommentListAdapter(Context context) {
+			this.context = context;
+			active_comments = new HashMap<>();
+			comment_cache = new HashMap<>();
+		}
+
+		@Override public int getCount() {
+			return comments.size();
+		}
+		@Override public Object getItem(int i) {
+			return comments.get(i);
+		}
+		@Override public long getItemId(int i) {
+			return 0;
+		}
+
+		@SuppressWarnings("AssignmentToMethodParameter")
+		@Override public View getView(int i, View view, ViewGroup viewGroup) {
+			Comment comment = comments.get(i);
+			CommentPart part;
+
+			if (!comment_cache.containsKey(comment)) {
+				part = new CommentPart(comment);
+				comment_cache.put(comment, part);
+			} else {
+				part = comment_cache.get(comment);
+			}
+
+			if (view != null) {
+				CommentPart current = active_comments.get(view);
+				if (current != null)
+					if (current.comment.id != comment.id) {
+						Log.v("CommentList",
+								"Replaced comment " + current.comment.id + " with " + comment.id + ", "
+										+ active_comments.size() + " currently active.");
+					}
+				active_comments.put(view, part);
+			}
+
+
+			if (view == null)
+				view = part.create(LayoutInflater.from(viewGroup.getContext()), viewGroup, viewGroup.getContext());
+			else
+				part.convert(view, viewGroup.getContext());
+
+			view.getLayoutParams().width = context.getResources().getDisplayMetrics().widthPixels;
+			view.setPadding(
+					levels.get(comment.id) * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder),
+					0, 0, 0
+			);
+			view.invalidate();
+			view.requestLayout();
+
+			return view;
+		}
+	}
 }

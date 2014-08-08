@@ -9,7 +9,7 @@
 			android:orientation="vertical"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:background="@drawable/spoiler_background"
+			android:background="@drawable/bg_spoiler"
 			android:padding="@dimen/margins"
 			android:id="@+id/header">
 	</LinearLayout>
@@ -17,7 +17,7 @@
 			android:orientation="vertical"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:background="@drawable/spoiler_background"
+			android:background="@drawable/bg_spoiler"
 			android:padding="@dimen/margins"
 			android:id="@+id/body"
 			android:visibility="gone">

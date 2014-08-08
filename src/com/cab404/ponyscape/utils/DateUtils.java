@@ -58,7 +58,10 @@ public class DateUtils {
 				data.append("сегодня");
 
 			} else {
-				data.append(String.format("%1$te %2$s %1$tY", calendar, months[calendar.get(Calendar.MONTH)]));
+				if (current.get(Calendar.YEAR) != calendar.get(Calendar.YEAR))
+					data.append(String.format("%1$te %2$s %1$tY года", calendar, months[calendar.get(Calendar.MONTH)]));
+				else
+					data.append(String.format("%1$te %2$s", calendar, months[calendar.get(Calendar.MONTH)]));
 			}
 
 			data.append(", в ");

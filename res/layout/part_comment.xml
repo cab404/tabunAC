@@ -12,7 +12,7 @@
 			android:orientation="vertical"
 			android:id="@+id/root"
 
-			android:background="@color/item_bg"
+			android:background="@color/bg_item"
 			>
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="match_parent"
@@ -56,7 +56,7 @@
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
 		              android:layout_height="wrap_content"
-		              android:background="@color/footer"
+		              android:background="@color/bg_footer"
 		              android:gravity="right"
 		              android:paddingTop="2dp"
 		              android:paddingBottom="2dp"

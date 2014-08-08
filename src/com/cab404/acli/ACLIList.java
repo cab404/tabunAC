@@ -123,7 +123,6 @@ public class ACLIList implements FragmentedList {
 			});
 			view.getChildAt(0)
 					.setVisibility(View.GONE);
-//			view.requestLayout();
 		}
 	}
 

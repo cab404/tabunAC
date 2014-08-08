@@ -6,7 +6,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 
-		android:background="@color/main_bg"
+		android:background="@color/bg_main"
 		>
 	<com.cab404.ponyscape.utils.views.FollowableScrollView
 			android:layout_width="match_parent"
@@ -35,9 +35,12 @@
 			android:hint="@string/command_line_hint"
 			android:singleLine="true"
 
-			android:layout_alignParentStart="true"
+			android:textColor="@color/font_color_command_line"
+			android:textColorHint="@color/font_color_command_line"
+
 			android:layout_alignParentBottom="true"
 			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
 
 			android:paddingTop="12dp"
 			android:paddingBottom="12dp"
@@ -47,9 +50,8 @@
 
 			android:layout_alignTop="@+id/command_button"
 
-			android:background="@color/main_bg"
-			android:layout_alignRight="@+id/command_bg"
-			android:layout_alignEnd="@+id/command_bg"/>
+			android:background="@color/bg_main"
+			/>
 
 	<View
 			android:layout_width="match_parent"
@@ -63,7 +65,7 @@
 			android:layout_width="@dimen/icons_size"
 			android:layout_height="@dimen/icons_size"
 			android:id="@+id/command_bg"
-			android:background="@drawable/circled_bg"
+			android:background="@drawable/bg_circle"
 			android:layout_alignLeft="@+id/command_button"
 			android:layout_alignStart="@+id/command_button"
 			android:layout_alignRight="@+id/command_button"
@@ -124,7 +126,7 @@
 
 			android:visibility="invisible"
 			android:padding="10dp"
-			android:indeterminateDrawable="@drawable/loading"
+			android:indeterminateDrawable="@drawable/anim_luna"
 			android:layout_alignParentTop="true"
 			android:layout_alignParentRight="true"
 			/>

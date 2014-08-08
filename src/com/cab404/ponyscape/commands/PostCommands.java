@@ -31,7 +31,7 @@ public class PostCommands {
 		new Thread(new Runnable() {
 			@Override public void run() {
 
-				final TopicPage page = new TopicPage(id) {
+				Static.last_page = new TopicPage(id) {
 					CommentListPart list;
 					@Override public void handle(final Object object, final int key) {
 
@@ -58,7 +58,7 @@ public class PostCommands {
 						}
 					}
 				};
-				page.fetch(Static.user);
+				Static.last_page.fetch(Static.user);
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {

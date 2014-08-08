@@ -20,7 +20,7 @@ public class MakeCommands {
 	@Command(command = "alias", params = {Str.class, Str.class})
 	public void shortcut(String name, String command) {
 		MainActivity.LaunchShortcut shortcut = new MainActivity.LaunchShortcut(name, command);
-		((List<MainActivity.LaunchShortcut>) Static.settings.get("main.shortcuts")).add(shortcut);
+		((List<MainActivity.LaunchShortcut>) Static.cfg.get("main.shortcuts")).add(shortcut);
 		Static.bus.send(new Shortcuts.Update());
 		Static.bus.send(new Commands.Clear());
 		Static.bus.send(new Commands.Finished());

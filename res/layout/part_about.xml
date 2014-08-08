@@ -10,7 +10,7 @@
               android:layout_marginRight="@dimen/margins"
 
               android:padding="8dp"
-              android:background="@drawable/item_background"
+              android:background="@drawable/bg_part"
               android:gravity="center">
 
 	<LinearLayout

@@ -16,7 +16,7 @@
 		android:id="@+id/title"
 
 		android:layout_gravity="left|top"
-		android:background="@drawable/item_background"
+		android:background="@drawable/bg_part"
 		android:linksClickable="true"
 		android:text="Вы не должны этого видеть."
-		android:textColorLink="@color/footer"/>
+		android:textColorLink="@color/bg_footer"/>

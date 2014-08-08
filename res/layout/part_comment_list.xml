@@ -4,7 +4,7 @@
                 android:layout_width="match_parent"
                 android:orientation="vertical"
                 android:layout_height="200dp"
-                android:background="@color/main_bg"
+                android:background="@color/bg_main"
                 android:id="@+id/root">
 	<LinearLayout
 			android:orientation="vertical"
@@ -19,7 +19,7 @@
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
 		              android:layout_height="wrap_content"
-		              android:background="@drawable/item_footer_background"
+		              android:background="@drawable/bg_part_footer"
 		              android:gravity="right"
 		              android:paddingTop="2dp"
 		              android:paddingBottom="2dp"
@@ -45,12 +45,8 @@
 	<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_alignTop="@+id/comment_list"
-			android:layout_alignBottom="@+id/menu"
 			android:id="@+id/expand_comments"
-			android:layout_alignRight="@+id/comment_list"
-			android:layout_alignLeft="@+id/comment_list"
-			android:background="#aaffffff"
+			android:background="@color/bg_main"
 			android:layout_height="wrap_content">
 		<TextView
 				android:layout_width="match_parent"
@@ -58,7 +54,7 @@
 				android:text="@string/comments"
 				android:textSize="@dimen/title_text_size"
 				android:textStyle="bold"
-				android:textColor="@color/font_color"
+				android:textColor="@color/font_color_command_line"
 				android:gravity="center"/>
 		<ImageView android:layout_width="match_parent"
 		           android:layout_height="match_parent"

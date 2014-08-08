@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.cab404.acli.Part;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.utils.Static;
 
 /**
  * @author cab404
@@ -17,7 +19,7 @@ public class CreditsPart extends Part {
 		View view = inflater.inflate(R.layout.part_about, viewGroup, false);
 		view.setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				delete();
+				Static.bus.send(new Parts.Remove(CreditsPart.this));
 			}
 		});
 		return view;

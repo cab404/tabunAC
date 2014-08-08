@@ -1,4 +1,4 @@
-package com.cab404.ponyscape;
+package com.cab404.ponyscape.android;
 
 import android.app.Application;
 import android.os.Handler;
@@ -7,6 +7,7 @@ import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.commands.*;
 import com.cab404.ponyscape.utils.Settings;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -18,12 +19,13 @@ public class App extends Application {
 
         /* Инициализируем статику. */
 		Static.bus = new Bus();
+		Static.img = new Images(this);
 		Static.cm = new CommandManager();
 		Static.user = new TabunAccessProfile();
 		Static.app_context = getApplicationContext();
 		Static.handler = new Handler(getMainLooper());
-		Static.settings = new Settings(this, "settings.bin");
-		Static.settings.load();
+		Static.cfg = new Settings(this, "settings.bin");
+		Static.cfg.load();
 
         /* Регестрируем обработчики команд */
 		Static.cm.register(CoreCommands.class);
@@ -32,14 +34,6 @@ public class App extends Application {
 		Static.cm.register(VoteCommands.class);
 		Static.cm.register(MakeCommands.class);
 
-
-
-	}
-
-	@Override public void onTerminate() {
-		super.onTerminate();
-		Static.bus.unregister(this);
-		Static.settings.save();
 	}
 
 }

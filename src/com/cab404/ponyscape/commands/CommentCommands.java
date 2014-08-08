@@ -8,7 +8,7 @@ import com.cab404.jconsol.annotations.CommandClass;
  */
 
 @CommandClass(prefix = "comment")
-public class Comment {
+public class CommentCommands {
 
 	@Command(command = "add")
 	public void comment(Integer response, String text) {
