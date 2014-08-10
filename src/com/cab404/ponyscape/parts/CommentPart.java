@@ -1,5 +1,6 @@
 package com.cab404.ponyscape.parts;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
@@ -70,13 +72,20 @@ public class CommentPart extends Part {
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void handleVoteChange(DataAcquired.CommentVote vote) {
 		if (comment.id == vote.id) {
-			((TextView) view.findViewById(R.id.rating)).setText((vote.votes > 0 ? "+" : "") + vote.votes);
 			comment.votes = vote.votes;
+			final TextView rating = (TextView) view.findViewById(R.id.rating);
+
+			rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
+				@Override public void onAnimationEnd(Animator animation) {
+					rating.setText((comment.votes > 0 ? "+" : "") + comment.votes);
+					rating.animate().scaleX(1).setDuration(100).setListener(null);
+				}
+			});
 		}
 	}
 
-	@Override protected void delete() {
-		super.delete();
+	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
+		super.onRemove(view, parent, context);
 		kill();
 	}
 }

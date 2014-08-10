@@ -57,9 +57,9 @@ public class Images {
 		}
 	}
 
-	public Images(Context context) {
+	public Images(Context context, File cacheDir) {
 		this.context = context;
-		cacheDir = context.getCacheDir();
+		this.cacheDir = cacheDir;
 		loaders = new HashMap<>();
 		cache = new HashMap<>();
 		cut = Math.max(

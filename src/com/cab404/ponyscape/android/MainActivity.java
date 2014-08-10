@@ -3,7 +3,6 @@ package com.cab404.ponyscape.android;
 import android.animation.Animator;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
@@ -23,7 +22,6 @@ import com.cab404.ponyscape.bus.events.*;
 import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
-import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
 
@@ -57,24 +55,6 @@ public class MainActivity extends AbstractActivity {
 			}
 		});
 
-		Static.img.download("http://www.cab404.ru/all/img/Ponie", new Images.BitmapHandler() {
-			@Override public void handleBitmap(String src, Bitmap bitmap) {
-				Log.v("ImagesTest", "Got bitmap of size " + bitmap.getWidth() * bitmap.getHeight() + "px!");
-			}
-			@Override public boolean handleParams(String src, String mime, int w, int h) {
-				Log.v("ImagesTest", "Got bitmap of size " + w * h + "px!");
-				Log.v("ImagesTest", "Got mimetype: " + mime);
-				return true;
-			}
-			@Override public boolean handleLoadingProgress(String src, int bytes, int full) {
-				Log.v("ImagesTest", "Progress: " + bytes + "/" + full);
-				return true;
-			}
-			@Override public void onFailure(String src, Throwable err) {
-				Log.e("ImagesTest", "You have failed!", err);
-			}
-		});
-
 		/* Обновляем меню ссылок*/
 		updateShortcutList();
 
@@ -82,6 +62,9 @@ public class MainActivity extends AbstractActivity {
 		Object o = Static.cfg.get("main.profile");
 		if (o != null)
 			Static.user = TabunAccessProfile.parseString((String) o);
+
+		/* Обновляем хинт в поле команды */
+		finished(null);
 
         /* Убираем меню ссылок */
 		hideMenu(0);
@@ -96,7 +79,9 @@ public class MainActivity extends AbstractActivity {
 					showBar();
 
 			}
-			@Override public void onOverScrolled(float y, boolean clamped) {}
+			@Override public void onOverScrolled(float y, boolean clamped) {
+
+			}
 		});
 
 		Static.handler.post(
@@ -214,6 +199,10 @@ public class MainActivity extends AbstractActivity {
 		}
 
 		findViewById(R.id.execution).setVisibility(View.GONE);
+		if (!command_queue.isEmpty()) {
+			Log.v("MainActivity", "Command queue is not empty, executing command from queue. Queue size: " + command_queue.size());
+			Static.bus.send(new Commands.Run(command_queue.remove(0)));
+		}
 	}
 
 	/**

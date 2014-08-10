@@ -1,5 +1,6 @@
 package com.cab404.ponyscape.parts;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
@@ -35,11 +37,11 @@ public class TopicPart extends Part {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
-		((TextView) view.findViewById(R.id.title))
+		((TextView) view.findViewById(R.id.text))
 				.setText(SU.deEntity(topic.title));
-		view.findViewById(R.id.title)
+		view.findViewById(R.id.text)
 				.setOnClickListener(new View.OnClickListener() {
-					@Override public void onClick(View viewsssss) {
+					@Override public void onClick(View unused) {
 						Static.bus.send(new Commands.Run("post load " + topic.id));
 					}
 				});
@@ -86,10 +88,18 @@ public class TopicPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onVoteFinished(DataAcquired.PostVote vote) {
+	public void handleVoteChange(DataAcquired.PostVote vote) {
 		if (vote.id == topic.id) {
-			((TextView) view.findViewById(R.id.rating)).setText((vote.votes > 0 ? "+" : "") + vote.votes);
 			topic.votes = (vote.votes > 0 ? "+" : "") + vote.votes;
+			final TextView rating = ((TextView) view.findViewById(R.id.rating));
+
+			// Скрываем и показываем уже изменённый рейтинг.
+			rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
+				@Override public void onAnimationEnd(Animator animation) {
+					((TextView) view.findViewById(R.id.rating)).setText(topic.votes);
+					rating.animate().scaleX(1).setDuration(100).setListener(null);
+				}
+			});
 		}
 	}
 
@@ -116,7 +126,4 @@ public class TopicPart extends Part {
 //		});
 	}
 
-	@Override public void delete() {
-		super.delete();
-	}
 }

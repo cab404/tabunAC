@@ -3,21 +3,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:orientation="vertical"
-                android:layout_height="200dp"
-                android:background="@color/bg_main"
+                android:layout_height="wrap_content"
                 android:id="@+id/root">
+
 	<LinearLayout
 			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent">
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_alignBottom="@+id/expand_comments"
+			android:layout_alignTop="@+id/expand_comments"
+			android:id="@+id/comment_list_root"
+			android:visibility="invisible"
+			android:alpha="0"
+			>
+
 		<ListView
 				android:layout_width="wrap_content"
-				android:layout_height="0dp"
+				android:layout_height="match_parent"
 				android:id="@+id/comment_list"
 				android:divider="@null"
 				android:layout_weight="1"/>
+
 		<LinearLayout android:orientation="horizontal"
-		              android:layout_width="fill_parent"
+		              android:layout_width="match_parent"
 		              android:layout_height="wrap_content"
 		              android:background="@drawable/bg_part_footer"
 		              android:gravity="right"
@@ -26,6 +34,7 @@
 		              android:layout_below="@+id/comment_list"
 		              android:id="@+id/menu"
 		              android:layout_alignParentBottom="true">
+
 			<ImageView android:layout_width="32dp"
 			           android:layout_height="32dp"
 			           android:id="@+id/reply"
@@ -33,6 +42,7 @@
 			           android:src="@drawable/ic_bar_pencil"
 			           android:layout_marginRight="8dp"
 			           android:padding="4dp"/>
+
 			<ImageView android:layout_width="32dp"
 			           android:layout_height="32dp"
 			           android:id="@+id/collapse_comments"
@@ -40,21 +50,29 @@
 			           android:src="@drawable/ic_collapse"
 			           android:layout_marginRight="8dp"
 			           android:padding="4dp"/>
+
 		</LinearLayout>
 	</LinearLayout>
 	<LinearLayout
-			android:orientation="vertical"
 			android:layout_width="match_parent"
+			android:layout_height="150dp"
+
+			android:orientation="vertical"
 			android:id="@+id/expand_comments"
-			android:background="@color/bg_main"
-			android:layout_height="wrap_content">
+			android:visibility="visible"
+
+			android:layout_marginTop="@dimen/margins"
+			android:layout_marginLeft="@dimen/margins"
+			android:layout_marginRight="@dimen/margins"
+
+			android:background="@drawable/bg_part"
+			>
 		<TextView
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/icons_size"
 				android:text="@string/comments"
 				android:textSize="@dimen/title_text_size"
 				android:textStyle="bold"
-				android:textColor="@color/font_color_command_line"
 				android:gravity="center"/>
 		<ImageView android:layout_width="match_parent"
 		           android:layout_height="match_parent"

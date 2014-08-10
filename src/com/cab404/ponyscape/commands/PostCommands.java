@@ -8,6 +8,7 @@ import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.CommentListPart;
+import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
@@ -33,6 +34,9 @@ public class PostCommands {
 
 				Static.last_page = new TopicPage(id) {
 					CommentListPart list;
+					int all = 0;
+					int num = 0;
+
 					@Override public void handle(final Object object, final int key) {
 
 						super.handle(object, key);
@@ -54,6 +58,23 @@ public class PostCommands {
 										list.update();
 									}
 								});
+								num++;
+								Static.handler.post(new Runnable() {
+									@Override public void run() {
+										loading.setText("Загружено " + num + " из " + all + " комментариев.");
+									}
+								});
+								break;
+							case BLOCK_COMMENT_NUM:
+								all = (Integer) object;
+								break;
+							case BLOCK_ERROR:
+								Static.handler.post(new Runnable() {
+									@Override public void run() {
+										Static.bus.send(new Parts.Add(new ErrorPart()));
+									}
+								});
+								cancel();
 								break;
 						}
 					}

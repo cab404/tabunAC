@@ -20,10 +20,10 @@
 		<TextView
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:id="@+id/title"
+				android:id="@+id/text"
 				android:layout_gravity="left|top"
 				android:linksClickable="true"
-				android:text="Вы не должны этого видеть этот заголовок. И он очень, очень длинный."
+				android:text="Вы не должны этого видеть этот заголовок. И он очень, очень тленный."
 				android:textSize="@dimen/title_text_size"
 				android:padding="8dp"
 				android:layout_weight="1"/>
@@ -51,7 +51,7 @@
 			android:paddingLeft="8dp"
 			android:paddingTop="2dp"
 			android:paddingBottom="2dp"
-			android:singleLine="true"
+			android:singleLine="false"
 			android:paddingRight="8dp"
 			android:marqueeRepeatLimit="marquee_forever"
 			android:ellipsize="end"

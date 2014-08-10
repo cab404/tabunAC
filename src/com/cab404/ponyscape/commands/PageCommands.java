@@ -9,6 +9,7 @@ import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.framework.ModularBlockParser;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
@@ -53,6 +54,14 @@ public class PageCommands {
 										Static.bus.send(new Parts.Add(new TopicPart((Topic) object)));
 									}
 								});
+								break;
+							case BLOCK_ERROR:
+								Static.handler.post(new Runnable() {
+									@Override public void run() {
+										Static.bus.send(new Parts.Add(new ErrorPart()));
+									}
+								});
+								cancel();
 								break;
 						}
 					}

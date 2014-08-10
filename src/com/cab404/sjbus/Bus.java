@@ -54,7 +54,6 @@ public class Bus {
 
 	public void register(Object obj) {
 		Log.v("SiJBus", "Registered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
-		unregister(obj);
 		for (Method method : obj.getClass().getMethods())
 			if (method.getAnnotation(Handler.class) != null)
 				handlers.add(new PendingMethod(method, obj));
@@ -74,12 +73,12 @@ public class Bus {
 				executor.execute(new Runnable() {
 					@Override public void run() {
 						try {
-							Log.v("SiJBus:Send:" + log_session, "Invoking handler " + method.method.toGenericString() + " in object " + Integer.toHexString(method.holder.hashCode()));
+							Log.v("SiJBus:Send:" + log_session, "Invoking handler " + method.label);
 							method.invoke(event);
 						} catch (Throwable t) {
 							throw new RuntimeException(
 									"Exception while executing bus handler `"
-											+ method.method.toGenericString()
+											+ method.label
 											+ "` via `"
 											+ executor.getClass().getSimpleName()
 											+ "`",
@@ -93,11 +92,15 @@ public class Bus {
 	}
 
 	public void unregister(Object obj) {
-		for (int i = 0; i < handlers.size(); i++)
-			if (handlers.get(i).holder.equals(obj))
+		Log.v("SiJBus", "Unregistered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
+
+		for (int i = 0; i < handlers.size(); i++) {
+			// Removing object if it is matching given
+			if (handlers.get(i).holdersEquals(obj))
 				handlers.remove(i);
 			else
 				i++;
+		}
 	}
 
 }

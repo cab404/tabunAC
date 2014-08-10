@@ -17,7 +17,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="Заголовок, который ты не должен видеть."
-			android:id="@+id/title"/>
+			android:id="@+id/text"/>
 	<HorizontalScrollView
 			android:layout_width="wrap_content"
 			android:layout_height="32dp">

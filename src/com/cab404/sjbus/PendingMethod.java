@@ -8,16 +8,31 @@ import java.util.concurrent.Executor;
  * @author cab404
  */
 public class PendingMethod {
-	public final Method method;
-	public final Object holder;
+	/**
+	 * Method to execute.
+	 */
+	private final Method method;
+	/**
+	 * Object, with which method will be executed.
+	 */
+	private final Object holder;
 	public final Class<? extends Executor> starter;
+	public final String label;
 
+	/**
+	 * @param holder Object, with which method will be executed.
+	 * @param method Method to execute.
+	 */
 	public PendingMethod(Method method, Object holder) {
 		this.method = method;
 		this.holder = holder;
+		label = holder.getClass().getSimpleName() + "." + method.getName() + Integer.toHexString(holder.hashCode());
 		starter = method.getAnnotation(Bus.Handler.class).executor();
 	}
 
+	/**
+	 * Checks if method can be safely executed with given object list.
+	 */
 	public boolean canBeInvokedWith(Object... parameters) {
 
 		if (!(parameters.length == method.getParameterTypes().length || method.isVarArgs()))
@@ -35,12 +50,22 @@ public class PendingMethod {
 		return true;
 	}
 
+	/**
+	 * Invokes method with given parameter list.
+	 */
 	public void invoke(Object... parameters) {
 		try {
 			method.invoke(holder, parameters);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Checks if given object exactly matches holder (via ==).
+	 */
+	public boolean holdersEquals(Object object) {
+		return this.holder == object;
 	}
 
 }

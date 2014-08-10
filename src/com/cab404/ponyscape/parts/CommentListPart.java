@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Когда с постами ещё можно обойтись ListView, тут памяти просто не хватит. Так что адаптеры.
+ *
  * @author cab404
  */
 public class CommentListPart extends Part {
@@ -62,70 +64,96 @@ public class CommentListPart extends Part {
 		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
 
-		DataRequest.ListSize height = new DataRequest.ListSize();
-		Static.bus.send(height);
-		final int heightPixels = height.height;
 
-		view.findViewById(R.id.expand_comments)
-				.setOnClickListener(new View.OnClickListener() {
-					@Override public void onClick(View onClick) {
-						if (!topic_visible) return;
-						topic_visible = false;
+		final View expand_view = view.findViewById(R.id.expand_comments);
+		final View list_view = view.findViewById(R.id.comment_list_root);
 
-						topicPart.hide();
+		expand_view.setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View onClick) {
+				if (!topic_visible) return;
+				topic_visible = false;
 
-						Anim.fadeOut(view.findViewById(R.id.expand_comments));
+				DataRequest.ListSize height = new DataRequest.ListSize();
+				Static.bus.send(height);
+				final int heightPixels = height.height;
 
-						Anim.resize(
-								view,
-								heightPixels
-										- getContext().getResources().getDimensionPixelSize(R.dimen.list_bottom_padding)
-										- getContext().getResources().getDimensionPixelSize(R.dimen.margins),
-								-1,
-								200,
-								null
-						);
-						saved_height = view.getHeight();
-						Static.bus.send(new Parts.Expand());
-					}
-				});
+				topicPart.hide();
+				saved_height = expand_view.getHeight();
+				Static.bus.send(new Parts.Expand());
+
+				Anim.fadeOut(expand_view, 200);
+				Anim.resize(
+						expand_view,
+						heightPixels
+								- getContext().getResources().getDimensionPixelSize(R.dimen.list_bottom_padding)
+								- getContext().getResources().getDimensionPixelSize(R.dimen.margins),
+						-1,
+						200,
+						new Runnable() {
+							@Override public void run() {
+								list_view.setVisibility(View.VISIBLE);
+								expand_view.setVisibility(View.GONE);
+
+								list_view.getLayoutParams().height = expand_view.getLayoutParams().height;
+								view.requestLayout();
+
+								Anim.fadeIn(list_view, 200, new Runnable() {
+									@Override public void run() {
+										Log.v("CommentListPart", "Expand finished.");
+									}
+								});
+							}
+						}
+				);
+
+			}
+		});
+
 		view.findViewById(R.id.collapse_comments)
 				.setOnClickListener(new View.OnClickListener() {
 					@Override public void onClick(View onClick) {
 						if (topic_visible) return;
 						topic_visible = true;
 
-						topicPart.show();
-
-						Anim.fadeIn(view.findViewById(R.id.expand_comments));
-
-						Anim.resize(
-								view,
-								saved_height,
-								-1,
-								200,
-								new Runnable() {
-									@Override public void run() {
-										topic_visible = true;
-									}
-								}
-						);
 						Static.bus.send(new Parts.Collapse());
+
+						Anim.fadeIn(expand_view, 200);
+						Anim.fadeOut(list_view, 200, new Runnable() {
+							@Override public void run() {
+								list_view.setVisibility(View.GONE);
+								expand_view.setVisibility(View.VISIBLE);
+								Anim.resize(
+										expand_view,
+										saved_height,
+										-1,
+										200,
+										new Runnable() {
+											@Override public void run() {
+												topic_visible = true;
+												topicPart.show();
+											}
+										}
+								);
+
+							}
+						});
+
 					}
 				});
 
-
-		listView.setAdapter(new CommentListAdapter(context));
+		adapter = new CommentListAdapter(context);
+		listView.setAdapter(adapter);
 
 		return view;
 	}
 
-	@Override protected void delete() {
-		super.delete();
-		for (CommentPart part : adapter.active_comments.values()) {
+	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
+		super.onRemove(view, parent, context);
+		for (CommentPart part : adapter.comment_cache.values()) {
 			part.kill();
 		}
 	}
+
 	private class CommentListAdapter extends BaseAdapter {
 
 		private final Context context;

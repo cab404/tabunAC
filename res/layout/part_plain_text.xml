@@ -13,7 +13,7 @@
 		android:layout_marginRight="@dimen/margins"
 
 
-		android:id="@+id/title"
+		android:id="@+id/text"
 
 		android:layout_gravity="left|top"
 		android:background="@drawable/bg_part"

@@ -20,10 +20,7 @@ public class Anim {
 	}
 
 	public static void fadeOut(final View view, int duration, final Runnable onFinish) {
-		view.animate().alpha(0).setDuration(duration).setListener(new Animator.AnimatorListener() {
-			@Override public void onAnimationStart(Animator animator) {}
-			@Override public void onAnimationCancel(Animator animator) {}
-			@Override public void onAnimationRepeat(Animator animator) {}
+		view.animate().alpha(0).setDuration(duration).setListener(new AnimatorListenerImpl() {
 			@Override public void onAnimationEnd(Animator animator) {
 				view.setVisibility(View.INVISIBLE);
 				onFinish.run();
@@ -41,13 +38,10 @@ public class Anim {
 
 	public static void fadeIn(final View view, int duration, final Runnable onFinish) {
 		view.setVisibility(View.VISIBLE);
-		view.animate().alpha(1).setDuration(duration).setListener(new Animator.AnimatorListener() {
-			@Override public void onAnimationStart(Animator animator) {}
+		view.animate().alpha(1).setDuration(duration).setListener(new AnimatorListenerImpl() {
 			@Override public void onAnimationEnd(Animator animator) {
 				onFinish.run();
 			}
-			@Override public void onAnimationCancel(Animator animator) {}
-			@Override public void onAnimationRepeat(Animator animator) {}
 		});
 	}
 
@@ -84,5 +78,12 @@ public class Anim {
 				view.requestLayout();
 			}
 		});
+	}
+
+	public static class AnimatorListenerImpl implements Animator.AnimatorListener {
+		@Override public void onAnimationStart(Animator animation) {}
+		@Override public void onAnimationEnd(Animator animation) {}
+		@Override public void onAnimationCancel(Animator animation) {}
+		@Override public void onAnimationRepeat(Animator animation) {}
 	}
 }

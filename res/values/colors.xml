@@ -5,30 +5,34 @@
 	<color name="bg_main">#ff181818</color>
 	<color name="bg_item">#ff838383</color>
 	<color name="bg_footer">#ff485e64</color>
-	<color name="bg_shortcuts">#ff006291</color>
+	<color name="bg_shortcuts">#ff515151</color>
 
 	<color name="font_color">#ff161616</color>
-	<color name="font_color_link">#ffbfcfca</color>
+	<color name="font_color_link">#ff194b46</color>
 	<color name="font_color_command_line">#ffadbec1</color>
-	<color name="font_color_shortcuts">#ff002b47</color>
+	<color name="font_color_shortcuts">#ffbababa</color>
 
 	<color name="spoiler_bg">#9f313b3d</color>
 
 	<color name="cut_border">#ff628288</color>
-	<color name="cut_bg">#ff304146</color>
+	<color name="cut_bg">#85476068</color>
 
 	<color name="code_bg">#ff454545</color>
 	<color name="code_color">#A9B7C6</color>
 
 	<style name="Ponyscape"
 	       parent="@android:style/Theme.Holo.Light.NoActionBar">
+
 		<item name="android:textCursorDrawable">@null</item>
 		<item name="android:cursorVisible">true</item>
+		<item name="android:windowBackground">@color/bg_main</item>
 
 		<item name="android:editTextColor">@color/font_color</item>
 		<item name="android:textColor">@color/font_color</item>
+
 		<item name="android:textColorHint">@color/font_color</item>
 		<item name="android:textColorLink">@color/font_color_link</item>
+
 	</style>
 
 </resources>

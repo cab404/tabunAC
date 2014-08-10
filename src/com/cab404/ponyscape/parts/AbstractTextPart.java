@@ -32,7 +32,7 @@ public abstract class AbstractTextPart extends Part implements View.OnClickListe
 		View view = inflater.inflate(R.layout.part_plain_text, viewGroup, false);
 		view.setOnClickListener(this);
 
-		text = ((TextView) view.findViewById(R.id.title));
+		text = ((TextView) view.findViewById(R.id.text));
 		text.setText(getText());
 
 		return view;
