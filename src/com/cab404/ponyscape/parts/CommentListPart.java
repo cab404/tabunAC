@@ -3,9 +3,11 @@ package com.cab404.ponyscape.parts;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Comment;
@@ -85,8 +87,9 @@ public class CommentListPart extends Part {
 				Anim.resize(
 						expand_view,
 						heightPixels
-								- getContext().getResources().getDimensionPixelSize(R.dimen.list_bottom_padding)
-								- getContext().getResources().getDimensionPixelSize(R.dimen.margins),
+//								- getContext().getResources().getDimensionPixelSize(R.dimen.list_bottom_padding)
+//								- getContext().getResources().getDimensionPixelSize(R.dimen.margins)
+						,
 						-1,
 						200,
 						new Runnable() {
@@ -154,15 +157,15 @@ public class CommentListPart extends Part {
 		}
 	}
 
+	int c_level = 0;
+
 	private class CommentListAdapter extends BaseAdapter {
 
 		private final Context context;
-		private HashMap<View, CommentPart> active_comments;
 		private HashMap<Comment, CommentPart> comment_cache;
 
 		public CommentListAdapter(Context context) {
 			this.context = context;
-			active_comments = new HashMap<>();
 			comment_cache = new HashMap<>();
 		}
 
@@ -174,6 +177,19 @@ public class CommentListPart extends Part {
 		}
 		@Override public long getItemId(int i) {
 			return 0;
+		}
+
+		public void setOffset(int offset) {
+			if (c_level != offset) {
+				c_level = offset;
+				int comment_pixel_offset = offset * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
+				for (int i = 0; i < listView.getChildCount(); i++) {
+					c_level = offset;
+					listView.getChildAt(i)
+							.animate()
+							.x(-context.getResources().getDimensionPixelSize(R.dimen.comment_ladder) * c_level);
+				}
+			}
 		}
 
 		@SuppressWarnings("AssignmentToMethodParameter")
@@ -188,29 +204,35 @@ public class CommentListPart extends Part {
 				part = comment_cache.get(comment);
 			}
 
-			if (view != null) {
-				CommentPart current = active_comments.get(view);
-				if (current != null)
-					if (current.comment.id != comment.id) {
-						Log.v("CommentList",
-								"Replaced comment " + current.comment.id + " with " + comment.id + ", "
-										+ active_comments.size() + " currently active.");
-					}
-				active_comments.put(view, part);
-			}
-
-
 			if (view == null)
 				view = part.create(LayoutInflater.from(viewGroup.getContext()), viewGroup, viewGroup.getContext());
 			else
 				part.convert(view, viewGroup.getContext());
 
-			view.getLayoutParams().width = context.getResources().getDisplayMetrics().widthPixels;
-			view.setPadding(
-					levels.get(comment.id) * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder),
-					0, 0, 0
-			);
-			view.invalidate();
+			final int level = levels.get(comment.id);
+
+			view.setX(-context.getResources().getDimensionPixelSize(R.dimen.comment_ladder) * c_level);
+
+
+			LinearLayout.LayoutParams rootLayoutParams = (LinearLayout.LayoutParams) view.findViewById(R.id.root).getLayoutParams();
+			int comment_pixel_offset = levels.get(comment.id) * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
+
+			view.setOnTouchListener(new View.OnTouchListener() {
+				@Override public boolean onTouch(View v, MotionEvent event) {
+					setOffset(level);
+					return false;
+				}
+			});
+
+			rootLayoutParams.width = context.getResources().getDisplayMetrics().widthPixels;
+			rootLayoutParams.leftMargin = comment_pixel_offset < -rootLayoutParams.width ?
+					-rootLayoutParams.width : comment_pixel_offset;
+
+			rootLayoutParams.rightMargin = -comment_pixel_offset > rootLayoutParams.width ?
+					rootLayoutParams.width : -comment_pixel_offset;
+
+			view.getLayoutParams().width = rootLayoutParams.width * 2;
+
 			view.requestLayout();
 
 			return view;

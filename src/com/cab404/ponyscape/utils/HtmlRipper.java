@@ -351,6 +351,7 @@ public class HtmlRipper {
 	private TextView form(String text, Context context) {
 		TextView view = new TextView(context);
 		view.setText(simpleEscape(text, context));
+		view.setTextIsSelectable(true);
 		view.setMovementMethod(LinkMovementMethod.getInstance());
 		return view;
 	}

@@ -7,10 +7,7 @@ import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.parts.CommentListPart;
-import com.cab404.ponyscape.parts.ErrorPart;
-import com.cab404.ponyscape.parts.StaticTextPart;
-import com.cab404.ponyscape.parts.TopicPart;
+import com.cab404.ponyscape.parts.*;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
 
@@ -48,6 +45,14 @@ public class PostCommands {
 									@Override public void run() {
 										Static.bus.send(new Parts.Add(topicPart));
 										Static.bus.send(new Parts.Add(list));
+										Static.bus.send(new Parts.Add(new EditorPart("Test Editor", "Initial Text", new EditorPart.EditorActionHandler() {
+											@Override public boolean finished(CharSequence text) {
+												return false;
+											}
+											@Override public void cancelled() {
+
+											}
+										})));
 									}
 								});
 								break;

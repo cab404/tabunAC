@@ -3,6 +3,11 @@ package com.cab404.ponyscape.android;
 import android.animation.Animator;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Movie;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
@@ -84,11 +89,17 @@ public class MainActivity extends AbstractActivity {
 			}
 		});
 
+		/* Автопоказ бара, если контент меньше прокручиваемой вьюхи.*/
 		Static.handler.post(
 				new Runnable() {
 					@Override public void run() {
-						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()) {
+						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()
+								&& !bar_locked_by_expansion
+								) {
 							showBar();
+						}
+						if (bar_locked_by_expansion) {
+							hideBar();
 						}
 						Static.handler.post(this);
 					}
@@ -242,17 +253,22 @@ public class MainActivity extends AbstractActivity {
 		e.height = root.getHeight();
 	}
 
+
+	boolean bar_locked_by_expansion = false;
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void expand(Parts.Expand e) {
-		findViewById(R.id.root).setPadding(0, 0, 0, 0);
-		findViewById(R.id.root).requestLayout();
-
+		findViewById(R.id.data).setPadding(0, 0, 0, 0);
+		findViewById(R.id.data).requestLayout();
+		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
+		bar_locked_by_expansion = true;
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void collapse(Parts.Collapse e) {
-		findViewById(R.id.root).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
-		findViewById(R.id.root).requestLayout();
+		findViewById(R.id.data).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
+		findViewById(R.id.data).requestLayout();
+		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(true);
+		bar_locked_by_expansion = false;
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
@@ -365,23 +381,40 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	private void showMenu(final int delay_per_item) {
+		line.setError(null);
 		if (menu_active) return;
 
 		menu_active = true;
 		updateInput();
 
+
 		final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
 		final View button = findViewById(R.id.command_bg);
 
 		findViewById(R.id.command_bg).animate()
-				/* Размер иконки уможен на 4, т.к лень вручную вбивать размер.*/
+				/* Размер иконки умножен на 4, т.к лень вручную вбивать размер.*/
 				.scaleX(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
 				.scaleY(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
 				.setDuration(items.getChildCount() * delay_per_item);
 
+		new Drawable() {
+			Movie movie = Movie.decodeFile("");
+			@Override public void draw(Canvas canvas) {
+				movie.draw(canvas, 0, 0);
+			}
+			@Override public void setAlpha(int alpha) {
+			}
+			@Override public void setColorFilter(ColorFilter cf) {
+			}
+			@Override public int getOpacity() {
+				return PixelFormat.OPAQUE;
+			}
+		};
+
 		for (int i = 0; i < items.getChildCount(); i++) {
 			final View anim = items.getChildAt(i);
 			anim.setX(items.getWidth() * 2);
+
 			Static.handler.postDelayed(
 					new Runnable() {
 						public void run() {

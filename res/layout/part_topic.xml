@@ -77,7 +77,8 @@
 			android:background="@color/bg_footer"
 			android:textSize="@dimen/small_text_size"
 			android:gravity="right"
-			android:paddingRight="8dp"/>
+			android:paddingRight="8dp"
+			/>
 
 	<LinearLayout
 			android:orientation="horizontal"

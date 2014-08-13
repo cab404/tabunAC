@@ -43,7 +43,7 @@ public class FollowableScrollView extends ScrollView {
 	boolean scroll_enabled = true;
 
 	@Override public boolean onTouchEvent(MotionEvent ev) {
-		boolean b = super.onTouchEvent(ev);
+		boolean b = isScrollEnabled() && super.onTouchEvent(ev);
 
 		if (ev.getAction() == MotionEvent.ACTION_UP) {
 			if (handler != null)
@@ -66,6 +66,7 @@ public class FollowableScrollView extends ScrollView {
 		return b;
 	}
 
+
 	public boolean isScrollEnabled() {
 		return scroll_enabled;
 	}
@@ -87,8 +88,7 @@ public class FollowableScrollView extends ScrollView {
 	}
 
 	@Override protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-		if (scroll_enabled)
-			super.onScrollChanged(l, t, oldl, oldt);
+		super.onScrollChanged(l, t, oldl, oldt);
 		if (handler != null)
 			handler.onScrolled(t, oldt);
 	}

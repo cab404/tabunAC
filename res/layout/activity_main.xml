@@ -97,6 +97,7 @@
 			android:layout_height="wrap_content"
 
 			android:layout_above="@+id/input"
+			android:smoothScrollbar="false"
 
 			android:layout_alignRight="@+id/command_bg"
 			android:layout_alignEnd="@+id/command_bg"
