@@ -10,6 +10,7 @@ import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.*;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -26,8 +27,11 @@ public class PostCommands {
 		Static.bus.send(new Parts.Add(loading));
 		loading.setText("Загружаю пост...");
 
+		Static.history.add("post load " + id);
+
 		new Thread(new Runnable() {
 			@Override public void run() {
+
 
 				Static.last_page = new TopicPage(id) {
 					CommentListPart list;
@@ -45,14 +49,6 @@ public class PostCommands {
 									@Override public void run() {
 										Static.bus.send(new Parts.Add(topicPart));
 										Static.bus.send(new Parts.Add(list));
-										Static.bus.send(new Parts.Add(new EditorPart("Test Editor", "Initial Text", new EditorPart.EditorActionHandler() {
-											@Override public boolean finished(CharSequence text) {
-												return false;
-											}
-											@Override public void cancelled() {
-
-											}
-										})));
 									}
 								});
 								break;
@@ -82,6 +78,12 @@ public class PostCommands {
 								cancel();
 								break;
 						}
+					}
+
+					{Static.bus.register(this);}
+					@Bus.Handler
+					public void cancel(Commands.Abort abort) {
+						super.cancel();
 					}
 				};
 				Static.last_page.fetch(Static.user);

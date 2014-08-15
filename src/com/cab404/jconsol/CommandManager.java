@@ -69,7 +69,7 @@ public class CommandManager {
 			return false;
 	}
 
-	public static String escapeString(String str){
+	public static String escapeString(String str) {
 		return str
 				.replace("\"", "\\\"")
 				.replace(";", "\\;")

@@ -64,7 +64,7 @@ public class DateUtils {
 
 			data.append(" в ");
 
-			if (calendar.get(Calendar.MINUTE) == 0) {
+			if (calendar.get(Calendar.MINUTE) == 0 && calendar.get(Calendar.HOUR_OF_DAY) % 12 == 0) {
 				if (calendar.get(Calendar.HOUR_OF_DAY) == 12)
 					data.append("полдень");
 				if (calendar.get(Calendar.HOUR_OF_DAY) == 0)

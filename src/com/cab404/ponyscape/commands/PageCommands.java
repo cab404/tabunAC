@@ -14,6 +14,7 @@ import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -32,9 +33,12 @@ public class PageCommands {
 		Static.bus.send(new Parts.Add(loading));
 		loading.setText("Загружаю список...");
 
+		Static.history.add("page load " + str);
+
 		new Thread(new Runnable() {
 			@Override public void run() {
 				Static.last_page = new TabunPage() {
+
 
 					@Override public String getURL() {
 						return address;
@@ -65,14 +69,20 @@ public class PageCommands {
 								break;
 						}
 					}
+
+					{Static.bus.register(this);}
+					@Bus.Handler
+					public void cancel(Commands.Abort abort) {
+						super.cancel();
+					}
 				};
 				Static.last_page.fetch(Static.user);
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
-						loading.delete();
 						Static.bus.send(new Commands.Clear());
 						Static.bus.send(new Commands.Finished());
+						Static.bus.send(new Parts.Remove(loading));
 					}
 				});
 			}

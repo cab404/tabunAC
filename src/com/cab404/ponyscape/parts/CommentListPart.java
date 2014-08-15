@@ -15,6 +15,7 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.DataRequest;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Anim;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 
 import java.util.ArrayList;
@@ -61,6 +62,38 @@ public class CommentListPart extends Part {
 			((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
 	}
 
+	public void comment(final Comment comment, final boolean isEditing) {
+		String[] reply = getContext().getResources().getStringArray(R.array.reply_to);
+		String title = comment == null ?
+				"Отвечаем в пост"
+				:
+				reply[((int) (Math.random() * reply.length))] + comment.author;
+		new EditorPart(title, "", new EditorPart.EditorActionHandler() {
+			@Override public boolean finished(CharSequence text) {
+				if (text.length() > 3000 || text.length() < 2) {
+					Simple.msg("Текст комментария должен быть от 2 до 3000 символов и не содержать разного рода каку");
+					return false;
+				}
+
+//				if (isEditing) {
+//
+//					new CommentEditRequest(comment.id, text.toString());
+//
+//				}
+
+				return false;
+			}
+			@Override public void cancelled() {
+
+			}
+		});
+
+		Runnable runnable = new Runnable() {
+			@Override public void run() {
+
+			}
+		};
+	}
 
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
@@ -70,6 +103,7 @@ public class CommentListPart extends Part {
 		final View expand_view = view.findViewById(R.id.expand_comments);
 		final View list_view = view.findViewById(R.id.comment_list_root);
 
+		/* Настраиваем раскрытие дерева комментариев */
 		expand_view.setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
 				if (!topic_visible) return;
@@ -112,16 +146,20 @@ public class CommentListPart extends Part {
 			}
 		});
 
+		/* Скрытие дерева комментариев */
 		view.findViewById(R.id.collapse_comments)
 				.setOnClickListener(new View.OnClickListener() {
 					@Override public void onClick(View onClick) {
 						if (topic_visible) return;
 						topic_visible = true;
 
+						/* Включаем обратно скролл и комманд-бар*/
 						Static.bus.send(new Parts.Collapse());
 
+						/* Показываем вьюху раскрытия */
 						Anim.fadeIn(expand_view, 200);
-						Anim.fadeOut(list_view, 200, new Runnable() {
+						/* Выносим прозрачность у дерева, чтобы потом убить его в ноль и менять высоту одного expand_view */
+						Anim.fadeOut(list_view, 100, new Runnable() {
 							@Override public void run() {
 								list_view.setVisibility(View.GONE);
 								expand_view.setVisibility(View.VISIBLE);
@@ -129,7 +167,7 @@ public class CommentListPart extends Part {
 										expand_view,
 										saved_height,
 										-1,
-										200,
+										100,
 										new Runnable() {
 											@Override public void run() {
 												topic_visible = true;
@@ -147,6 +185,10 @@ public class CommentListPart extends Part {
 		adapter = new CommentListAdapter(context);
 		listView.setAdapter(adapter);
 
+		/* Fadein-аем */
+		view.setAlpha(0);
+		view.animate().alpha(1).setDuration(200);
+
 		return view;
 	}
 
@@ -161,8 +203,8 @@ public class CommentListPart extends Part {
 
 	private class CommentListAdapter extends BaseAdapter {
 
-		private final Context context;
 		private HashMap<Comment, CommentPart> comment_cache;
+		private final Context context;
 
 		public CommentListAdapter(Context context) {
 			this.context = context;
@@ -194,7 +236,7 @@ public class CommentListPart extends Part {
 
 		@SuppressWarnings("AssignmentToMethodParameter")
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {
-			Comment comment = comments.get(i);
+			final Comment comment = comments.get(i);
 			CommentPart part;
 
 			if (!comment_cache.containsKey(comment)) {
@@ -211,16 +253,20 @@ public class CommentListPart extends Part {
 
 			final int level = levels.get(comment.id);
 
-			view.setX(-context.getResources().getDimensionPixelSize(R.dimen.comment_ladder) * c_level);
-
-
 			LinearLayout.LayoutParams rootLayoutParams = (LinearLayout.LayoutParams) view.findViewById(R.id.root).getLayoutParams();
 			int comment_pixel_offset = levels.get(comment.id) * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
 
+			view.setX(-context.getResources().getDimensionPixelSize(R.dimen.comment_ladder) * c_level);
 			view.setOnTouchListener(new View.OnTouchListener() {
 				@Override public boolean onTouch(View v, MotionEvent event) {
 					setOffset(level);
 					return false;
+				}
+			});
+
+			view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					comment(comment, false);
 				}
 			});
 
@@ -232,8 +278,6 @@ public class CommentListPart extends Part {
 					rootLayoutParams.width : -comment_pixel_offset;
 
 			view.getLayoutParams().width = rootLayoutParams.width * 2;
-
-			view.requestLayout();
 
 			return view;
 		}

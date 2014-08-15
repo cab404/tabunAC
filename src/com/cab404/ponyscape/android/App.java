@@ -12,6 +12,7 @@ import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.sjbus.Bus;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author cab404
@@ -32,6 +33,7 @@ public class App extends Application {
 		Static.img = new Images(this, image_storage);
 		Static.app_context = getApplicationContext();
 		Static.handler = new Handler(getMainLooper());
+		Static.history = new ArrayList<>();
 		Static.cfg = new Settings(this, "settings.bin");
 		Static.cfg.load();
 

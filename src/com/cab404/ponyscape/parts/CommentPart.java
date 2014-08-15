@@ -26,6 +26,7 @@ public class CommentPart extends Part {
 	private CharSequence text = null;
 	public final Comment comment;
 	private HtmlRipper ripper;
+
 	View view;
 	public CommentPart(Comment comment) {
 		Static.bus.register(this);
@@ -41,13 +42,17 @@ public class CommentPart extends Part {
 	public void convert(View view, Context context) {
 		this.view = view;
 
-		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
-		ripper.escape(comment.text);
+		if (ripper == null) {
+			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
+			ripper.escape(comment.text);
+		} else {
+			ripper.changeLayout((ViewGroup) view.findViewById(R.id.content));
+		}
+
 		((TextView) view.findViewById(R.id.data))
 				.setText(comment.author.login + ", " + DateUtils.convertToString(comment.date, context));
 		((TextView) view.findViewById(R.id.rating))
 				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
-
 
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
@@ -67,6 +72,7 @@ public class CommentPart extends Part {
 	public void kill() {
 		Static.bus.unregister(this);
 		ripper.destroy();
+		ripper = null;
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)

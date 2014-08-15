@@ -77,11 +77,18 @@ public class MainActivity extends AbstractActivity {
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
 		view.setHandler(new FollowableScrollView.ScrollHandler() {
+			final int CAPACITY = 5;
+			int charge = 0;
 			@Override public void onScrolled(int y, int old_y) {
-				if (y > old_y)
+				charge += (y - old_y);
+				if (charge > CAPACITY) {
 					hideBar();
-				else
+					charge = CAPACITY;
+				}
+				if (charge < -CAPACITY) {
 					showBar();
+					charge = -CAPACITY;
+				}
 
 			}
 			@Override public void onOverScrolled(float y, boolean clamped) {
@@ -122,13 +129,8 @@ public class MainActivity extends AbstractActivity {
 				command_running = true;
 				updateInput();
 				Static.cm.run(data.toString());
+				Log.v("MAIN", "IM OUT!");
 
-			} catch (Web.NetworkNotFound nf) {
-
-				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
-				line.setError("Нет подключения к Сети");
-
-				Static.bus.send(new Commands.Finished());
 
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
@@ -136,8 +138,20 @@ public class MainActivity extends AbstractActivity {
 
 				Static.bus.send(new Commands.Finished());
 
-			} catch (Throwable t) {
-				throw new RuntimeException("Fatality во время выполнения команды " + data, t);
+			} catch (RuntimeException nf) {
+				Throwable lowest = nf;
+				while (lowest.getCause() != null)
+					lowest = lowest.getCause();
+
+				if (lowest instanceof Web.NetworkNotFound) {
+					Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
+					line.setError("Нет подключения к Сети");
+				} else {
+					throw nf;
+				}
+
+				Static.bus.send(new Commands.Finished());
+
 			}
 
 	}
@@ -163,6 +177,13 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Override public void onBackPressed() {
+		if (command_running)
+			Static.bus.send(new Commands.Abort());
+		else if (Static.history.size() > 1) {
+			Static.history.remove(Static.history.size() - 1);
+			Static.bus.send(new Commands.Run(Static.history.remove(Static.history.size() - 1)));
+		}
+
 	}
 
 	/*    / / / BUS
@@ -200,6 +221,7 @@ public class MainActivity extends AbstractActivity {
 	public void finished(Commands.Finished event) {
 		command_running = false;
 		line.setInputType(InputType.TYPE_CLASS_TEXT);
+		collapse(null);
 		updateInput();
 
 		/* Выставляем имя пользователя в хинт (если пользователь вошел)*/

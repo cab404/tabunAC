@@ -51,7 +51,9 @@ public class TopicPart extends Part {
 		ripper.escape(topic.text);
 
 		((TextView) view.findViewById(R.id.data))
-				.setText(topic.author.login + " в блоге '" + topic.blog.name + "'" + ", " + DateUtils.convertToString(topic.date, context));
+				.setText(topic.author.login
+						+ " в блоге '" + SU.deEntity(topic.blog.name)
+						+ "'" + ", " + DateUtils.convertToString(topic.date, context));
 
 		// Для бегущей строки.
 		view.findViewById(R.id.data)
@@ -83,6 +85,10 @@ public class TopicPart extends Part {
 				.setText(SU.deEntity(SU.join(topic.tags, ", ")));
 
 		((TextView) view.findViewById(R.id.id)).setText("#" + topic.id);
+
+
+		view.setAlpha(0);
+		view.animate().alpha(1).setDuration(200);
 
 		return view;
 	}
