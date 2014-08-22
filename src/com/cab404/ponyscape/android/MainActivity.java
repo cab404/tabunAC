@@ -221,7 +221,6 @@ public class MainActivity extends AbstractActivity {
 	public void finished(Commands.Finished event) {
 		command_running = false;
 		line.setInputType(InputType.TYPE_CLASS_TEXT);
-		collapse(null);
 		updateInput();
 
 		/* Выставляем имя пользователя в хинт (если пользователь вошел)*/

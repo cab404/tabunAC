@@ -61,6 +61,7 @@
 		</LinearLayout>
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
+		              android:id="@+id/footer"
 		              android:layout_height="wrap_content"
 		              android:background="@color/bg_footer"
 		              android:gravity="right"

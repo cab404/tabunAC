@@ -9,12 +9,19 @@
 	<color name="bg_footer_shadow">#ff45575d</color>
 	<color name="bg_shortcuts">#ff515151</color>
 
+	<color name="font_color_red">#ffba0030</color>
+	<color name="font_color_blue">#ff00903f</color>
+	<color name="font_color_green">#ff007096</color>
+
 	<color name="font_color">#ff161616</color>
 	<color name="font_color_link">#ff194b46</color>
 	<color name="font_color_command_line">#ffadbec1</color>
 	<color name="font_color_shortcuts">#ffbababa</color>
 
-	<color name="spoiler_bg">#9f313b3d</color>
+	<color name="comment_ladder_gradient_start">@color/bg_main</color>
+	<color name="comment_ladder_gradient_end">@color/font_color_red</color>
+
+	<color name="spoiler_bg">#985f5d60</color>
 
 	<color name="cut_border">#ff628288</color>
 	<color name="cut_bg">#85476068</color>

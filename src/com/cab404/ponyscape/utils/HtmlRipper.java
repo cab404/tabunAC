@@ -273,7 +273,7 @@ public class HtmlRipper {
 							switch (tag.get("class")) {
 								case "red":
 									builder.setSpan(
-											new ForegroundColorSpan(Color.parseColor("#962323")),
+											new ForegroundColorSpan(context.getResources().getColor(R.color.font_color_red)),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
 											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -281,7 +281,7 @@ public class HtmlRipper {
 									break;
 								case "green":
 									builder.setSpan(
-											new ForegroundColorSpan(Color.parseColor("#529041")),
+											new ForegroundColorSpan(context.getResources().getColor(R.color.font_color_green)),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
 											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -289,7 +289,7 @@ public class HtmlRipper {
 									break;
 								case "blue":
 									builder.setSpan(
-											new ForegroundColorSpan(Color.parseColor("#261474")),
+											new ForegroundColorSpan(context.getResources().getColor(R.color.font_color_blue)),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
 											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -386,6 +386,9 @@ public class HtmlRipper {
 				ImageSpan[] spans = builder.getSpans(0, builder.length(), ImageSpan.class);
 
 				Bitmap use = loaded.loaded;
+
+
+				/* Попытка убрать автоперевод строки при большой картинке.*/
 				int width = (int) (target.getWidth() - target.getTextSize());
 				if (use.getWidth() > width) {
 					int height = (int) (width * (use.getHeight() / (float) use.getWidth()));

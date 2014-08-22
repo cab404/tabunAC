@@ -39,8 +39,9 @@ public class CommentPart extends Part {
 		return view;
 	}
 
-	public void convert(View view, Context context) {
+	public void convert(final View view, Context context) {
 		this.view = view;
+		view.findViewById(R.id.footer).setVisibility(View.GONE);
 
 		if (ripper == null) {
 			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
@@ -63,6 +64,17 @@ public class CommentPart extends Part {
 		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
 				Static.bus.send(new Commands.Run("votefor comment " + comment.id + " -1"));
+			}
+		});
+
+		view.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override public boolean onLongClick(View v) {
+				View foo = view.findViewById(R.id.footer);
+				if (foo.getVisibility() == View.GONE)
+					foo.setVisibility(View.VISIBLE);
+				else
+					foo.setVisibility(View.GONE);
+				return true;
 			}
 		});
 

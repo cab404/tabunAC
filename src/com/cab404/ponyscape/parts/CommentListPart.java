@@ -1,9 +1,10 @@
 package com.cab404.ponyscape.parts;
 
+import android.animation.Animator;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -17,6 +18,7 @@ import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.images.LevelDrawable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -194,21 +196,37 @@ public class CommentListPart extends Part {
 
 	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
 		super.onRemove(view, parent, context);
+		if (!topic_visible)
+			Static.bus.send(new Parts.Collapse());
+
 		for (CommentPart part : adapter.comment_cache.values()) {
 			part.kill();
 		}
 	}
 
-	int c_level = 0;
-
+	/**
+	 * Отступ всего дерева проставляем через setX на каждом комментарии,
+	 * для отступов уровня используем отдельный View в комментарии,
+	 * в него заодно пихаем слушалки перехода по уровням и фоны.
+	 */
 	private class CommentListAdapter extends BaseAdapter {
+
 
 		private HashMap<Comment, CommentPart> comment_cache;
 		private final Context context;
 
+		private LevelDrawable level_indicator;
+		private int c_level = 0;
+		private final int comment_ladder;
+
+		private boolean animation_running = false;
+		private View commitee = null;
+
 		public CommentListAdapter(Context context) {
 			this.context = context;
 			comment_cache = new HashMap<>();
+			level_indicator = new LevelDrawable(context.getResources(), 0);
+			comment_ladder = context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
 		}
 
 		@Override public int getCount() {
@@ -221,17 +239,38 @@ public class CommentListPart extends Part {
 			return 0;
 		}
 
+		/**
+		 * Сдвигает все текущие комментарии на новый уровень.
+		 */
 		public void setOffset(int offset) {
 			if (c_level != offset) {
 				c_level = offset;
-				int comment_pixel_offset = offset * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
+
+				int comment_pixel_offset = offset * comment_ladder;
+
 				for (int i = 0; i < listView.getChildCount(); i++) {
-					c_level = offset;
-					listView.getChildAt(i)
-							.animate()
-							.x(-context.getResources().getDimensionPixelSize(R.dimen.comment_ladder) * c_level);
+					View child = listView.getChildAt(i);
+					/* Откуда будем брать новый X-offset */
+					animation_running = true;
+					commitee = child;
+					child.animate()
+							.x(-comment_ladder * c_level)
+							.setListener(new Anim.AnimatorListenerImpl() {
+								@Override public void onAnimationEnd(Animator animation) {
+									animation.removeAllListeners();
+
+								}
+							});
 				}
+
 			}
+		}
+
+		private float getCurrentPixelOffset() {
+			if (animation_running) {
+				return commitee.getX();
+			} else
+				return -comment_ladder * c_level;
 		}
 
 		@SuppressWarnings("AssignmentToMethodParameter")
@@ -254,15 +293,24 @@ public class CommentListPart extends Part {
 			final int level = levels.get(comment.id);
 
 			LinearLayout.LayoutParams rootLayoutParams = (LinearLayout.LayoutParams) view.findViewById(R.id.root).getLayoutParams();
-			int comment_pixel_offset = levels.get(comment.id) * context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
+			int comment_pixel_offset = levels.get(comment.id) * comment_ladder;
 
-			view.setX(-context.getResources().getDimensionPixelSize(R.dimen.comment_ladder) * c_level);
-			view.setOnTouchListener(new View.OnTouchListener() {
-				@Override public boolean onTouch(View v, MotionEvent event) {
+			view.setX(getCurrentPixelOffset());
+
+			View.OnClickListener shiftInvoker = new View.OnClickListener() {
+				@Override public void onClick(View v) {
 					setOffset(level);
-					return false;
 				}
-			});
+			};
+
+			View right_margin = view.findViewById(R.id.end_clickable_margin);
+			View left_margin = view.findViewById(R.id.start_clickable_margin);
+
+			left_margin.setOnClickListener(shiftInvoker);
+			right_margin.setOnClickListener(shiftInvoker);
+
+			int dWidth = context.getResources().getDisplayMetrics().widthPixels;
+			int dHeight = context.getResources().getDisplayMetrics().heightPixels;
 
 			view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
@@ -270,14 +318,21 @@ public class CommentListPart extends Part {
 				}
 			});
 
-			rootLayoutParams.width = context.getResources().getDisplayMetrics().widthPixels;
-			rootLayoutParams.leftMargin = comment_pixel_offset < -rootLayoutParams.width ?
-					-rootLayoutParams.width : comment_pixel_offset;
+			left_margin.getLayoutParams().width = comment_pixel_offset;
+			right_margin.getLayoutParams().width = dWidth;
 
-			rootLayoutParams.rightMargin = -comment_pixel_offset > rootLayoutParams.width ?
-					rootLayoutParams.width : -comment_pixel_offset;
+			rootLayoutParams.width = Math.min(dWidth, dHeight);
 
-			view.getLayoutParams().width = rootLayoutParams.width * 2;
+			view.getLayoutParams().width = rootLayoutParams.width + comment_pixel_offset + dWidth;
+
+			view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
+
+			if (Build.VERSION.SDK_INT >= 16) {
+				left_margin.setBackground(level_indicator);
+			} else {
+				left_margin.setBackgroundDrawable(level_indicator);
+			}
+
 
 			return view;
 		}
