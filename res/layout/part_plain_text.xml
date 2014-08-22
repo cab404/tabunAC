@@ -7,10 +7,10 @@
 		android:layout_height="wrap_content"
 
 
-		android:padding="@dimen/margins"
-		android:layout_marginTop="@dimen/margins"
-		android:layout_marginLeft="@dimen/margins"
-		android:layout_marginRight="@dimen/margins"
+		android:padding="@dimen/internal_margins"
+		android:layout_marginTop="@dimen/external_margins"
+		android:layout_marginLeft="@dimen/external_margins"
+		android:layout_marginRight="@dimen/external_margins"
 
 
 		android:id="@+id/text"

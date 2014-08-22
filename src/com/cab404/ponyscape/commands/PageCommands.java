@@ -3,6 +3,8 @@ package com.cab404.ponyscape.commands;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
+import com.cab404.libtabun.data.Paginator;
+import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.modules.TopicModule;
 import com.cab404.libtabun.pages.TabunPage;
@@ -10,10 +12,12 @@ import com.cab404.moonlight.framework.ModularBlockParser;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.ErrorPart;
+import com.cab404.ponyscape.parts.PaginatorPart;
 import com.cab404.ponyscape.parts.StaticTextPart;
 import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -22,7 +26,7 @@ import com.cab404.ponyscape.utils.Web;
 public class PageCommands {
 
 	@Command(command = "load", params = Str.class)
-	public void load(String str) {
+	public void load(final String str) {
 		Web.checkNetworkConnection();
 
 		final StaticTextPart loading = new StaticTextPart();
@@ -32,9 +36,12 @@ public class PageCommands {
 		Static.bus.send(new Parts.Add(loading));
 		loading.setText("Загружаю список...");
 
+		Static.history.add("page load " + str);
+
 		new Thread(new Runnable() {
 			@Override public void run() {
 				Static.last_page = new TabunPage() {
+
 
 					@Override public String getURL() {
 						return address;
@@ -49,30 +56,31 @@ public class PageCommands {
 						super.handle(object, key);
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										Static.bus.send(new Parts.Add(new TopicPart((Topic) object)));
-									}
-								});
+								Static.bus.send(new Parts.Add(new TopicPart((Topic) object)));
 								break;
 							case BLOCK_ERROR:
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										Static.bus.send(new Parts.Add(new ErrorPart()));
-									}
-								});
+								Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
 								cancel();
 								break;
+							case BLOCK_PAGINATION:
+								Static.bus.send(new Parts.Add(new PaginatorPart((Paginator) object)));
+
 						}
+					}
+
+					{Static.bus.register(this);}
+					@Bus.Handler
+					public void cancel(Commands.Abort abort) {
+						super.cancel();
 					}
 				};
 				Static.last_page.fetch(Static.user);
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
-						loading.delete();
 						Static.bus.send(new Commands.Clear());
 						Static.bus.send(new Commands.Finished());
+						Static.bus.send(new Parts.Remove(loading));
 					}
 				});
 			}

@@ -3,12 +3,17 @@
 <LinearLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+	<View android:layout_width="0dp"
+	      android:layout_height="match_parent"
+	      android:id="@+id/start_clickable_margin"
+			/>
 	<LinearLayout
-			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 
+			android:layout_marginTop="1dp"
 			android:orientation="vertical"
 			android:id="@+id/root"
 
@@ -25,9 +30,9 @@
 					android:text="cab404, в 20:49"
 					android:id="@+id/data"
 
-					android:paddingTop="@dimen/margins"
-					android:paddingLeft="@dimen/margins"
-					android:paddingBottom="@dimen/margins"
+					android:paddingTop="@dimen/internal_margins"
+					android:paddingLeft="@dimen/internal_margins"
+					android:paddingBottom="@dimen/internal_margins"
 
 					android:singleLine="false"
 					android:layout_weight="1"/>
@@ -51,16 +56,18 @@
 				android:padding="8dp"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:id="@+id/content">
+				android:id="@+id/content"
+				android:paddingStart="24dp">
 		</LinearLayout>
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
+		              android:id="@+id/footer"
 		              android:layout_height="wrap_content"
 		              android:background="@color/bg_footer"
 		              android:gravity="right"
 		              android:paddingTop="2dp"
 		              android:paddingBottom="2dp"
-				>
+		              android:visibility="gone">
 
 			<TextView android:layout_width="0dp"
 			          android:layout_height="wrap_content"
@@ -108,4 +115,8 @@
 			           android:layout_marginRight="8dp"/>
 		</LinearLayout>
 	</LinearLayout>
+	<View android:layout_width="0dp"
+	      android:layout_height="match_parent"
+	      android:id="@+id/end_clickable_margin"
+			/>
 </LinearLayout>

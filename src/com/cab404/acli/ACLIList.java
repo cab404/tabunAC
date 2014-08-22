@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import com.cab404.ponyscape.utils.Anim;
+import com.cab404.ponyscape.utils.views.animation.Anim;
 
 import java.util.ArrayList;
 import java.util.List;

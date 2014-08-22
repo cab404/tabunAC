@@ -6,6 +6,8 @@ import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Static;
 
 /**
+ * Список команд, генерируется автоматически.
+ *
  * @author cab404
  */
 

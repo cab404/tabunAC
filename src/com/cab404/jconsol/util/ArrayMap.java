@@ -11,7 +11,7 @@ public class ArrayMap<K, V> {
     List<Map.Entry<K, V>> data = new ArrayList<>();
 
     public void add(K key, V value) {
-        AbstractMap.SimpleEntry<K, V> entry = new AbstractMap.SimpleEntry<>(key, value);
+        Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, value);
         data.add(entry);
     }
 

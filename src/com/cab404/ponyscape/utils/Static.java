@@ -8,6 +8,8 @@ import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.sjbus.Bus;
 
+import java.util.ArrayList;
+
 /**
  * Static
  *
@@ -15,9 +17,12 @@ import com.cab404.sjbus.Bus;
  */
 public class Static {
 
+	public static ArrayList<String> history = null;
+
 	public static CommandManager cm = null;
 	public static Settings cfg = null;
 	public static Bus bus = null;
+
 
 	public static TabunAccessProfile user = null;
 	public static TabunPage last_page = null;

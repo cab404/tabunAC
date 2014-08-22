@@ -12,7 +12,7 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataAcquired;
-import com.cab404.ponyscape.utils.Anim;
+import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
@@ -26,6 +26,7 @@ public class CommentPart extends Part {
 	private CharSequence text = null;
 	public final Comment comment;
 	private HtmlRipper ripper;
+
 	View view;
 	public CommentPart(Comment comment) {
 		Static.bus.register(this);
@@ -38,16 +39,21 @@ public class CommentPart extends Part {
 		return view;
 	}
 
-	public void convert(View view, Context context) {
+	public void convert(final View view, Context context) {
 		this.view = view;
+		view.findViewById(R.id.footer).setVisibility(View.GONE);
 
-		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
-		ripper.escape(comment.text);
+		if (ripper == null) {
+			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
+			ripper.escape(comment.text);
+		} else {
+			ripper.changeLayout((ViewGroup) view.findViewById(R.id.content));
+		}
+
 		((TextView) view.findViewById(R.id.data))
 				.setText(comment.author.login + ", " + DateUtils.convertToString(comment.date, context));
 		((TextView) view.findViewById(R.id.rating))
 				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
-
 
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
@@ -61,12 +67,24 @@ public class CommentPart extends Part {
 			}
 		});
 
+		view.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override public boolean onLongClick(View v) {
+				View foo = view.findViewById(R.id.footer);
+				if (foo.getVisibility() == View.GONE)
+					foo.setVisibility(View.VISIBLE);
+				else
+					foo.setVisibility(View.GONE);
+				return true;
+			}
+		});
+
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 	}
 
 	public void kill() {
 		Static.bus.unregister(this);
 		ripper.destroy();
+		ripper = null;
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)

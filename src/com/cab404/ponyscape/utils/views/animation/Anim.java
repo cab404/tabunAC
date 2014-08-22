@@ -1,7 +1,8 @@
-package com.cab404.ponyscape.utils;
+package com.cab404.ponyscape.utils.views.animation;
 
 import android.animation.Animator;
 import android.view.View;
+import com.cab404.ponyscape.utils.Static;
 
 /**
  * @author cab404

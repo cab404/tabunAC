@@ -10,15 +10,15 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:background="@drawable/bg_spoiler"
-			android:padding="@dimen/margins"
+			android:padding="@dimen/internal_margins"
 			android:id="@+id/header">
 	</LinearLayout>
 	<LinearLayout
 			android:orientation="vertical"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="@drawable/bg_spoiler"
-			android:padding="@dimen/margins"
+			android:padding="@dimen/internal_margins"
 			android:id="@+id/body"
 			android:visibility="gone">
 	</LinearLayout>

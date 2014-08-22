@@ -1,6 +1,8 @@
 package com.cab404.ponyscape.parts;
 
 /**
+ * Текст, который ещё и менять можно.
+ *
  * @author cab404
  */
 public class StaticTextPart extends AbstractTextPart {

@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 /**
@@ -20,6 +20,8 @@ import java.util.concurrent.Executor;
  * @author cab404
  */
 public class Bus {
+
+	boolean log = false;
 
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -31,7 +33,7 @@ public class Bus {
 	private final HashMap<Class<? extends Executor>, Executor> executors;
 
 	public Bus() {
-		handlers = new ArrayList<>();
+		handlers = new CopyOnWriteArrayList<>();
 		executors = new HashMap<>();
 	}
 
@@ -53,7 +55,8 @@ public class Bus {
 	}
 
 	public void register(Object obj) {
-		Log.v("SiJBus", "Registered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
+		if (log)
+			Log.v("SiJBus", "Registered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
 		for (Method method : obj.getClass().getMethods())
 			if (method.getAnnotation(Handler.class) != null)
 				handlers.add(new PendingMethod(method, obj));
@@ -65,7 +68,8 @@ public class Bus {
 
 		final String log_session = Integer.toHexString((int) (Math.random() * (Math.pow(16, 4) - Math.pow(16, 3)) + Math.pow(16, 3)));
 
-		Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
+		if (log)
+			Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 		for (final PendingMethod method : handlers)
 			if (method.canBeInvokedWith(event)) {
 				something_was_invoked = true;
@@ -73,7 +77,8 @@ public class Bus {
 				executor.execute(new Runnable() {
 					@Override public void run() {
 						try {
-							Log.v("SiJBus:Send:" + log_session, "Invoking handler " + method.label);
+							if (log)
+								Log.v("SiJBus:Send:" + log_session, "Invoking handler " + method.label);
 							method.invoke(event);
 						} catch (Throwable t) {
 							throw new RuntimeException(
@@ -88,11 +93,13 @@ public class Bus {
 				});
 			}
 		if (!something_was_invoked)
-			Log.v("SiJBus:Send:" + log_session, "No handlers was invoked on  event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
+			if (log)
+				Log.v("SiJBus:Send:" + log_session, "No handlers was invoked on  event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 	}
 
 	public void unregister(Object obj) {
-		Log.v("SiJBus", "Unregistered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
+		if (log)
+			Log.v("SiJBus", "Unregistered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
 
 		for (int i = 0; i < handlers.size(); i++) {
 			// Removing object if it is matching given

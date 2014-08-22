@@ -6,7 +6,10 @@
 	<dimen name="primary_text_size">14sp</dimen>
 	<dimen name="title_text_size">18sp</dimen>
 	<dimen name="small_text_size">12sp</dimen>
-	<dimen name="margins">8dp</dimen>
-	<dimen name="comment_ladder">16dp</dimen>
+	<dimen name="internal_margins">8dp</dimen>
+	<dimen name="external_margins">16dp</dimen>
 
+	<dimen name="comment_ladder">25dp</dimen>
+	<integer name="maximum_gradient_length">32</integer>
+	<integer name="alias_menu_animation_duration">100</integer>
 </resources>

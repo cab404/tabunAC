@@ -4,12 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.text.Editable;
-import android.text.Layout;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
+import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.*;
 import android.util.Log;
@@ -20,12 +15,18 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
+import com.cab404.jconsol.util.ArrayMap;
 import com.cab404.moonlight.parser.HTMLTree;
 import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.bus.AppContextExecutor;
+import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.sjbus.Bus;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -35,21 +36,59 @@ import java.util.List;
  */
 public class HtmlRipper {
 
-	private final ViewGroup layout;
-	List<Runnable> onDestroy;
+	private ViewGroup layout;
+	private Collection<Runnable> onDestroy;
+	private Collection<Runnable> onLayout;
+	private List<View> cached_contents;
 
 	public HtmlRipper(ViewGroup layout) {
+		cached_contents = new ArrayList<>();
 		onDestroy = new ArrayList<>();
+		onLayout = new ArrayList<>();
 		this.layout = layout;
 	}
 
+	/**
+	 * Запускайте перед уничтожением этого объекта - эта штука выключает видео.
+	 */
 	public void destroy() {
 		for (Runnable runnable : onDestroy)
 			runnable.run();
 	}
 
+	/**
+	 * Просит всяческие куски разметки перерасчитать себя. Работает пока только для iframe-ов.
+	 */
+	public void layout() {
+		for (Runnable runnable : onLayout)
+			runnable.run();
+	}
+
+	/**
+	 * Перемещает view-шки из предыдущего layout-а (если он ещё жив) в данный.
+	 */
+	public void changeLayout(ViewGroup group) {
+		layout = group;
+		group.removeViews(0, group.getChildCount());
+
+		for (View view : cached_contents) {
+			if (view.getParent() != null)
+				((ViewGroup) view.getParent()).removeView(view);
+			group.addView(view);
+		}
+
+		layout.requestLayout();
+	}
+
 	public void escape(String text) {
+		destroy();
+		onDestroy.clear();
+		cached_contents.clear();
+
 		escape(text, layout);
+		for (int i = 0; i < layout.getChildCount(); i++) {
+			cached_contents.add(layout.getChildAt(i));
+		}
 	}
 
 	private static int indexOf(CharSequence toProcess, int start, char ch) {
@@ -132,12 +171,23 @@ public class HtmlRipper {
 
 	}
 
-	public static CharSequence simpleEscape(String text, Context context) {
-		SpannableStringBuilder builder = new SpannableStringBuilder(text);
+	/**
+	 * Превращает HTML в понятный Android-у CharSequence и пихает его в данный ему TextView.
+	 */
+	private void simpleEscape(final TextView target, final String text, final Context context) {
+		final SpannableStringBuilder builder = new SpannableStringBuilder(text);
 		HTMLTree tree = new HTMLTree(text);
 
+		Collection<String> loadImages = new HashSet<>();
+		final ArrayMap<String, ImageSpan> targets = new ArrayMap<>();
+
+		/*
+		 * Отклонение от индексов. Мы меняем текст дерева, но так как теги привязаны, нам нужно учитывать это вручную.
+		 * Надо написать insert для HTMLTree.
+		 */
 		int off = 0;
-		for (Tag tag : tree) {
+		/* Просто куча кейсов на кучу тегов. Не буду комментировать в подробностях. */
+		for (final Tag tag : tree) {
 			try {
 				if (tag.isOpening())
 					switch (tag.name) {
@@ -146,7 +196,7 @@ public class HtmlRipper {
 									new StyleSpan(Typeface.BOLD),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "em":
@@ -154,7 +204,7 @@ public class HtmlRipper {
 									new StyleSpan(Typeface.ITALIC),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "s":
@@ -162,7 +212,7 @@ public class HtmlRipper {
 									new StrikethroughSpan(),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "u":
@@ -170,7 +220,7 @@ public class HtmlRipper {
 									new UnderlineSpan(),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						// Пока так.
@@ -181,7 +231,7 @@ public class HtmlRipper {
 									new RelativeSizeSpan(0.5f),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "a":
@@ -199,7 +249,7 @@ public class HtmlRipper {
 									new URLSpan(link),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "blockquote":
@@ -207,7 +257,7 @@ public class HtmlRipper {
 									new QuoteSpan(Color.GRAY),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "span":
@@ -220,7 +270,7 @@ public class HtmlRipper {
 												},
 												off + tag.end,
 												off + tree.get(tree.getClosingTag(tag)).start,
-												0
+												Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 										);
 										break;
 									case "center":
@@ -230,7 +280,7 @@ public class HtmlRipper {
 												},
 												off + tag.end,
 												off + tree.get(tree.getClosingTag(tag)).start,
-												0
+												Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 										);
 										break;
 									case "left":
@@ -240,33 +290,33 @@ public class HtmlRipper {
 												},
 												off + tag.end,
 												off + tree.get(tree.getClosingTag(tag)).start,
-												0
+												Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 										);
 										break;
 								}
 							switch (tag.get("class")) {
 								case "red":
 									builder.setSpan(
-											new ForegroundColorSpan(Color.parseColor("#962323")),
+											new ForegroundColorSpan(context.getResources().getColor(R.color.font_color_red)),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
-											0
+											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 									);
 									break;
 								case "green":
 									builder.setSpan(
-											new ForegroundColorSpan(Color.parseColor("#529041")),
+											new ForegroundColorSpan(context.getResources().getColor(R.color.font_color_green)),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
-											0
+											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 									);
 									break;
 								case "blue":
 									builder.setSpan(
-											new ForegroundColorSpan(Color.parseColor("#261474")),
+											new ForegroundColorSpan(context.getResources().getColor(R.color.font_color_blue)),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
-											0
+											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 									);
 									break;
 								case "spoiler-gray":
@@ -274,7 +324,7 @@ public class HtmlRipper {
 											new LitespoilerSpan(),
 											off + tag.end,
 											off + tree.get(tree.getClosingTag(tag)).start,
-											0
+											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 									);
 									break;
 							}
@@ -284,7 +334,7 @@ public class HtmlRipper {
 									new RelativeSizeSpan(1.5f),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).start, "\n");
 							break;
@@ -293,7 +343,7 @@ public class HtmlRipper {
 									new RelativeSizeSpan(1.25f),
 									off + tag.end,
 									off + tree.get(tree.getClosingTag(tag)).start,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).start, "\n");
 							break;
@@ -301,13 +351,13 @@ public class HtmlRipper {
 				else if (tag.isStandalone())
 					switch (tag.name) {
 						case "hr":
-							Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+							final Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
 							bitmap.setPixel(0, 0, Color.BLACK);
 							builder.setSpan(
 									new ImageSpan(context, bitmap),
 									off + tag.start,
 									off + tag.end,
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
 						case "br":
@@ -319,20 +369,27 @@ public class HtmlRipper {
 
 							builder.insert(off + tag.start, "||image||");
 							Bitmap bm = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-							bm.eraseColor(Color.BLACK);
+							bm.eraseColor(Color.RED);
+							String src = tag.get("src");
+
+							final ImageSpan replacer = new ImageSpan(context, bm);
 
 							builder.setSpan(
-									new ImageSpan(context, bm),
+									replacer,
 									off + tag.start,
 									off + tag.start + "||image||".length(),
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							builder.setSpan(
 									new URLSpan(tag.get("src")),
 									off + tag.start,
 									off + tag.start + "||image||".length(),
-									0
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
+
+							targets.add(src, replacer);
+							loadImages.add(src);
+
 							off += "||image||".length();
 							break;
 					}
@@ -341,16 +398,72 @@ public class HtmlRipper {
 			}
 		}
 
+		/* Не менять местами removeAllTags и deEntity: рискуешь остаться без всего экранированного */
 		removeAllTags(builder);
 		removeRecurringChars(builder, '\n');
 		deEntity(builder);
 
-		return builder;
+		target.setText(builder);
+
+		/* Эту фигню я юзаю для получения и вставки изображений по местам. */
+		final Object reader = new Object() {
+			@Bus.Handler(executor = AppContextExecutor.class)
+			public void image(DataAcquired.ImageLoaded loaded) {
+				Bitmap use = loaded.loaded;
+
+				/* Попытка убрать автоперевод строки при большой картинке.*/
+				int width = (int) (target.getWidth() - target.getTextSize());
+				if (use.getWidth() > width) {
+					int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
+					if (width != 0 && height != 0)
+						use = Bitmap.createScaledBitmap(
+								use,
+								width,
+								height,
+								true
+						);
+				}
+
+				for (ImageSpan span : targets.getValues(loaded.src)) {
+					int start = builder.getSpanStart(span);
+					int end = builder.getSpanEnd(span);
+					if (start == -1) {
+						Log.w("HtmlRipper", "Странная фигня тут: " + text);
+						continue;
+					}
+
+					builder.removeSpan(span);
+					builder.setSpan(
+							new ImageSpan(context, use),
+							start,
+							end,
+							Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+					);
+					target.setText(builder);
+				}
+			}
+		};
+
+		/* Регестрируем принималку картинок */
+		Static.bus.register(reader);
+
+		/* Запускаем загрузку картинок */
+		for (String str : loadImages)
+			Static.img.download(str);
+
+		/* Забрасываем в onDestroy удалялку принималки картинок */
+		onDestroy.add(new Runnable() {
+			@Override public void run() {
+				Static.bus.unregister(reader);
+			}
+		});
+
 	}
 
 	private TextView form(String text, Context context) {
 		TextView view = new TextView(context);
-		view.setText(simpleEscape(text, context));
+		simpleEscape(view, text, context);
+		view.setTextIsSelectable(true);
 		view.setMovementMethod(LinkMovementMethod.getInstance());
 		return view;
 	}
@@ -360,7 +473,7 @@ public class HtmlRipper {
 	 */
 	@SuppressWarnings("deprecation")
 	private void escape(String text, ViewGroup group) {
-		Context context = group.getContext();
+		final Context context = group.getContext();
 		group.removeViews(0, group.getChildCount());
 		HTMLTree tree = new HTMLTree(text);
 
@@ -412,6 +525,13 @@ public class HtmlRipper {
 					}
 				});
 
+				onLayout.add(new Runnable() {
+					@Override public void run() {
+						iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
+						iframe.requestLayout();
+					}
+				});
+
 				iframe.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
 				iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
 
@@ -428,7 +548,7 @@ public class HtmlRipper {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
 				group.addView(pre_text);
 
-				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.margins);
+				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);
 				// Немного костыльно, но сойдёт.
 				TextView cut = form(tag + tree.getContents(tag).trim() + "</a>", context);
 				cut.setBackgroundResource(R.drawable.bg_cut);
@@ -448,7 +568,7 @@ public class HtmlRipper {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
 				group.addView(pre_text);
 
-				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.margins);
+				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);
 
 				TextView code = form(tree.getContents(tag).trim(), context);
 				code.setBackgroundResource(R.drawable.bg_code);
@@ -481,6 +601,9 @@ public class HtmlRipper {
 
 	}
 
+	/**
+	 * Создаёт спойлер. Контент спойлера расчитывается только при раскрытии.
+	 */
 	private View formSpoiler(String text, Context context, ViewGroup group) {
 		final HTMLTree tree = new HTMLTree(text);
 
@@ -536,28 +659,13 @@ public class HtmlRipper {
 		return view;
 	}
 
-	private static class HandlingImageSpan extends ImageSpan {
-		private final Uri uri;
-
-		public HandlingImageSpan(Context context, Uri uri) {
-			super(context, uri);
-			this.uri = uri;
-		}
-
-		@Override public Drawable getDrawable() {
-			return super.getDrawable();
-		}
-
-
-		public void handleLoadedBitmap() {
-
-		}
-
-	}
-
+	/**
+	 * Скрывает текст фоном цвета текста, если нажать на него, то фон станет прозрачным.
+	 */
 	private static class LitespoilerSpan extends ClickableSpan {
 		boolean hidden = true;
 
+		@SuppressWarnings("NullableProblems")
 		@Override public void updateDrawState(TextPaint ds) {
 			ds.bgColor = hidden ? ds.getColor() : Color.TRANSPARENT;
 		}

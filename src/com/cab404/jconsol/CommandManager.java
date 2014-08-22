@@ -69,7 +69,7 @@ public class CommandManager {
 			return false;
 	}
 
-	public static String escapeString(String str){
+	public static String escapeString(String str) {
 		return str
 				.replace("\"", "\\\"")
 				.replace(";", "\\;")
@@ -233,7 +233,7 @@ public class CommandManager {
 	}
 
 
-	public List<CommandHolder> registered() {
+	public Iterable<CommandHolder> registered() {
 		ArrayList<CommandHolder> out = new ArrayList<>();
 		for (ArrayMap<String, CommandHolder> am : data.values()) {
 			for (CommandHolder holder : am.values())

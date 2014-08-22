@@ -7,12 +7,10 @@ import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.parts.CommentListPart;
-import com.cab404.ponyscape.parts.ErrorPart;
-import com.cab404.ponyscape.parts.StaticTextPart;
-import com.cab404.ponyscape.parts.TopicPart;
+import com.cab404.ponyscape.parts.*;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -29,8 +27,11 @@ public class PostCommands {
 		Static.bus.send(new Parts.Add(loading));
 		loading.setText("Загружаю пост...");
 
+		Static.history.add("post load " + id);
+
 		new Thread(new Runnable() {
 			@Override public void run() {
+
 
 				Static.last_page = new TopicPage(id) {
 					CommentListPart list;
@@ -77,6 +78,12 @@ public class PostCommands {
 								cancel();
 								break;
 						}
+					}
+
+					{Static.bus.register(this);}
+					@Bus.Handler
+					public void cancel(Commands.Abort abort) {
+						super.cancel();
 					}
 				};
 				Static.last_page.fetch(Static.user);

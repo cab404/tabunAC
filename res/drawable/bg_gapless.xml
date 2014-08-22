@@ -5,18 +5,12 @@
 	<item>
 		<shape>
 			<solid android:color="@color/bg_item_shadow"/>
-			<corners android:radius="6dp"/>
 		</shape>
 	</item>
 
-	<item
-			android:bottom="2dp"
-			android:top="0dp"
-			android:left="0dp"
-			android:right="0dp">
+	<item android:top="1dp">
 		<shape>
 			<solid android:color="@color/bg_item"/>
-			<corners android:radius="3dp"/>
 		</shape>
 	</item>
 
