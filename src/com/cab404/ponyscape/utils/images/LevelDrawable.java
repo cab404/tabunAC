@@ -43,8 +43,13 @@ public class LevelDrawable extends Drawable {
 	}
 
 	public int getLastColor(int width) {
-		int section_num = width / section_size;
-		return gradient(gradient_start, gradient_end, (float) section_num / limit);
+		int sector = width / section_size;
+
+		if (sector > limit)
+			return gradient_end;
+		else
+			return gradient(gradient_start, gradient_end, (float) sector / limit);
+
 	}
 
 	@Override public void draw(Canvas canvas) {
@@ -55,7 +60,7 @@ public class LevelDrawable extends Drawable {
 
 		for (int i = 0; i < section_num; i++) {
 
-			if (section_num > limit)
+			if (i > limit)
 				level.setColor(gradient_end);
 			else
 				level.setColor(gradient(gradient_start, gradient_end, (float) (i + start) / limit));

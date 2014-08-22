@@ -19,7 +19,7 @@
 	<color name="font_color_shortcuts">#ffbababa</color>
 
 	<color name="comment_ladder_gradient_start">@color/bg_main</color>
-	<color name="comment_ladder_gradient_end">@color/font_color_red</color>
+	<color name="comment_ladder_gradient_end">#F00</color>
 
 	<color name="spoiler_bg">#985f5d60</color>
 

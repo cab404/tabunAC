@@ -9,5 +9,6 @@
 	<dimen name="margins">8dp</dimen>
 
 	<dimen name="comment_ladder">25dp</dimen>
-	<integer name="maximum_gradient_length">16</integer>
+	<integer name="maximum_gradient_length">32</integer>
+	<integer name="menu_animation_duration">100</integer>
 </resources>

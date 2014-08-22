@@ -1,10 +1,15 @@
 package com.cab404.ponyscape.commands;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.widget.Toast;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
+import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.moonlight.util.SU;
+import com.cab404.ponyscape.bus.events.Android;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Login;
 import com.cab404.ponyscape.bus.events.Parts;
@@ -44,7 +49,31 @@ public class CoreCommands {
 
 	@Command(command = "login")
 	public void login() {
-		Static.bus.send(new Login.Requested());
+		Static.bus.send(
+				new Android.StartActivityForResult(
+						new Intent("everypony.tabun.auth.TOKEN_REQUEST"),
+						new Android.StartActivityForResult.ResultHandler() {
+							@Override public void handle(int resultCode, Intent data) {
+								if (resultCode == Activity.RESULT_OK) {
+									Static.bus.send(new Login.Success());
+									Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
+								} else {
+									Static.bus.send(new Login.Failure());
+								}
+							}
+							@Override public void error(Throwable e) {
+								Intent download = new Intent(
+										Intent.ACTION_VIEW,
+										Uri.parse("market://details?id=everypony.tabun.auth")
+								);
+								Static.bus.send(new Android.StartActivity(download));
+							}
+
+						}
+				)
+		);
+
+
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}

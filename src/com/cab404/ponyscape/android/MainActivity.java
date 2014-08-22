@@ -1,14 +1,13 @@
 package com.cab404.ponyscape.android;
 
 import android.animation.Animator;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Movie;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -24,21 +23,26 @@ import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.*;
-import com.cab404.ponyscape.utils.Anim;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
+import com.cab404.ponyscape.utils.views.animation.Anim;
+import com.cab404.ponyscape.utils.views.animation.BounceInterpolator;
 import com.cab404.sjbus.Bus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AbstractActivity {
 	private TextView line;
 
-	private static final int TOKEN_REQUEST_CODE = 42;
+	private Map<Integer, Android.StartActivityForResult.ResultHandler> running = new HashMap<>();
 	private ACLIList list;
+
+	private int anim_duration;
 
 	/**
 	 * Called when the activity is first created.
@@ -48,6 +52,9 @@ public class MainActivity extends AbstractActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
+
+		/* Кэшируем константы*/
+		anim_duration = getResources().getInteger(R.integer.menu_animation_duration);
 
         /* Привязываем локальные переменные */
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));
@@ -72,7 +79,13 @@ public class MainActivity extends AbstractActivity {
 		finished(null);
 
         /* Убираем меню ссылок */
-		hideMenu(0);
+		hideAliases(0);
+
+		findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
+				Static.bus.send(new Android.RootSizeChanged());
+			}
+		});
 
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
@@ -107,6 +120,8 @@ public class MainActivity extends AbstractActivity {
 						}
 						if (bar_locked_by_expansion) {
 							hideBar();
+							if (aliases_menu_active)
+								hideAliases(0);
 						}
 						Static.handler.post(this);
 					}
@@ -159,21 +174,7 @@ public class MainActivity extends AbstractActivity {
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		/* Получили что-то от профилей. */
-		switch (requestCode) {
-
-			case TOKEN_REQUEST_CODE:
-
-				if (resultCode == RESULT_OK) {
-					Static.bus.send(new Login.Success());
-					Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
-				} else {
-					Static.bus.send(new Login.Failure());
-				}
-				break;
-
-		}
-
+		running.get(requestCode).handle(resultCode, data);
 	}
 
 	@Override public void onBackPressed() {
@@ -189,22 +190,6 @@ public class MainActivity extends AbstractActivity {
 	/*    / / / BUS
 	 * / / /
      */
-
-	/* Вызывает Tabun.Auth */
-	@Bus.Handler
-	public void login(Login.Requested event) {
-		try {
-			startActivityForResult(new Intent("everypony.tabun.auth.TOKEN_REQUEST"), TOKEN_REQUEST_CODE);
-		} catch (ActivityNotFoundException e) {
-			Intent download = new Intent(
-					Intent.ACTION_VIEW,
-					Uri.parse("https://play.google.com/store/apps/details?id=everypony.tabun.auth")
-			);
-			startActivity(download);
-			setResult(RESULT_CANCELED);
-			finish();
-		}
-	}
 
 	/**
 	 * Скрывает вводимые символы, отменяется на {@link MainActivity#finished(Commands.Finished) finished()}
@@ -263,8 +248,8 @@ public class MainActivity extends AbstractActivity {
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void updateShortcuts(Shortcuts.Update event) {
 		updateShortcutList();
-		showMenu(0);
-		hideMenu(0);
+		showAliases(0);
+		hideAliases(0);
 	}
 
 	@Bus.Handler
@@ -341,26 +326,45 @@ public class MainActivity extends AbstractActivity {
 		line.setError(err.error);
 	}
 
+	@Bus.Handler
+	public synchronized void startActivityFromEvent(Android.StartActivityForResult e) {
+		int request_key = (int) ((Math.random() - 0.5) * 2 * Integer.MAX_VALUE);
+		running.put(request_key, e.handler);
+		try {
+			startActivityForResult(e.intent, request_key);
+		} catch (Throwable t) {
+			e.handler.error(t);
+			running.remove(request_key);
+		}
+	}
+
+	public void startActivityFromEvent(Android.StartActivity e) {
+		startActivity(e.activity);
+	}
+
 	/*    / / / UI
 	* / / /
 	*/
-	private boolean menu_active = false;
+	private boolean aliases_menu_active = false;
 
 	public void toggleMenu(View view) {
-		if (menu_active)
-			hideMenu(30);
+		if (aliases_menu_active)
+			hideAliases(anim_duration);
 		else
-			showMenu(30);
+			showAliases(anim_duration);
 	}
 
-	private void hideMenu(final int delay_per_item) {
-		if (!menu_active) return;
+	private void hideAliases(final int delay_per_item) {
+		if (!aliases_menu_active) return;
 
-		menu_active = false;
+		aliases_menu_active = false;
 		updateInput();
 
 		final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
-		findViewById(R.id.command_bg).animate().scaleX(1).scaleY(1)
+		findViewById(R.id.command_bg)
+				.animate()
+				.scaleX(1).scaleY(1)
+				.setInterpolator(null)
 				.setDuration(items.getChildCount() * delay_per_item);
 
 		for (int i = 0; i < items.getChildCount(); i++) {
@@ -370,8 +374,9 @@ public class MainActivity extends AbstractActivity {
 					new Runnable() {
 						public void run() {
 							anim.animate()
+									.setInterpolator(null)
 									.setDuration(delay_per_item * 2)
-									.x(items.getWidth() * 2);
+									.x(items.getWidth() + anim.getWidth());
 						}
 					},
 					i * delay_per_item
@@ -381,31 +386,29 @@ public class MainActivity extends AbstractActivity {
 
 		findViewById(R.id.fade_bg).animate()
 				.setDuration(items.getChildCount() * delay_per_item)
-				.alpha(0).setListener(new Animator.AnimatorListener() {
-			@Override public void onAnimationStart(Animator animator) {}
-			@Override public void onAnimationEnd(Animator animator) {
-				findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
-				findViewById(R.id.fade_bg).setVisibility(View.GONE);
-			}
-			@Override public void onAnimationCancel(Animator animator) {}
-			@Override public void onAnimationRepeat(Animator animator) {}
-		});
+				.alpha(0)
+				.setListener(new Anim.AnimatorListenerImpl() {
+					@Override public void onAnimationEnd(Animator animator) {
+						findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
+						findViewById(R.id.fade_bg).setVisibility(View.GONE);
+					}
+				});
 
 	}
 
 	/**
 	 * Вызывается, если пользователь нажал на затемненный фон.
-	 * Скрывает меню.
+	 * Скрывает список алиасов.
 	 */
-	public void closeMenu(View view) {
-		hideMenu(30);
+	public void closeAliases(View view) {
+		hideAliases(anim_duration);
 	}
 
-	private void showMenu(final int delay_per_item) {
+	private void showAliases(final int delay_per_item) {
 		line.setError(null);
-		if (menu_active) return;
+		if (aliases_menu_active) return;
 
-		menu_active = true;
+		aliases_menu_active = true;
 		updateInput();
 
 
@@ -413,9 +416,10 @@ public class MainActivity extends AbstractActivity {
 		final View button = findViewById(R.id.command_bg);
 
 		findViewById(R.id.command_bg).animate()
-				/* Размер иконки умножен на 4, т.к лень вручную вбивать размер.*/
+				/* Размер иконки умножен на 4, т.к лень вручную вбивать размер всяких оффсетов и другой галиматьи.*/
 				.scaleX(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
 				.scaleY(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
+				.setInterpolator(new BounceInterpolator())
 				.setDuration(items.getChildCount() * delay_per_item);
 
 		new Drawable() {
@@ -434,13 +438,14 @@ public class MainActivity extends AbstractActivity {
 
 		for (int i = 0; i < items.getChildCount(); i++) {
 			final View anim = items.getChildAt(i);
-			anim.setX(items.getWidth() * 2);
+			anim.setX(items.getWidth() + anim.getWidth());
 
 			Static.handler.postDelayed(
 					new Runnable() {
 						public void run() {
 							float dpi = getResources().getDisplayMetrics().density;
 							anim.animate()
+									.setInterpolator(new BounceInterpolator())
 									.setDuration(delay_per_item * 2)
 									.x(items.getWidth() - anim.getWidth() + 2 * dpi);
 						}
@@ -452,14 +457,12 @@ public class MainActivity extends AbstractActivity {
 
 		findViewById(R.id.fade_bg).animate()
 				.setDuration(items.getChildCount() * delay_per_item + delay_per_item)
-				.alpha(1).setListener(new Animator.AnimatorListener() {
-			@Override public void onAnimationStart(Animator animator) {
-				findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);
-			}
-			@Override public void onAnimationEnd(Animator animator) {}
-			@Override public void onAnimationCancel(Animator animator) {}
-			@Override public void onAnimationRepeat(Animator animator) {}
-		});
+				.alpha(1)
+				.setListener(new Anim.AnimatorListenerImpl() {
+					@Override public void onAnimationStart(Animator animator) {
+						findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);
+					}
+				});
 
 		findViewById(R.id.menu_scroll_pane).setVisibility(View.VISIBLE);
 	}
@@ -469,7 +472,7 @@ public class MainActivity extends AbstractActivity {
 	private boolean bar_processing = false;
 
 	protected void hideBar() {
-		if (!bar_enabled || bar_processing || menu_active) return;
+		if (!bar_enabled || bar_processing || aliases_menu_active) return;
 		Log.v("Bar", "Hidden");
 		bar_enabled = false;
 		bar_processing = true;
@@ -504,7 +507,7 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	protected void updateInput() {
-		line.setEnabled(!command_running && bar_enabled && !menu_active);
+		line.setEnabled(!command_running && bar_enabled && !aliases_menu_active);
 	}
 
 	public static class LaunchShortcut implements Serializable {
@@ -525,6 +528,14 @@ public class MainActivity extends AbstractActivity {
 		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
 	}
 
+	@Override protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+	}
+
+	@Override public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
 	protected void updateShortcutList() {
 		ArrayList<LaunchShortcut> shortcuts = Static.cfg.get("main.shortcuts");
 		if (shortcuts == null) shortcuts = new ArrayList<>();
@@ -539,7 +550,7 @@ public class MainActivity extends AbstractActivity {
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
 					Static.bus.send(new Commands.Run(shortcut.command));
-					closeMenu(view);
+					closeAliases(view);
 				}
 			});
 			views.addView(view);

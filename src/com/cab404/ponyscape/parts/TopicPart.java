@@ -14,7 +14,7 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.utils.Anim;
+import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
