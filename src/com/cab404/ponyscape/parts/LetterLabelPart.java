@@ -9,6 +9,8 @@ import com.cab404.libtabun.data.LetterLabel;
 import com.cab404.ponyscape.R;
 
 /**
+ * Краткий заголовок письма.
+ *
  * @author cab404
  */
 public class LetterLabelPart extends Part {

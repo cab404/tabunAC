@@ -8,9 +8,9 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
 
-              android:layout_marginTop="@dimen/margins"
-              android:layout_marginLeft="@dimen/margins"
-              android:layout_marginRight="@dimen/margins"
+              android:layout_marginTop="@dimen/external_margins"
+              android:layout_marginLeft="@dimen/external_margins"
+              android:layout_marginRight="@dimen/external_margins"
 
               android:background="@drawable/bg_part"
               android:padding="8dp">
@@ -39,11 +39,12 @@
 				android:hint="Перейти к..."
 				android:layout_margin="4dp"
 				android:gravity="center"
-				android:layout_weight="1"/>
+				android:layout_weight="1"
+				android:inputType="number"/>
 		<TextView android:layout_width="wrap_content"
 		          android:layout_height="wrap_content"
 		          android:text="Стр. 3"
-		          android:id="@+id/fwd"
+		          android:id="@+id/next"
 		          android:gravity="center_vertical|right"
 		          android:drawableRight="@drawable/ic_bar_right"/>
 	</LinearLayout>

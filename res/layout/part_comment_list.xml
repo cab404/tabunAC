@@ -63,9 +63,9 @@
 			android:id="@+id/expand_comments"
 			android:visibility="visible"
 
-			android:layout_marginTop="@dimen/margins"
-			android:layout_marginLeft="@dimen/margins"
-			android:layout_marginRight="@dimen/margins"
+			android:layout_marginTop="@dimen/internal_margins"
+			android:layout_marginLeft="@dimen/internal_margins"
+			android:layout_marginRight="@dimen/internal_margins"
 
 			android:background="@drawable/bg_part"
 			>

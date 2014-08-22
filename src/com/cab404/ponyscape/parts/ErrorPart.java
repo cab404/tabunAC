@@ -1,12 +1,29 @@
 package com.cab404.ponyscape.parts;
 
+import com.cab404.libtabun.data.TabunError;
+import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.utils.Static;
+
 /**
  * @author cab404
  */
 public class ErrorPart extends AbstractTextPart {
 
-	@Override protected CharSequence getText() {
-		return "Ошибка: Страница не найдена или доступ запрещён.";
+	private TabunError error;
+
+	public ErrorPart(TabunError error) {
+		this.error = error;
 	}
 
+	@Override protected CharSequence getText() {
+		switch (error) {
+			case ACCESS_DENIED:
+				return Static.app_context.getResources().getText(R.string.err403);
+			case NOT_FOUND:
+				return Static.app_context.getResources().getText(R.string.err404);
+			case UNKNOWN:
+			default:
+				return Static.app_context.getResources().getText(R.string.errUNKNOWN);
+		}
+	}
 }

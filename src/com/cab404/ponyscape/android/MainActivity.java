@@ -2,11 +2,7 @@ package com.cab404.ponyscape.android;
 
 import android.animation.Animator;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Movie;
-import android.graphics.PixelFormat;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
@@ -17,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.cab404.acli.ACLIList;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
@@ -37,12 +34,24 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AbstractActivity {
-	private TextView line;
 
+	/**
+	 * Командная строка
+	 */
+	private TextView line;
+	/**
+	 * Запущеные для результата задания. Точнее, слушалки этих самых результатов.
+	 */
 	private Map<Integer, Android.StartActivityForResult.ResultHandler> running = new HashMap<>();
+	/**
+	 * Менеджер всея листа.
+	 */
 	private ACLIList list;
 
-	private int anim_duration;
+	/**
+	 * Кэшированная константа из xml-ей; отвечает за скорость появления/исчезновения меню алиасов
+	 */
+	private int alias_menu_animation_duration;
 
 	/**
 	 * Called when the activity is first created.
@@ -54,7 +63,7 @@ public class MainActivity extends AbstractActivity {
 		setContentView(R.layout.activity_main);
 
 		/* Кэшируем константы*/
-		anim_duration = getResources().getInteger(R.integer.menu_animation_duration);
+		alias_menu_animation_duration = getResources().getInteger(R.integer.alias_menu_animation_duration);
 
         /* Привязываем локальные переменные */
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));
@@ -178,9 +187,10 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Override public void onBackPressed() {
-		if (command_running)
+		if (command_running) {
 			Static.bus.send(new Commands.Abort());
-		else if (Static.history.size() > 1) {
+			Static.bus.send(new Commands.Finished());
+		} else if (Static.history.size() > 1) {
 			Static.history.remove(Static.history.size() - 1);
 			Static.bus.send(new Commands.Run(Static.history.remove(Static.history.size() - 1)));
 		}
@@ -233,7 +243,6 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Выставляет в командную строку выданную команду и запускает её, либо добавляет в очередь.
 	 */
-
 	private List<String> command_queue = new ArrayList<>();
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void runCommand(final Commands.Run event) {
@@ -275,6 +284,11 @@ public class MainActivity extends AbstractActivity {
 		findViewById(R.id.data).requestLayout();
 		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(true);
 		bar_locked_by_expansion = false;
+	}
+
+	@Bus.Handler
+	protected void lockListScroll(Parts.Lock event) {
+		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
@@ -322,8 +336,11 @@ public class MainActivity extends AbstractActivity {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void error(Commands.Error err) {
-		showBar();
-		line.setError(err.error);
+
+		Toast toast = Toast.makeText(this, err.error, Toast.LENGTH_SHORT);
+		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
+		toast.show();
+//		line.setError(err.error);
 	}
 
 	@Bus.Handler
@@ -345,15 +362,25 @@ public class MainActivity extends AbstractActivity {
 	/*    / / / UI
 	* / / /
 	*/
+
+	/**
+	 * Активно ли меню алиасов?
+	 */
 	private boolean aliases_menu_active = false;
 
+	/**
+	 * Переключает меню алиасов.
+	 */
 	public void toggleMenu(View view) {
 		if (aliases_menu_active)
-			hideAliases(anim_duration);
+			hideAliases(alias_menu_animation_duration);
 		else
-			showAliases(anim_duration);
+			showAliases(alias_menu_animation_duration);
 	}
 
+	/**
+	 * Прячет круглую менюшку алиасов
+	 */
 	private void hideAliases(final int delay_per_item) {
 		if (!aliases_menu_active) return;
 
@@ -401,9 +428,12 @@ public class MainActivity extends AbstractActivity {
 	 * Скрывает список алиасов.
 	 */
 	public void closeAliases(View view) {
-		hideAliases(anim_duration);
+		hideAliases(alias_menu_animation_duration);
 	}
 
+	/**
+	 * Показывает меню алиасов.
+	 */
 	private void showAliases(final int delay_per_item) {
 		line.setError(null);
 		if (aliases_menu_active) return;
@@ -467,10 +497,18 @@ public class MainActivity extends AbstractActivity {
 		findViewById(R.id.menu_scroll_pane).setVisibility(View.VISIBLE);
 	}
 
-
+	/**
+	 * Показана ли командная строка и иже с ней?
+	 */
 	private boolean bar_enabled = true;
+	/**
+	 * Запущена ли анимация на командной строке и ей присущем?
+	 */
 	private boolean bar_processing = false;
 
+	/**
+	 * Прячет командную строку
+	 */
 	protected void hideBar() {
 		if (!bar_enabled || bar_processing || aliases_menu_active) return;
 		Log.v("Bar", "Hidden");
@@ -488,6 +526,9 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
+	/**
+	 * Показывает командную строку.
+	 */
 	protected void showBar() {
 		if (bar_enabled || bar_processing) return;
 
@@ -506,10 +547,17 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
+	/**
+	 * Довольно интересная функция. В зависимости от кучи факторов включает
+	 * или выключает возможность редактировать командную строку.
+	 */
 	protected void updateInput() {
 		line.setEnabled(!command_running && bar_enabled && !aliases_menu_active);
 	}
 
+	/**
+	 * Алиас.
+	 */
 	public static class LaunchShortcut implements Serializable {
 		private static final long serialVersionUID = 0L;
 
@@ -523,19 +571,16 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
-	@Bus.Handler
-	protected void lockListScroll(Parts.Lock event) {
-		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
-	}
-
+	/**
+	 * TODO: Вот тут вот нужно будет ловить всё, что не попадя.
+	 */
 	@Override protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 	}
 
-	@Override public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-	}
-
+	/**
+	 * Обновляет список алиасов из глобальных настроек
+	 */
 	protected void updateShortcutList() {
 		ArrayList<LaunchShortcut> shortcuts = Static.cfg.get("main.shortcuts");
 		if (shortcuts == null) shortcuts = new ArrayList<>();

@@ -65,6 +65,8 @@ public class LevelDrawable extends Drawable {
 			else
 				level.setColor(gradient(gradient_start, gradient_end, (float) (i + start) / limit));
 
+			level.setAlpha(alpha);
+
 			canvas.drawRect(i * section_size, 0, (i + 1) * section_size, height, level);
 
 		}

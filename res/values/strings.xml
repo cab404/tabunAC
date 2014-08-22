@@ -12,6 +12,10 @@
 		Вот.
 	</string>
 
+	<string name="err404">Ошибка: Страница не найдена</string>
+	<string name="err403">Ошибка: Доступ запрещён</string>
+	<string name="errUNKNOWN">Ошибка: WTF CONDITION, RUN FOR YOUR LIVE!</string>
+
 	<string name="comments">Комментарии</string>
 
 	<plurals name="minutes_ago">

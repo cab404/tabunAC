@@ -14,10 +14,10 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -49,6 +49,19 @@ public class TopicPart extends Part {
 
 		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
 		ripper.escape(topic.text);
+		view.findViewById(R.id.content).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+			int last_width = 0;
+			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
+				/*
+				 * Запускаем обновление раскладки только при изменении ширины.
+				 * Если убрать, то WebView заспамит в лог кучу ошибок: так он кидает только одну :D
+				 */
+				if (last_width != view.getWidth()) {
+					last_width = view.getWidth();
+					ripper.layout();
+				}
+			}
+		});
 
 		((TextView) view.findViewById(R.id.data))
 				.setText(topic.author.login

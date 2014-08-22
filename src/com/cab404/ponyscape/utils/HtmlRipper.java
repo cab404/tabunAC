@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.*;
@@ -27,6 +25,7 @@ import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.sjbus.Bus;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -38,20 +37,36 @@ import java.util.List;
 public class HtmlRipper {
 
 	private ViewGroup layout;
-	List<Runnable> onDestroy;
-	ArrayList<View> cached_contents;
+	private Collection<Runnable> onDestroy;
+	private Collection<Runnable> onLayout;
+	private List<View> cached_contents;
 
 	public HtmlRipper(ViewGroup layout) {
 		cached_contents = new ArrayList<>();
 		onDestroy = new ArrayList<>();
+		onLayout = new ArrayList<>();
 		this.layout = layout;
 	}
 
+	/**
+	 * Запускайте перед уничтожением этого объекта - эта штука выключает видео.
+	 */
 	public void destroy() {
 		for (Runnable runnable : onDestroy)
 			runnable.run();
 	}
 
+	/**
+	 * Просит всяческие куски разметки перерасчитать себя. Работает пока только для iframe-ов.
+	 */
+	public void layout() {
+		for (Runnable runnable : onLayout)
+			runnable.run();
+	}
+
+	/**
+	 * Перемещает view-шки из предыдущего layout-а (если он ещё жив) в данный.
+	 */
 	public void changeLayout(ViewGroup group) {
 		layout = group;
 		group.removeViews(0, group.getChildCount());
@@ -156,13 +171,22 @@ public class HtmlRipper {
 
 	}
 
-	public void simpleEscape(final TextView target, final String text, final Context context) {
+	/**
+	 * Превращает HTML в понятный Android-у CharSequence и пихает его в данный ему TextView.
+	 */
+	private void simpleEscape(final TextView target, final String text, final Context context) {
 		final SpannableStringBuilder builder = new SpannableStringBuilder(text);
 		HTMLTree tree = new HTMLTree(text);
-		HashSet<String> loadImages = new HashSet<>();
+
+		Collection<String> loadImages = new HashSet<>();
 		final ArrayMap<String, ImageSpan> targets = new ArrayMap<>();
 
+		/*
+		 * Отклонение от индексов. Мы меняем текст дерева, но так как теги привязаны, нам нужно учитывать это вручную.
+		 * Надо написать insert для HTMLTree.
+		 */
 		int off = 0;
+		/* Просто куча кейсов на кучу тегов. Не буду комментировать в подробностях. */
 		for (final Tag tag : tree) {
 			try {
 				if (tag.isOpening())
@@ -374,19 +398,18 @@ public class HtmlRipper {
 			}
 		}
 
+		/* Не менять местами removeAllTags и deEntity: рискуешь остаться без всего экранированного */
 		removeAllTags(builder);
 		removeRecurringChars(builder, '\n');
 		deEntity(builder);
 
 		target.setText(builder);
 
+		/* Эту фигню я юзаю для получения и вставки изображений по местам. */
 		final Object reader = new Object() {
 			@Bus.Handler(executor = AppContextExecutor.class)
 			public void image(DataAcquired.ImageLoaded loaded) {
-				ImageSpan[] spans = builder.getSpans(0, builder.length(), ImageSpan.class);
-
 				Bitmap use = loaded.loaded;
-
 
 				/* Попытка убрать автоперевод строки при большой картинке.*/
 				int width = (int) (target.getWidth() - target.getTextSize());
@@ -421,11 +444,14 @@ public class HtmlRipper {
 			}
 		};
 
+		/* Регестрируем принималку картинок */
 		Static.bus.register(reader);
+
+		/* Запускаем загрузку картинок */
 		for (String str : loadImages)
 			Static.img.download(str);
 
-
+		/* Забрасываем в onDestroy удалялку принималки картинок */
 		onDestroy.add(new Runnable() {
 			@Override public void run() {
 				Static.bus.unregister(reader);
@@ -447,7 +473,7 @@ public class HtmlRipper {
 	 */
 	@SuppressWarnings("deprecation")
 	private void escape(String text, ViewGroup group) {
-		Context context = group.getContext();
+		final Context context = group.getContext();
 		group.removeViews(0, group.getChildCount());
 		HTMLTree tree = new HTMLTree(text);
 
@@ -499,6 +525,13 @@ public class HtmlRipper {
 					}
 				});
 
+				onLayout.add(new Runnable() {
+					@Override public void run() {
+						iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
+						iframe.requestLayout();
+					}
+				});
+
 				iframe.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
 				iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
 
@@ -515,7 +548,7 @@ public class HtmlRipper {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
 				group.addView(pre_text);
 
-				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.margins);
+				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);
 				// Немного костыльно, но сойдёт.
 				TextView cut = form(tag + tree.getContents(tag).trim() + "</a>", context);
 				cut.setBackgroundResource(R.drawable.bg_cut);
@@ -535,7 +568,7 @@ public class HtmlRipper {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
 				group.addView(pre_text);
 
-				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.margins);
+				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);
 
 				TextView code = form(tree.getContents(tag).trim(), context);
 				code.setBackgroundResource(R.drawable.bg_code);
@@ -568,6 +601,9 @@ public class HtmlRipper {
 
 	}
 
+	/**
+	 * Создаёт спойлер. Контент спойлера расчитывается только при раскрытии.
+	 */
 	private View formSpoiler(String text, Context context, ViewGroup group) {
 		final HTMLTree tree = new HTMLTree(text);
 
@@ -623,28 +659,13 @@ public class HtmlRipper {
 		return view;
 	}
 
-	private static class HandlingImageSpan extends ImageSpan {
-		private final Uri uri;
-
-		public HandlingImageSpan(Context context, Uri uri) {
-			super(context, uri);
-			this.uri = uri;
-		}
-
-		@Override public Drawable getDrawable() {
-			return super.getDrawable();
-		}
-
-
-		public void handleLoadedBitmap() {
-
-		}
-
-	}
-
+	/**
+	 * Скрывает текст фоном цвета текста, если нажать на него, то фон станет прозрачным.
+	 */
 	private static class LitespoilerSpan extends ClickableSpan {
 		boolean hidden = true;
 
+		@SuppressWarnings("NullableProblems")
 		@Override public void updateDrawState(TextPaint ds) {
 			ds.bgColor = hidden ? ds.getColor() : Color.TRANSPARENT;
 		}

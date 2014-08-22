@@ -30,9 +30,9 @@
 					android:text="cab404, в 20:49"
 					android:id="@+id/data"
 
-					android:paddingTop="@dimen/margins"
-					android:paddingLeft="@dimen/margins"
-					android:paddingBottom="@dimen/margins"
+					android:paddingTop="@dimen/internal_margins"
+					android:paddingLeft="@dimen/internal_margins"
+					android:paddingBottom="@dimen/internal_margins"
 
 					android:singleLine="false"
 					android:layout_weight="1"/>

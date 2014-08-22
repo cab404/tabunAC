@@ -27,32 +27,6 @@ public class Images {
 	private Map<String, Reference<Bitmap>> cache;
 	private File cacheDir;
 	private int cut;
-	private Context context;
-
-	public interface BitmapHandler {
-
-		public void handleBitmap(String src, Bitmap bitmap);
-		/**
-		 * @param src  Адрес изображения
-		 * @param mime Тип изображения
-		 * @param w    Ширина изображения
-		 * @param h    Высота изображения
-		 * @return Загружать ли картинку дальше.
-		 * <p/>
-		 * Вызывается при получении типа изображения.
-		 */
-		public boolean handleParams(String src, String mime, int w, int h);
-		/**
-		 * Сюда передаётся всё о загрузке.
-		 */
-		public boolean handleLoadingProgress(String src, int bytes, int full_size);
-		/**
-		 * @param src Адрес изображения
-		 * @param err Ошибка, с которой вылетел загрузщик.
-		 *            <p/>
-		 */
-		public void onFailure(String src, Throwable err);
-	}
 
 	public static class CorruptedImageException extends RuntimeException {
 		public CorruptedImageException(String detailMessage) {
@@ -61,8 +35,8 @@ public class Images {
 	}
 
 	public Images(Context context, File cacheDir) {
-		this.context = context;
 		this.cacheDir = cacheDir;
+
 		cache = new HashMap<>();
 		loading = new HashSet<>();
 		cut = Math.max(
@@ -103,6 +77,8 @@ public class Images {
 						HttpUriRequest get = new HttpGet(URI.create(src));
 						HttpResponse response = new DefaultHttpClient().execute(get);
 
+
+						// TODO: Добавить лимит по размеру изображения.
 						int length = -1;
 						if (response.getFirstHeader("Content-Length") != null)
 							length = Integer.parseInt(response.getFirstHeader("Content-Length").getValue());
@@ -132,7 +108,7 @@ public class Images {
 
 						// Writing cache
 						BufferedOutputStream file_cache = new BufferedOutputStream(new FileOutputStream(file));
-						byte[] buf = new byte[16 * 1024]; // 16K should be enough for buffer
+						byte[] buf = new byte[16 * 1024]; // 16K should be enough for everything
 
 						int read;
 						int progress = 0;
@@ -142,7 +118,9 @@ public class Images {
 
 						file_cache.close();
 						upstream.close();
-					}
+					} else
+						Log.v("ImageLoader", "Getting " + src + " from file cache");
+
 
 					// Reading saved image from file
 					BufferedInputStream upstream = new BufferedInputStream(new FileInputStream(file));
@@ -161,7 +139,7 @@ public class Images {
 
 //					handler.handleBitmap(src, bitmap);
 				} catch (IOException e) {
-					Log.e("Images", "Не могу загрузить картинку.", e);
+					Log.e("Images", "Не могу загрузить картинку из" + src, e);
 
 				}
 				loading.remove(src);
