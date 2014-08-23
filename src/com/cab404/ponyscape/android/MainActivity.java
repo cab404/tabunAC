@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.cab404.acli.ACLIList;
+import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
@@ -138,13 +139,21 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
+	private boolean command_running = false;
 	/**
 	 * Запускает команду в окошке и блокирует его изменение
 	 */
-	private boolean command_running = false;
 	public void execute() {
 		CharSequence data = line.getText();
 		line.setError(null);
+
+		/* Рубим в куски.*/
+		List<String> commands = CommandManager.splitCommandLines(data.toString());
+		/* Если кусков дофига, то остальное кладём в холодильник. Чтоб не портилось. */
+		if (commands.size() > 1) {
+			command_queue.addAll(commands.subList(1, commands.size()));
+			data = commands.get(0);
+		}
 
 		if (data.length() != 0)
 			try {
@@ -153,8 +162,6 @@ public class MainActivity extends AbstractActivity {
 				command_running = true;
 				updateInput();
 				Static.cm.run(data.toString());
-				Log.v("MAIN", "IM OUT!");
-
 
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
@@ -162,20 +169,11 @@ public class MainActivity extends AbstractActivity {
 
 				Static.bus.send(new Commands.Finished());
 
-			} catch (RuntimeException nf) {
-				Throwable lowest = nf;
-				while (lowest.getCause() != null)
-					lowest = lowest.getCause();
-
-				if (lowest instanceof Web.NetworkNotFound) {
-					Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
-					line.setError("Нет подключения к Сети");
-				} else {
-					throw nf;
-				}
+			} catch (Web.NetworkNotFound nf) {
+				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
+				line.setError("Нет подключения к Сети");
 
 				Static.bus.send(new Commands.Finished());
-
 			}
 
 	}
@@ -193,6 +191,8 @@ public class MainActivity extends AbstractActivity {
 		} else if (Static.history.size() > 1) {
 			Static.history.remove(Static.history.size() - 1);
 			Static.bus.send(new Commands.Run(Static.history.remove(Static.history.size() - 1)));
+		} else {
+			super.onBackPressed();
 		}
 
 	}
@@ -354,7 +354,7 @@ public class MainActivity extends AbstractActivity {
 			running.remove(request_key);
 		}
 	}
-
+	@Bus.Handler
 	public void startActivityFromEvent(Android.StartActivity e) {
 		startActivity(e.activity);
 	}

@@ -44,6 +44,10 @@
 			</intent-filter>
 		</activity>
 
+		<activity android:name=".android.EditorActivity"
+		          android:theme="@style/Ponyscape.Dialog"
+		          android:label="@string/label_editor_activity"/>
+
 	</application>
 
 </manifest>

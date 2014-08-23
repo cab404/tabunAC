@@ -40,9 +40,8 @@ public class PageCommands {
 
 		new Thread(new Runnable() {
 			@Override public void run() {
-				Static.last_page = new TabunPage() {
 
-
+				TabunPage page = new TabunPage() {
 					@Override public String getURL() {
 						return address;
 					}
@@ -74,7 +73,8 @@ public class PageCommands {
 						super.cancel();
 					}
 				};
-				Static.last_page.fetch(Static.user);
+				page.fetch(Static.user);
+				Static.last_page = page;
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {

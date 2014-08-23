@@ -81,6 +81,34 @@ public class Anim {
 		});
 	}
 
+	public static void shift(final View view, final int scrollX, final int animLen, final Runnable onFinish) {
+		final int startScroll = view.getScrollX();
+
+		Static.handler.post(new Runnable() {
+			int go = 0;
+			int delay = 17;  // ~60 FPS
+			@Override public void run() {
+				go += delay;
+				if (go < animLen) {
+
+					if (scrollX != -1)
+						view.scrollTo((int) (startScroll + (scrollX - startScroll) * ((float) go / animLen)), 0);
+
+					Static.handler.postDelayed(this, delay);
+				} else {
+
+					if (scrollX != -1)
+						view.scrollTo(scrollX, 0);
+
+					if (onFinish != null)
+						onFinish.run();
+
+				}
+				view.requestLayout();
+			}
+		});
+	}
+
 	public static class AnimatorListenerImpl implements Animator.AnimatorListener {
 		@Override public void onAnimationStart(Animator animation) {}
 		@Override public void onAnimationEnd(Animator animation) {}

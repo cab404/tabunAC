@@ -24,12 +24,19 @@ public class DataAcquired {
 		}
 	}
 
-	public static class ImageLoaded {
-		public final Bitmap loaded;
-		public final String src;
-		public ImageLoaded(Bitmap loaded, String src) {
-			this.loaded = loaded;
-			this.src = src;
+	public static class Image {
+		public static class Loaded {
+			public final Bitmap loaded;
+			public final String src;
+			public Loaded(Bitmap loaded, String src) {
+				this.loaded = loaded;
+				this.src = src;
+			}
+		}
+
+		public static class Error {
+			public final String src;
+			public Error(String src) {this.src = src;}
 		}
 	}
 

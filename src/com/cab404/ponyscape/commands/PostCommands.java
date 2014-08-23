@@ -3,11 +3,16 @@ package com.cab404.ponyscape.commands;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Int;
+import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.data.Topic;
+import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.parts.*;
+import com.cab404.ponyscape.parts.CommentListPart;
+import com.cab404.ponyscape.parts.ErrorPart;
+import com.cab404.ponyscape.parts.StaticTextPart;
+import com.cab404.ponyscape.parts.TopicPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
@@ -33,7 +38,7 @@ public class PostCommands {
 			@Override public void run() {
 
 
-				Static.last_page = new TopicPage(id) {
+				TabunPage page = new TopicPage(id) {
 					CommentListPart list;
 					int all = 0;
 					int num = 0;
@@ -72,7 +77,7 @@ public class PostCommands {
 							case BLOCK_ERROR:
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
-										Static.bus.send(new Parts.Add(new ErrorPart()));
+										Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
 									}
 								});
 								cancel();
@@ -86,7 +91,8 @@ public class PostCommands {
 						super.cancel();
 					}
 				};
-				Static.last_page.fetch(Static.user);
+				page.fetch(Static.user);
+				Static.last_page = page;
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {

@@ -12,4 +12,5 @@
 	<dimen name="comment_ladder">25dp</dimen>
 	<integer name="maximum_gradient_length">32</integer>
 	<integer name="alias_menu_animation_duration">100</integer>
+
 </resources>

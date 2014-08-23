@@ -14,7 +14,7 @@ import com.cab404.ponyscape.R;
  * @author cab404
  */
 public class LevelDrawable extends Drawable {
-	private int alpha;
+	private int alpha = 255;
 
 	int section_size;
 	int limit;
