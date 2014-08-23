@@ -30,11 +30,10 @@ public class VoteCommands {
 					VoteRequest request = new VoteRequest(id, vote, Type.TOPIC) {
 						@Override protected void handle(JSONObject object) {
 							super.handle(object);
-							if ((boolean) object.get("bStateError"))
-								Static.bus.send(new Commands.Error((CharSequence) object.get("sMsg")));
+							if (!success)
+								Static.bus.send(new Commands.Error(msg));
 							else
-								Static.bus.send(new DataAcquired.PostVote(id,
-										/* FTGJ! */Integer.parseInt(String.valueOf(object.get("iRating")))));
+								Static.bus.send(new DataAcquired.PostVote(id, result));
 
 						}
 					};
@@ -64,11 +63,10 @@ public class VoteCommands {
 					VoteRequest request = new VoteRequest(id, vote, Type.COMMENT) {
 						@Override protected void handle(JSONObject object) {
 							super.handle(object);
-							if ((boolean) object.get("bStateError"))
-								Static.bus.send(new Commands.Error((CharSequence) object.get("sMsg")));
+							if (!success)
+								Static.bus.send(new Commands.Error(msg));
 							else
-								Static.bus.send(new DataAcquired.CommentVote(id,
-										/* FTGJ! */Integer.parseInt(String.valueOf(object.get("iRating")))));
+								Static.bus.send(new DataAcquired.PostVote(id, result));
 						}
 					};
 					request.exec(Static.user, Static.last_page);

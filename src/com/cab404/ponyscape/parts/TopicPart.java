@@ -87,7 +87,6 @@ public class TopicPart extends Part {
 			}
 		});
 
-
 		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
 				Static.bus.send(new Commands.Run("votefor post " + topic.id + " -1"));

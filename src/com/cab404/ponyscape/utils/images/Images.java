@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,7 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
 import java.lang.ref.Reference;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class Images {
 		/* Смотрим в кэше. */
 		if (cache.containsKey(src) && cache.get(src).get() != null) {
 			Log.v("ImageLoader", "Got " + src + " from cache");
-			Static.bus.send(new DataAcquired.ImageLoaded(cache.get(src).get(), src));
+			Static.bus.send(new DataAcquired.Image.Loaded(cache.get(src).get(), src));
 			return;
 		}
 
@@ -74,9 +75,8 @@ public class Images {
 						Log.v("ImageLoader", "Loading " + src);
 						/// Connecting.
 
-						HttpUriRequest get = new HttpGet(URI.create(src));
+						HttpUriRequest get = new HttpGet(Simple.parse(src));
 						HttpResponse response = new DefaultHttpClient().execute(get);
-
 
 						// TODO: Добавить лимит по размеру изображения.
 						int length = -1;
@@ -134,13 +134,15 @@ public class Images {
 						return;
 					}
 
-					Static.bus.send(new DataAcquired.ImageLoaded(bitmap, src));
+					Static.bus.send(new DataAcquired.Image.Loaded(bitmap, src));
 
 
 //					handler.handleBitmap(src, bitmap);
 				} catch (IOException e) {
 					Log.e("Images", "Не могу загрузить картинку из" + src, e);
-
+					Static.bus.send(new DataAcquired.Image.Error(src));
+				} catch (URISyntaxException e) {
+					throw new RuntimeException(e);
 				}
 				loading.remove(src);
 

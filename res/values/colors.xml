@@ -44,4 +44,24 @@
 
 	</style>
 
+	<style name="Ponyscape.Dialog"
+	       parent="@android:style/Theme.Holo.Dialog.NoActionBar.MinWidth">
+
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowFrame">@android:color/transparent</item>
+		<item name="android:windowBackground">@android:color/transparent</item>
+
+		<item name="android:textCursorDrawable">@null</item>
+
+
+		<item name="android:cursorVisible">true</item>
+		<item name="android:textColor">@color/font_color</item>
+		<item name="android:editTextColor">@color/font_color</item>
+		<item name="android:textColorHint">@color/font_color</item>
+		<item name="android:windowCloseOnTouchOutside">false</item>
+		<item name="android:textColorLink">@color/font_color_link</item>
+
+	</style>
+
+
 </resources>

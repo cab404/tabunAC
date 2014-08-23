@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.cab404.acli.ACLIList;
+import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
@@ -146,6 +147,12 @@ public class MainActivity extends AbstractActivity {
 		CharSequence data = line.getText();
 		line.setError(null);
 
+		List<String> commands = CommandManager.splitCommandLines(data.toString());
+		if (commands.size() > 1) {
+			command_queue.addAll(commands.subList(1, commands.size()));
+			data = commands.get(0);
+		}
+
 		if (data.length() != 0)
 			try {
 
@@ -193,6 +200,8 @@ public class MainActivity extends AbstractActivity {
 		} else if (Static.history.size() > 1) {
 			Static.history.remove(Static.history.size() - 1);
 			Static.bus.send(new Commands.Run(Static.history.remove(Static.history.size() - 1)));
+		} else {
+			super.onBackPressed();
 		}
 
 	}
@@ -354,7 +363,7 @@ public class MainActivity extends AbstractActivity {
 			running.remove(request_key);
 		}
 	}
-
+	@Bus.Handler
 	public void startActivityFromEvent(Android.StartActivity e) {
 		startActivity(e.activity);
 	}

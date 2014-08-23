@@ -171,14 +171,33 @@ public class HtmlRipper {
 
 	}
 
+	/* ... */
+	private final static String header_end = "</header>\r\n\n\t\n\t\t\t";
 	/**
 	 * Превращает HTML в понятный Android-у CharSequence и пихает его в данный ему TextView.
 	 */
 	private void simpleEscape(final TextView target, final String text, final Context context) {
-		final SpannableStringBuilder builder = new SpannableStringBuilder(text);
-		HTMLTree tree = new HTMLTree(text);
 
+		/*
+		 * Исправляем проблему с header-ом.
+		 * Даже не знаю, какой умный пегас умудрился панель действий отправить в текст.
+		 */
+		int header_end_index = text.indexOf(header_end);
+//		if (header_end_index != -1)
+//			Log.v("Text", "\n" + text.replace("\t", "T→").replace(" ", "S→").replace("\n", "N→").replace("\r", "R→"));
+		final SpannableStringBuilder builder =
+				new SpannableStringBuilder(
+						header_end_index == -1 ?
+								text
+								:
+								text.substring(header_end_index + header_end.length())
+				);
+
+		HTMLTree tree = new HTMLTree(builder.toString());
+
+		/* Загружаемые картинки. */
 		Collection<String> loadImages = new HashSet<>();
+		/* Куда пихать загруженное. */
 		final ArrayMap<String, ImageSpan> targets = new ArrayMap<>();
 
 		/*
@@ -222,6 +241,14 @@ public class HtmlRipper {
 									off + tree.get(tree.getClosingTag(tag)).start,
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
+							break;
+//						case "ul":
+//							builder.insert(off++ + tag.start, "\n");
+//							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).end, "\n");
+//							break;
+						case "li":
+							builder.insert(off + tag.start, "\n\t•\t");
+							off += 4;
 							break;
 						// Пока так.
 						case "sup":
@@ -336,6 +363,7 @@ public class HtmlRipper {
 									off + tree.get(tree.getClosingTag(tag)).start,
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
+							builder.insert(off++ + tag.start, "\n");
 							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).start, "\n");
 							break;
 						case "h5":
@@ -345,6 +373,17 @@ public class HtmlRipper {
 									off + tree.get(tree.getClosingTag(tag)).start,
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
+							builder.insert(off++ + tag.start, "\n");
+							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).start, "\n");
+							break;
+						case "h6":
+							builder.setSpan(
+									new RelativeSizeSpan(1.2f),
+									off + tag.end,
+									off + tree.get(tree.getClosingTag(tag)).start,
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+							);
+							builder.insert(off++ + tag.start, "\n");
 							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).start, "\n");
 							break;
 					}
@@ -368,8 +407,10 @@ public class HtmlRipper {
 							if (tag.get("src").isEmpty()) continue;
 
 							builder.insert(off + tag.start, "||image||");
+
 							Bitmap bm = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-							bm.eraseColor(Color.RED);
+							bm.eraseColor(Color.BLACK);
+
 							String src = tag.get("src");
 
 							final ImageSpan replacer = new ImageSpan(context, bm);
@@ -387,10 +428,10 @@ public class HtmlRipper {
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 
+							off += "||image||".length();
 							targets.add(src, replacer);
 							loadImages.add(src);
 
-							off += "||image||".length();
 							break;
 					}
 			} catch (HTMLTree.TagNotFoundException e) {
@@ -408,7 +449,7 @@ public class HtmlRipper {
 		/* Эту фигню я юзаю для получения и вставки изображений по местам. */
 		final Object reader = new Object() {
 			@Bus.Handler(executor = AppContextExecutor.class)
-			public void image(DataAcquired.ImageLoaded loaded) {
+			public void image(DataAcquired.Image.Loaded loaded) {
 				Bitmap use = loaded.loaded;
 
 				/* Попытка убрать автоперевод строки при большой картинке.*/
@@ -428,13 +469,37 @@ public class HtmlRipper {
 					int start = builder.getSpanStart(span);
 					int end = builder.getSpanEnd(span);
 					if (start == -1) {
-						Log.w("HtmlRipper", "Странная фигня тут: " + text);
+						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
 						continue;
 					}
 
 					builder.removeSpan(span);
 					builder.setSpan(
 							new ImageSpan(context, use),
+							start,
+							end,
+							Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+					);
+					target.setText(builder);
+				}
+			}
+
+			@Bus.Handler(executor = AppContextExecutor.class)
+			public void error(DataAcquired.Image.Error err) {
+				Bitmap replace = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+				replace.eraseColor(Color.RED);
+
+				for (ImageSpan span : targets.getValues(err.src)) {
+					int start = builder.getSpanStart(span);
+					int end = builder.getSpanEnd(span);
+					if (start == -1) {
+						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
+						continue;
+					}
+
+					builder.removeSpan(span);
+					builder.setSpan(
+							new ImageSpan(context, replace),
 							start,
 							end,
 							Spanned.SPAN_INCLUSIVE_EXCLUSIVE
