@@ -279,14 +279,6 @@ public class HtmlRipper {
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
-						case "blockquote":
-							builder.setSpan(
-									new QuoteSpan(Color.GRAY),
-									off + tag.end,
-									off + tree.get(tree.getClosingTag(tag)).start,
-									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-							);
-							break;
 						case "span":
 							if (!tag.get("align").isEmpty())
 								switch (tag.get("align")) {
@@ -628,6 +620,25 @@ public class HtmlRipper {
 				start_index = closing.end;
 			}
 
+			// Цитата
+			if ("blockquote".equals(tag.name)) {
+				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
+				group.addView(pre_text);
+
+				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);
+
+				TextView quote = form(tree.getContents(tag).trim(), context);
+				quote.setBackgroundResource(R.drawable.bg_quote);
+				quote.setPadding(px_padding, px_padding, px_padding, px_padding);
+
+				group.addView(quote);
+
+				// Закрываем и двигаем индекс.
+				Tag closing = tree.get(tree.getClosingTag(tag));
+				i = closing.index - tree.offset();
+				start_index = closing.end;
+			}
+
 			// Код
 			if ("pre".equals(tag.name) && !tag.isStandalone()) {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
@@ -639,7 +650,7 @@ public class HtmlRipper {
 				code.setBackgroundResource(R.drawable.bg_code);
 				code.setPadding(px_padding, px_padding, px_padding, px_padding);
 				code.setTypeface(Typeface.MONOSPACE);
-				code.setTextSize(code.getTextSize() * 0.5f);
+				code.setTextSize(code.getTextSize() * 0.6f);
 				code.setTextColor(context.getResources().getColor(R.color.code_color));
 
 				group.addView(code);

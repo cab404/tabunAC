@@ -29,39 +29,5 @@
 	<color name="code_bg">#ff454545</color>
 	<color name="code_color">#A9B7C6</color>
 
-	<style name="Ponyscape"
-	       parent="@android:style/Theme.Holo.Light.NoActionBar">
-
-		<item name="android:textCursorDrawable">@null</item>
-		<item name="android:cursorVisible">true</item>
-		<item name="android:windowBackground">@color/bg_main</item>
-
-		<item name="android:editTextColor">@color/font_color</item>
-		<item name="android:textColor">@color/font_color</item>
-
-		<item name="android:textColorHint">@color/font_color</item>
-		<item name="android:textColorLink">@color/font_color_link</item>
-
-	</style>
-
-	<style name="Ponyscape.Dialog"
-	       parent="@android:style/Theme.Holo.Dialog.NoActionBar.MinWidth">
-
-		<item name="android:windowIsTranslucent">true</item>
-		<item name="android:windowFrame">@android:color/transparent</item>
-		<item name="android:windowBackground">@android:color/transparent</item>
-
-		<item name="android:textCursorDrawable">@null</item>
-
-
-		<item name="android:cursorVisible">true</item>
-		<item name="android:textColor">@color/font_color</item>
-		<item name="android:editTextColor">@color/font_color</item>
-		<item name="android:textColorHint">@color/font_color</item>
-		<item name="android:windowCloseOnTouchOutside">false</item>
-		<item name="android:textColorLink">@color/font_color_link</item>
-
-	</style>
-
 
 </resources>

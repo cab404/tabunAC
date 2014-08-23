@@ -47,7 +47,43 @@
 		<item quantity="two">страницы</item>
 		<item quantity="few">страниц</item>
 		<item quantity="many">страниц</item>
-		<item quantity="other">... страниц?</item>
+		<item quantity="other">страниц..?</item>
+	</plurals>
+
+	<plurals name="Mail_Label_Comments">
+		<item quantity="zero">комментариев</item>
+		<item quantity="one">комментарий</item>
+		<item quantity="two">комментария</item>
+		<item quantity="few">комментария</item>
+		<item quantity="many">комментариев</item>
+		<item quantity="other">комментариев</item>
+	</plurals>
+
+	<plurals name="Mail_Label_NewComments">
+		<item quantity="zero">новых</item>
+		<item quantity="one">новый</item>
+		<item quantity="two">новых</item>
+		<item quantity="few">новых</item>
+		<item quantity="many">новых</item>
+		<item quantity="other">новых</item>
+	</plurals>
+
+	<plurals name="Mail_Actions_Delete">
+		<item quantity="zero">Удалено $n писем.</item>
+		<item quantity="one">Удалено $n письмо.</item>
+		<item quantity="few">Удалено $n письма.</item>
+		<item quantity="many">Удалено $n писем.</item>
+		<item quantity="two">Удалено $n письма.</item>
+		<item quantity="other">Удалено $n писем.</item>
+	</plurals>
+
+	<plurals name="Mail_Actions_Read">
+		<item quantity="zero">$n писем отмечено как прочитанные.</item>
+		<item quantity="one">$n письмо отмечено как прочитанное.</item>
+		<item quantity="few">$n письма отмечены как прочитанные.</item>
+		<item quantity="many">$n писем отмечено как прочитанные.</item>
+		<item quantity="two">$n письма отмечено как прочитанные.</item>
+		<item quantity="other">$n писем отмечены как прочитанные.</item>
 	</plurals>
 
 	<string-array name="reply_to">

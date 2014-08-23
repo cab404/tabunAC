@@ -257,16 +257,12 @@ public class CommentListPart extends Part {
 	 */
 	private class CommentListAdapter extends BaseAdapter {
 
-
-		private HashMap<Comment, CommentPart> comment_cache;
+		private final int comment_ladder;
 		private final Context context;
 
+		private HashMap<Comment, CommentPart> comment_cache;
 		private LevelDrawable level_indicator;
 		private int c_level = 0;
-		private final int comment_ladder;
-
-		private boolean animation_running = false;
-		private View commitee = null;
 
 		public CommentListAdapter(Context context) {
 			this.context = context;
@@ -291,7 +287,7 @@ public class CommentListPart extends Part {
 		public void setOffset(int offset) {
 			if (c_level != offset) {
 				c_level = offset;
-				listView.scrollTo(offset * comment_ladder, 0);
+				Anim.shift(listView, offset * comment_ladder, 100, null);
 			}
 		}
 
