@@ -34,8 +34,7 @@ public class App extends Application {
 		Static.app_context = getApplicationContext();
 		Static.handler = new Handler(getMainLooper());
 		Static.history = new ArrayList<>();
-		Static.cfg = new Settings(this, "settings.bin");
-		Static.cfg.load();
+		Static.cfg = Settings.load(this, "settings.bin");
 
         /* Регестрируем обработчики команд */
 		Static.cm.register(CoreCommands.class);

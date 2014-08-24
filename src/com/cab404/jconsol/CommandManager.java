@@ -81,10 +81,15 @@ public class CommandManager {
 	 */
 	public static List<String> splitCommandLines(String toSplit) {
 		Collection<Integer> splitPoints = new ArrayList<>();
-		for (int i = 0; i < toSplit.length(); i++)
+		boolean paresis = false;
+
+		for (int i = 0; i < toSplit.length(); i++) {
 			if (toSplit.charAt(i) == ';')
-				if (!isEscaped(i, toSplit))
+				if (!isEscaped(i, toSplit) && !paresis)
 					splitPoints.add(i);
+			if (toSplit.charAt(i) == '"')
+				paresis = !paresis;
+		}
 
 		List<String> split = new ArrayList<>();
 		int last = 0;
@@ -110,7 +115,7 @@ public class CommandManager {
 				count++;
 
 		if (count % 2 != 0)
-			throw new RuntimeException("Non-enclosed quotes found!");
+			throw new NonEnclosedParesisException();
 
 
         /* Specifies whether we currently parsing quote-enclosed statement */

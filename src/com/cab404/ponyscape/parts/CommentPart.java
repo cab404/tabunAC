@@ -57,7 +57,7 @@ public class CommentPart extends Part {
 
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor comment " + comment.id + " 1"));
+				Static.bus.send(new Commands.Run("votefor comment " + comment.id + " +1"));
 			}
 		});
 

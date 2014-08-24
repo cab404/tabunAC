@@ -80,7 +80,7 @@ public class HtmlRipper {
 		layout.requestLayout();
 	}
 
-	public void escape(String text) {
+	public void escape(final String text) {
 		destroy();
 		onDestroy.clear();
 		cached_contents.clear();
@@ -183,8 +183,6 @@ public class HtmlRipper {
 		 * Даже не знаю, какой умный пегас умудрился панель действий отправить в текст.
 		 */
 		int header_end_index = text.indexOf(header_end);
-//		if (header_end_index != -1)
-//			Log.v("Text", "\n" + text.replace("\t", "T→").replace(" ", "S→").replace("\n", "N→").replace("\r", "R→"));
 		final SpannableStringBuilder builder =
 				new SpannableStringBuilder(
 						header_end_index == -1 ?
@@ -461,7 +459,7 @@ public class HtmlRipper {
 					int start = builder.getSpanStart(span);
 					int end = builder.getSpanEnd(span);
 					if (start == -1) {
-						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
+//						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
 						continue;
 					}
 
@@ -485,7 +483,7 @@ public class HtmlRipper {
 					int start = builder.getSpanStart(span);
 					int end = builder.getSpanEnd(span);
 					if (start == -1) {
-						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
+//						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
 						continue;
 					}
 
@@ -603,6 +601,7 @@ public class HtmlRipper {
 			// Кат
 			if ("a".equals(tag.name) && tag.get("href") != null && tag.get("href").endsWith("#cut") && !tag.isStandalone()) {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
+
 				group.addView(pre_text);
 
 				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);

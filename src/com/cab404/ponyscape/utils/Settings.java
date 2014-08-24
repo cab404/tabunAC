@@ -2,10 +2,11 @@ package com.cab404.ponyscape.utils;
 
 import android.content.Context;
 import android.util.Log;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Simple settings saver
@@ -14,47 +15,44 @@ import java.util.Map;
  */
 public class Settings {
 
-	private Map<String, Object> data = new HashMap<>();
+	public final JSONObject data;
 	private File file;
 
+	private Settings(JSONObject data, File file) {
+		this.data = data;
+		this.file = file;
+	}
+
 	public Settings(Context context, String filename) {
-		file = new File(context.getFilesDir(), filename);
+		this(new JSONObject(), new File(context.getFilesDir(), filename));
+	}
+
+	/**
+	 * data.get(key)
+	 */
+	public Object get(String key) {
+		return data.get(key);
+	}
+
+	/**
+	 * data.put with suppression of unchecked.
+	 */
+	@SuppressWarnings("unchecked")
+	public void put(String key, String object) {
+		data.put(key, object);
 	}
 
 	private final Object
 			readLock = new Object(),
 			writeLock = new Object();
-
-	public void put(String key, Object value) {
-		synchronized (writeLock) {
-			synchronized (readLock) {
-				data.put(key, value);
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T get(String key) {
-		synchronized (readLock) {
-			return (T) data.get(key);
-		}
-	}
-	@SuppressWarnings("unchecked")
-	public <T> T remove(String key) {
-		synchronized (writeLock) {
-			synchronized (readLock) {
-				return (T) data.remove(key);
-			}
-		}
-	}
-
-
 	public void save() {
 		Log.v("Settings", "Saving...");
 		try {
-			ObjectOutput out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-			out.writeObject(data);
-			out.close();
+
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			data.writeJSONString(writer);
+			writer.close();
+
 			Log.v("Settings", "Saved!");
 		} catch (IOException e) {
 			throw new RuntimeException("Save error!", e);
@@ -62,22 +60,30 @@ public class Settings {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void load() {
-		Log.v("Settings", "Loading...");
+	public static Settings load(Context context, String filename) {
+		File file = new File(context.getFilesDir(), filename);
+		Settings data;
+
 		try {
-			ObjectInput in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
-			data = (Map<String, Object>) in.readObject();
-			in.close();
+			Log.v("Settings", "Loading...");
+
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+
+			data = new Settings((JSONObject) new JSONParser().parse(reader), file);
+
+			reader.close();
 			Log.v("Settings", "Loaded! " + data);
 		} catch (FileNotFoundException e) {
 			Log.v("Settings", "Settings file was not found, creating.");
-			save();
-			data = new HashMap<>();
-		} catch (ClassCastException | IOException | ClassNotFoundException e) {
+			data = new Settings(context, filename);
+			data.save();
+		} catch (ParseException | IOException e) {
 			Log.e("Settings", "Load error!", e);
-			save();
-			data = new HashMap<>();
+			data = new Settings(context, filename);
+			data.save();
 		}
+
+		return data;
 	}
 
 }

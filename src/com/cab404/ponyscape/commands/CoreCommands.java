@@ -55,27 +55,33 @@ public class CoreCommands {
 						new Android.StartActivityForResult.ResultHandler() {
 							@Override public void handle(int resultCode, Intent data) {
 								if (resultCode == Activity.RESULT_OK) {
-									Static.bus.send(new Login.Success());
+									Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
 									Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
+									Static.bus.send(new Login.Success());
+									Static.bus.send(new Commands.Clear());
+									Static.bus.send(new Commands.Finished());
 								} else {
+									Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
 									Static.bus.send(new Login.Failure());
+									Static.bus.send(new Commands.Clear());
+									Static.bus.send(new Commands.Finished());
 								}
 							}
 							@Override public void error(Throwable e) {
+								Toast.makeText(Static.app_context, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
 								Intent download = new Intent(
 										Intent.ACTION_VIEW,
 										Uri.parse("market://details?id=everypony.tabun.auth")
 								);
 								Static.bus.send(new Android.StartActivity(download));
+								Static.bus.send(new Commands.Clear());
+								Static.bus.send(new Commands.Finished());
 							}
 
 						}
 				)
 		);
 
-
-		Static.bus.send(new Commands.Finished());
-		Static.bus.send(new Commands.Clear());
 	}
 
 	@Command(command = "search", params = Str.class)
@@ -101,10 +107,13 @@ public class CoreCommands {
 						if (success) {
 							Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
 							Static.cfg.put("main.profile", Static.user.serialize());
+							Static.bus.send(new Login.Success());
 							Static.cfg.save();
 							Static.bus.send(new Commands.Clear());
-						} else
+						} else {
 							Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
+							Static.bus.send(new Login.Failure());
+						}
 						Static.bus.send(new Commands.Finished());
 					}
 				});

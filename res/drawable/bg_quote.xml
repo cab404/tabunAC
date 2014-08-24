@@ -12,9 +12,7 @@
 	</item>
 
 	<item android:left="3dp"
-	      android:right="1dp"
-	      android:bottom="1dp"
-	      android:top="1dp"
+	      android:right="3dp"
 			>
 		<shape>
 			<solid android:color="@color/bg_item"/>

@@ -17,7 +17,9 @@ import android.widget.Toast;
 import com.cab404.acli.ACLIList;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
+import com.cab404.jconsol.NonEnclosedParesisException;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.*;
@@ -27,8 +29,8 @@ import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.ponyscape.utils.views.animation.BounceInterpolator;
 import com.cab404.sjbus.Bus;
+import org.json.simple.JSONArray;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -172,6 +174,11 @@ public class MainActivity extends AbstractActivity {
 			} catch (Web.NetworkNotFound nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
 				line.setError("Нет подключения к Сети");
+
+				Static.bus.send(new Commands.Finished());
+			} catch (NonEnclosedParesisException nf) {
+				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
+				line.setError("Незакрытые кавычки.");
 
 				Static.bus.send(new Commands.Finished());
 			}
@@ -558,11 +565,20 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Алиас.
 	 */
-	public static class LaunchShortcut implements Serializable {
-		private static final long serialVersionUID = 0L;
-
+	public static class LaunchShortcut {
 		String name;
 		String command;
+
+		public LaunchShortcut(String serialized) {
+			String[] data = SU.splitToArray(serialized, '/');
+
+			name = SU.drl(data[0]);
+			command = SU.drl(data[1]);
+		}
+
+		public String toString() {
+			return SU.rl(name) + "/" + SU.rl(command);
+		}
 
 		public LaunchShortcut(String name, String command) {
 			this.name = name;
@@ -581,15 +597,18 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Обновляет список алиасов из глобальных настроек
 	 */
+	@SuppressWarnings("unchecked")
 	protected void updateShortcutList() {
-		ArrayList<LaunchShortcut> shortcuts = Static.cfg.get("main.shortcuts");
-		if (shortcuts == null) shortcuts = new ArrayList<>();
+		JSONArray shortcuts = (JSONArray) Static.cfg.get("main.shortcuts");
+		if (shortcuts == null) shortcuts = new JSONArray();
 
 		LayoutInflater inflater = getLayoutInflater();
 		LinearLayout views = (LinearLayout) findViewById(R.id.commands_root);
 		views.removeViews(0, views.getChildCount());
 
-		for (final LaunchShortcut shortcut : shortcuts) {
+		for (Object string_actulally : shortcuts) {
+			final LaunchShortcut shortcut = new LaunchShortcut(string_actulally.toString());
+
 			View view = inflater.inflate(R.layout.shortcut, views, false);
 			((TextView) view.findViewById(R.id.label)).setText(shortcut.name);
 			view.setOnClickListener(new View.OnClickListener() {
@@ -601,7 +620,7 @@ public class MainActivity extends AbstractActivity {
 			views.addView(view);
 		}
 
-		Static.cfg.put("main.shortcuts", shortcuts);
+		Static.cfg.data.put("main.shortcuts", shortcuts);
 		Static.cfg.save();
 	}
 }
