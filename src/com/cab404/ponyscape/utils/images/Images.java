@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.events.DataAcquired;
-import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -15,7 +14,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
 import java.lang.ref.Reference;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,8 +24,12 @@ import java.util.Map;
 public class Images {
 	private HashSet<String> loading;
 	private Map<String, Reference<Bitmap>> cache;
+	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
+	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
+
 	private File cacheDir;
-	private int cut;
+	private long cut;
+	private boolean load_blocked;
 
 	public static class CorruptedImageException extends RuntimeException {
 		public CorruptedImageException(String detailMessage) {
@@ -40,17 +42,34 @@ public class Images {
 
 		cache = new HashMap<>();
 		loading = new HashSet<>();
-		cut = Math.max(
-				context.getResources().getDisplayMetrics().widthPixels,
-				context.getResources().getDisplayMetrics().heightPixels
-		);
-		cut *= cut;
+	}
+
+	public void reconfigure() {
+
+		if (Static.cfg.get(LOAD_BLOCK_CFG_ENTRY) == null) {
+			load_blocked = false;
+			Static.cfg.put(LOAD_BLOCK_CFG_ENTRY, load_blocked);
+			Static.cfg.save();
+		} else
+			load_blocked = (boolean) Static.cfg.get(LOAD_BLOCK_CFG_ENTRY);
+
+
+		if (Static.cfg.get(LIMIT_CFG_ENTRY) == null) {
+			cut = 3000000;
+			Static.cfg.put(LIMIT_CFG_ENTRY, cut);
+			Static.cfg.save();
+		} else
+			cut = (long) Static.cfg.get(LIMIT_CFG_ENTRY);
+
 	}
 
 
 	public synchronized void download(final String src) {
+		if (load_blocked) {
+			Static.bus.send(new DataAcquired.Image.Error(src));
+			return;
+		}
 
-		Log.v("ImageLoader", "Requested " + src);
 		/* Смотрим в кэше. */
 		if (cache.containsKey(src) && cache.get(src).get() != null) {
 			Log.v("ImageLoader", "Got " + src + " from cache");
@@ -70,18 +89,19 @@ public class Images {
 
 					File file = new File(cacheDir, SU.rl(src));
 					BitmapFactory.Options opt = new BitmapFactory.Options();
+					opt.inPurgeable = true;
 
 					if (!file.exists()) {
 						Log.v("ImageLoader", "Loading " + src);
 						/// Connecting.
 
-						HttpUriRequest get = new HttpGet(Simple.parse(src));
+						HttpUriRequest get = new HttpGet(src);
 						HttpResponse response = new DefaultHttpClient().execute(get);
 
-						// TODO: Добавить лимит по размеру изображения.
-						int length = -1;
-						if (response.getFirstHeader("Content-Length") != null)
-							length = Integer.parseInt(response.getFirstHeader("Content-Length").getValue());
+//						int length = -1;
+//						if (response.getFirstHeader("Content-Length") != null)
+//							length = Integer.parseInt(response.getFirstHeader("Content-Length").getValue());
+
 
 						Log.v("ImageLoader", "Got response for " + src);
 
@@ -93,18 +113,20 @@ public class Images {
 						opt.inJustDecodeBounds = true;
 						BitmapFactory.decodeStream(upstream, null, opt);
 
-						Log.v("ImageLoader", "Loaded bounds for " + src);
+						Log.v("ImageLoader", "Loaded bounds for " + src + ", " + opt.outMimeType);
+
 
 					/* Тут броадкастить данные картинки (?)*/
 //					boolean cont = handler.handleParams(src, opt.outMimeType, opt.outWidth, opt.outHeight);
 
 						if (opt.outWidth * opt.outHeight > cut)
-							opt.inSampleSize = opt.outWidth * opt.outHeight / cut;
+							throw new IOException
+									("Image is bigger than limit (" + cut + ")");
+
 						opt.inJustDecodeBounds = false;
 
 						// Rewinding back to start.
 						upstream.reset();
-
 
 						// Writing cache
 						BufferedOutputStream file_cache = new BufferedOutputStream(new FileOutputStream(file));
@@ -138,11 +160,11 @@ public class Images {
 
 
 //					handler.handleBitmap(src, bitmap);
-				} catch (IOException e) {
+
+					// Используем крайние меры отлова бродячих ошибок.
+				} catch (Throwable e) {
 					Log.e("Images", "Не могу загрузить картинку из" + src, e);
 					Static.bus.send(new DataAcquired.Image.Error(src));
-				} catch (URISyntaxException e) {
-					throw new RuntimeException(e);
 				}
 				loading.remove(src);
 

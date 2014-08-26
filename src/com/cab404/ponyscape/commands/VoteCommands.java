@@ -66,7 +66,7 @@ public class VoteCommands {
 							if (!success)
 								Static.bus.send(new Commands.Error(msg));
 							else
-								Static.bus.send(new DataAcquired.PostVote(id, result));
+								Static.bus.send(new DataAcquired.CommentVote(id, result));
 						}
 					};
 					request.exec(Static.user, Static.last_page);

@@ -34,8 +34,9 @@ public class App extends Application {
 		Static.app_context = getApplicationContext();
 		Static.handler = new Handler(getMainLooper());
 		Static.history = new ArrayList<>();
-		Static.cfg = new Settings(this, "settings.bin");
-		Static.cfg.load();
+		Static.cfg = Settings.load(this, "settings.bin");
+
+		Static.img.reconfigure();
 
         /* Регестрируем обработчики команд */
 		Static.cm.register(CoreCommands.class);
@@ -43,6 +44,7 @@ public class App extends Application {
 		Static.cm.register(PageCommands.class);
 		Static.cm.register(VoteCommands.class);
 		Static.cm.register(MakeCommands.class);
+		Static.cm.register(UserCommands.class);
 
 	}
 

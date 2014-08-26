@@ -80,7 +80,7 @@ public class HtmlRipper {
 		layout.requestLayout();
 	}
 
-	public void escape(String text) {
+	public void escape(final String text) {
 		destroy();
 		onDestroy.clear();
 		cached_contents.clear();
@@ -183,8 +183,6 @@ public class HtmlRipper {
 		 * Даже не знаю, какой умный пегас умудрился панель действий отправить в текст.
 		 */
 		int header_end_index = text.indexOf(header_end);
-//		if (header_end_index != -1)
-//			Log.v("Text", "\n" + text.replace("\t", "T→").replace(" ", "S→").replace("\n", "N→").replace("\r", "R→"));
 		final SpannableStringBuilder builder =
 				new SpannableStringBuilder(
 						header_end_index == -1 ?
@@ -196,7 +194,7 @@ public class HtmlRipper {
 		HTMLTree tree = new HTMLTree(builder.toString());
 
 		/* Загружаемые картинки. */
-		Collection<String> loadImages = new HashSet<>();
+		final Collection<String> loadImages = new HashSet<>();
 		/* Куда пихать загруженное. */
 		final ArrayMap<String, ImageSpan> targets = new ArrayMap<>();
 
@@ -242,10 +240,6 @@ public class HtmlRipper {
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							break;
-//						case "ul":
-//							builder.insert(off++ + tag.start, "\n");
-//							builder.insert(off++ + tree.get(tree.getClosingTag(tag)).end, "\n");
-//							break;
 						case "li":
 							builder.insert(off + tag.start, "\n\t•\t");
 							off += 4;
@@ -269,8 +263,6 @@ public class HtmlRipper {
 
 							if (link.startsWith("/"))
 								link = "http://" + Static.user.getHost().getHostName() + link;
-
-							Log.v("TextEscaper", "LINK '" + link + "'");
 
 							builder.setSpan(
 									new URLSpan(link),
@@ -395,7 +387,6 @@ public class HtmlRipper {
 //							builder.insert(off++ + tag.end, "\n");       // Используем расставление из html, ибо pre.
 							break;
 						case "img":
-							Log.v("TextEscaper", "IMAGE");
 							if (tag.get("src").isEmpty()) continue;
 
 							builder.insert(off + tag.start, "||image||");
@@ -440,40 +431,55 @@ public class HtmlRipper {
 
 		/* Эту фигню я юзаю для получения и вставки изображений по местам. */
 		final Object reader = new Object() {
-			@Bus.Handler(executor = AppContextExecutor.class)
-			public void image(DataAcquired.Image.Loaded loaded) {
-				Bitmap use = loaded.loaded;
+			@Bus.Handler()
+			public void image(final DataAcquired.Image.Loaded loaded) {
+				if (!loadImages.contains(loaded.src)) return;
 
-				/* Попытка убрать автоперевод строки при большой картинке.*/
-				int width = (int) (target.getWidth() - target.getTextSize());
-				if (use.getWidth() > width) {
-					int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
-					if (width != 0 && height != 0)
-						use = Bitmap.createScaledBitmap(
-								use,
-								width,
-								height,
-								true
-						);
-				}
+				new Thread(new Runnable() {
+					@Override public void run() {
 
-				for (ImageSpan span : targets.getValues(loaded.src)) {
-					int start = builder.getSpanStart(span);
-					int end = builder.getSpanEnd(span);
-					if (start == -1) {
-						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
-						continue;
+						Bitmap use = loaded.loaded;
+
+						/* Попытка убрать автоперевод строки при большой картинке.*/
+						int width = (int) (target.getWidth() - target.getTextSize());
+						if (use.getWidth() > width) {
+							int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
+							if (width != 0 && height != 0)
+								use = Bitmap.createScaledBitmap(
+										use,
+										width,
+										height,
+										true
+								);
+						}
+
+						final Bitmap scaled = use;
+						Runnable insert = new Runnable() {
+							@Override public void run() {
+								for (ImageSpan span : targets.getValues(loaded.src)) {
+									int start = builder.getSpanStart(span);
+									int end = builder.getSpanEnd(span);
+
+									if (start == -1) {
+										continue;
+									}
+
+									builder.removeSpan(span);
+									builder.setSpan(
+											new ImageSpan(context, scaled),
+											start,
+											end,
+											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+									);
+									target.setText(builder);
+								}
+							}
+						};
+
+						Static.handler.post(insert);
+
 					}
-
-					builder.removeSpan(span);
-					builder.setSpan(
-							new ImageSpan(context, use),
-							start,
-							end,
-							Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-					);
-					target.setText(builder);
-				}
+				}).start();
 			}
 
 			@Bus.Handler(executor = AppContextExecutor.class)
@@ -485,7 +491,7 @@ public class HtmlRipper {
 					int start = builder.getSpanStart(span);
 					int end = builder.getSpanEnd(span);
 					if (start == -1) {
-						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
+//						Log.w("HtmlRipper", "Странная фигня тут: " + text + ", start == -1");
 						continue;
 					}
 
@@ -505,8 +511,13 @@ public class HtmlRipper {
 		Static.bus.register(reader);
 
 		/* Запускаем загрузку картинок */
-		for (String str : loadImages)
-			Static.img.download(str);
+		int i = 0;
+		for (final String str : loadImages)
+			Static.handler.postDelayed(new Runnable() {
+				@Override public void run() {
+					Static.img.download(str);
+				}
+			}, 10 * i++);
 
 		/* Забрасываем в onDestroy удалялку принималки картинок */
 		onDestroy.add(new Runnable() {
@@ -603,6 +614,7 @@ public class HtmlRipper {
 			// Кат
 			if ("a".equals(tag.name) && tag.get("href") != null && tag.get("href").endsWith("#cut") && !tag.isStandalone()) {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
+
 				group.addView(pre_text);
 
 				int px_padding = context.getResources().getDimensionPixelSize(R.dimen.internal_margins);

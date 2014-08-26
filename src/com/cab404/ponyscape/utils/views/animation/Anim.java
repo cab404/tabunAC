@@ -52,7 +52,7 @@ public class Anim {
 
 		Static.handler.post(new Runnable() {
 			int go = 0;
-			int delay = 17;  // ~60 FPS
+			int delay = 10;  // ~100 FPS
 			@Override public void run() {
 				go += delay;
 				if (go < animLen) {
@@ -86,7 +86,7 @@ public class Anim {
 
 		Static.handler.post(new Runnable() {
 			int go = 0;
-			int delay = 17;  // ~60 FPS
+			int delay = 10;  // ~100 FPS
 			@Override public void run() {
 				go += delay;
 				if (go < animLen) {

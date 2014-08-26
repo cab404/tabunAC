@@ -2,12 +2,17 @@
 <resources>
 
 
-	<color name="bg_main">#ff181818</color>
-	<color name="bg_item">#ffb9b9b9</color>
+	<color name="bg_main">#ff363b6c</color>
+
+	<color name="bg_item">#ffffffff</color>
 	<color name="bg_item_shadow">#ff535353</color>
-	<color name="bg_footer">#ff5e787e</color>
+
+	<color name="bg_footer">#ff7ca7fa</color>
 	<color name="bg_footer_shadow">#ff45575d</color>
-	<color name="bg_shortcuts">#ff515151</color>
+
+	<color name="bg_image">#ffffffff</color>
+
+	<color name="bg_shortcuts">#ff29caac</color>
 
 	<color name="font_color_red">#ffba0030</color>
 	<color name="font_color_blue">#ff00903f</color>
@@ -16,7 +21,7 @@
 	<color name="font_color">#ff161616</color>
 	<color name="font_color_link">#ff194b46</color>
 	<color name="font_color_command_line">#ffadbec1</color>
-	<color name="font_color_shortcuts">#ffbababa</color>
+	<color name="font_color_shortcuts">#ffadfcf3</color>
 
 	<color name="comment_ladder_gradient_start">@color/bg_main</color>
 	<color name="comment_ladder_gradient_end">#F00</color>

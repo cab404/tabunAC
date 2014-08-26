@@ -10,8 +10,7 @@ import com.cab404.ponyscape.bus.events.Android;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Shortcuts;
 import com.cab404.ponyscape.utils.Static;
-
-import java.util.List;
+import org.json.simple.JSONArray;
 
 /**
  * @author cab404
@@ -23,7 +22,7 @@ public class MakeCommands {
 	@Command(command = "alias", params = {Str.class, Str.class})
 	public void shortcut(String name, String command) {
 		MainActivity.LaunchShortcut shortcut = new MainActivity.LaunchShortcut(name, command);
-		((List<MainActivity.LaunchShortcut>) Static.cfg.get("main.shortcuts")).add(shortcut);
+		((JSONArray) Static.cfg.get("main.shortcuts")).add(shortcut.toString());
 		Static.bus.send(new Shortcuts.Update());
 		Static.bus.send(new Commands.Clear());
 		Static.bus.send(new Commands.Finished());
