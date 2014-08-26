@@ -99,8 +99,8 @@ public class TopicPart extends Part {
 		((TextView) view.findViewById(R.id.id)).setText("#" + topic.id);
 
 
-		view.setAlpha(0);
-		view.animate().alpha(1).setDuration(200);
+//		view.setAlpha(0);
+//		view.animate().alpha(1).setDuration(200);
 
 		return view;
 	}

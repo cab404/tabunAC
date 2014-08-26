@@ -14,7 +14,7 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.images.BitmapUtils;
+import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -36,7 +36,7 @@ public class BlogPart extends Part {
 
 			long time_start = System.currentTimeMillis();
 			Log.v("TestBlur", "Starting blur on " + w + ":" + h + ", " + w * h + " pixels total.");
-			final Bitmap blurred = BitmapUtils.bevel(BitmapUtils.blur(img.loaded, 0), 8);
+			final Bitmap blurred = BitmapMorph.bevel(BitmapMorph.manualCopy(img.loaded), 8);
 			Log.v("TestBlur", "Finished blur on " + w + ":" + h + ", " + w * h + " pixels total in " + (System.currentTimeMillis() - time_start) + "ms");
 
 			Static.handler.post(new Runnable() {

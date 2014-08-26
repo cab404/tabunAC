@@ -36,12 +36,15 @@ public class App extends Application {
 		Static.history = new ArrayList<>();
 		Static.cfg = Settings.load(this, "settings.bin");
 
+		Static.img.reconfigure();
+
         /* Регестрируем обработчики команд */
 		Static.cm.register(CoreCommands.class);
 		Static.cm.register(PostCommands.class);
 		Static.cm.register(PageCommands.class);
 		Static.cm.register(VoteCommands.class);
 		Static.cm.register(MakeCommands.class);
+		Static.cm.register(UserCommands.class);
 
 	}
 

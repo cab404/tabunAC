@@ -31,6 +31,7 @@ import com.cab404.ponyscape.utils.views.animation.BounceInterpolator;
 import com.cab404.sjbus.Bus;
 import org.json.simple.JSONArray;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,8 +126,8 @@ public class MainActivity extends AbstractActivity {
 		Static.handler.post(
 				new Runnable() {
 					@Override public void run() {
-						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()
-								&& !bar_locked_by_expansion
+						if (!bar_locked_by_expansion &&
+								findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()
 								) {
 							showBar();
 						}
@@ -135,7 +136,7 @@ public class MainActivity extends AbstractActivity {
 							if (aliases_menu_active)
 								hideAliases(0);
 						}
-						Static.handler.post(this);
+						Static.handler.postDelayed(this, 200);
 					}
 				});
 
@@ -163,7 +164,15 @@ public class MainActivity extends AbstractActivity {
 				findViewById(R.id.execution).setVisibility(View.VISIBLE);
 				command_running = true;
 				updateInput();
-				Static.cm.run(data.toString());
+				try {
+					Static.cm.run(data.toString());
+				} catch (RuntimeException e) {
+					/* Достаём из обёртки рефлексии */
+					Throwable ex = e.getCause();
+					while (ex instanceof InvocationTargetException)
+						ex = ex.getCause();
+					throw ex;
+				}
 
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
@@ -181,6 +190,8 @@ public class MainActivity extends AbstractActivity {
 				line.setError("Незакрытые кавычки.");
 
 				Static.bus.send(new Commands.Finished());
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
 			}
 
 	}
@@ -301,7 +312,7 @@ public class MainActivity extends AbstractActivity {
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void clear(Parts.Clear clear) {
 		for (int i = list.size() - 1; i > -1; i--)
-			list.removeSlowly(list.partAt(i));
+			list.remove(list.partAt(i));
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)

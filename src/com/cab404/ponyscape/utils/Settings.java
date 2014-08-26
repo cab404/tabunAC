@@ -38,7 +38,7 @@ public class Settings {
 	 * data.put with suppression of unchecked.
 	 */
 	@SuppressWarnings("unchecked")
-	public void put(String key, String object) {
+	public void put(String key, Object object) {
 		data.put(key, object);
 	}
 
