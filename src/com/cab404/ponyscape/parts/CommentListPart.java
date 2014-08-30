@@ -120,7 +120,7 @@ public class CommentListPart extends Part {
 				"Отвечаем в пост"
 				:
 				reply[((int) (Math.random() * reply.length))] + comment.author;
-		new EditorPart(title, "", new EditorPart.EditorActionHandler() {
+		EditorPart editorPart = new EditorPart(title, "", new EditorPart.EditorActionHandler() {
 			@Override public boolean finished(CharSequence text) {
 				if (text.length() > 3000 || text.length() < 2) {
 					Simple.msg("Текст комментария должен быть от 2 до 3000 символов и не содержать разного рода каку");
@@ -132,11 +132,8 @@ public class CommentListPart extends Part {
 			@Override public void cancelled() {}
 		});
 
-		Runnable runnable = new Runnable() {
-			@Override public void run() {
+		Static.bus.send(new Parts.Run(editorPart));
 
-			}
-		};
 	}
 
 	private void hideTree() {

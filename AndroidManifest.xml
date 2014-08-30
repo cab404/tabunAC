@@ -44,7 +44,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".android.EditorActivity"
+		<activity android:name="com.cab404.acli.PartActivity"
 		          android:theme="@style/Ponyscape.Dialog"
 		          android:label="@string/label_editor_activity"/>
 
