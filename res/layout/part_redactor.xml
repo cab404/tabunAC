@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout
-		android:layout_width="match_parent"
 		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="vertical"
+
+		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+
+		android:orientation="vertical"
 
 		android:layout_marginTop="@dimen/external_margins"
 		android:layout_marginLeft="@dimen/external_margins"
@@ -19,42 +21,49 @@
 			android:padding="8dp"
 			android:text="Заголовок, который ты не должен видеть."
 			android:id="@+id/title"
+			android:textStyle="bold"/>
+
+	<EditText android:layout_width="match_parent"
+	          android:layout_height="wrap_content"
+
+	          android:id="@+id/editor"
+
+	          android:minHeight="100dp"
+
+	          android:hint="Текст"
+
+	          android:textSize="14sp"
+	          android:gravity="left|top"
 			/>
 	<HorizontalScrollView
 			android:layout_width="match_parent"
-			android:layout_height="32dp"
+			android:layout_height="wrap_content"
 			>
-		<LinearLayout android:orientation="horizontal"
-		              android:layout_width="fill_parent"
-		              android:layout_height="fill_parent"
-		              android:id="@+id/editor_actions"/>
+		<LinearLayout
+				android:orientation="horizontal"
+				android:layout_width="wrap_content"
+				android:layout_height="32dp"
+				android:id="@+id/editor_actions"/>
+
 	</HorizontalScrollView>
-	<EditText android:layout_width="match_parent"
-	          android:layout_height="wrap_content"
-	          android:minHeight="100dp"
-	          android:id="@+id/editor"
-	          android:hint="Текст"
-	          android:textSize="14sp"
-	          android:gravity="left|top"/>
+
 	<LinearLayout
 			android:orientation="horizontal"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:layout_weight="1">
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="4dp"
+			android:background="@drawable/bg_part_footer"
+			android:gravity="right">
 		<Button
-				style="?android:attr/buttonStyleSmall"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@android:string/cancel"
-				android:id="@+id/cancel"
-				android:layout_weight="1"/>
+				android:id="@+id/cancel"/>
 		<Button
-				style="?android:attr/buttonStyleSmall"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@android:string/ok"
-				android:id="@+id/ok"
-				android:layout_weight="1"/>
+				android:id="@+id/ok"/>
 	</LinearLayout>
 
 </LinearLayout>

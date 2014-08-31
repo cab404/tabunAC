@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -96,7 +97,8 @@ public class MainActivity extends AbstractActivity {
 
 		findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
-				Static.bus.send(new Android.RootSizeChanged());
+				if (oL != l || oR != r)
+					Static.bus.send(new Android.RootSizeChanged());
 			}
 		});
 
@@ -603,6 +605,28 @@ public class MainActivity extends AbstractActivity {
 	 */
 	@Override protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+		Uri data = intent.getData();
+		Log.v("Main", "Получили новый Intent по адресу " + data);
+		List<String> segments = data.getPathSegments();
+		String command = null;
+
+		if (segments.size() == 0)
+			command = "page load /";
+
+		if (segments.size() == 2) {
+			if ("blog".equals(segments.get(0)))
+				command = "page load " + segments.get(1);
+			if ("profile".equals(segments.get(0)))
+				command = "user load " + segments.get(1);
+		}
+		if (segments.size() == 3) {
+			if ("blog".equals(segments.get(0)))
+				command = "post load " + segments.get(2).replace(".html", "");
+		}
+
+		if (command != null)
+			Static.bus.send(new Commands.Run(command));
+
 	}
 
 	/**

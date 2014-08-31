@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Comment;
+import com.cab404.libtabun.data.Type;
+import com.cab404.libtabun.requests.CommentAddRequest;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Android;
@@ -119,7 +121,7 @@ public class CommentListPart extends Part {
 		String title = comment == null ?
 				"Отвечаем в пост"
 				:
-				reply[((int) (Math.random() * reply.length))] + comment.author;
+				reply[((int) (Math.random() * reply.length))] + comment.author.login;
 		EditorPart editorPart = new EditorPart(title, "", new EditorPart.EditorActionHandler() {
 			@Override public boolean finished(CharSequence text) {
 				if (text.length() > 3000 || text.length() < 2) {
@@ -127,9 +129,24 @@ public class CommentListPart extends Part {
 					return false;
 				}
 
-				return false;
+				final CommentAddRequest request =
+						new CommentAddRequest(
+								Type.BLOG,
+								topicPart.topic.id,
+								comment == null ? 0 : comment.id,
+								text.toString()
+						);
+				new Thread(new Runnable() {
+					@Override public void run() {
+						request.exec(Static.user, Static.last_page);
+					}
+				}).start();
+
+				return true;
 			}
-			@Override public void cancelled() {}
+			@Override public void cancelled() {
+
+			}
 		});
 
 		Static.bus.send(new Parts.Run(editorPart));

@@ -92,6 +92,7 @@ public class PostCommands {
 					}
 				};
 				page.fetch(Static.user);
+				Static.bus.unregister(page);
 				Static.last_page = page;
 
 				Static.handler.post(new Runnable() {

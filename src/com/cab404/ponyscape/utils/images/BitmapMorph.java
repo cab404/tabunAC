@@ -114,7 +114,6 @@ public class BitmapMorph {
 				float mul = alpha_1 / alpha_2;
 
 
-
 				source.setPixel(x, y, sc);
 			}
 		return source;
@@ -125,7 +124,9 @@ public class BitmapMorph {
 
 		for (int x = rect.left; x < rect.right; x++)
 			for (int y = rect.top; y < rect.bottom; y++)
-				bitmap.setPixel(x - rect.left, y - rect.top, source.getPixel(x, y));
+				if (x > 0 && x < source.getWidth())
+					if (y > 0 && y < source.getHeight())
+						bitmap.setPixel(x - rect.left, y - rect.top, source.getPixel(x, y));
 
 		return bitmap;
 	}
