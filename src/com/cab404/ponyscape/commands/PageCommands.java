@@ -1,5 +1,6 @@
 package com.cab404.ponyscape.commands;
 
+import android.util.Log;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
@@ -11,6 +12,7 @@ import com.cab404.libtabun.modules.BlogModule;
 import com.cab404.libtabun.modules.TopicModule;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.framework.ModularBlockParser;
+import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.*;
@@ -75,9 +77,16 @@ public class PageCommands {
 					@Bus.Handler
 					public void cancel(Commands.Abort abort) {
 						super.cancel();
+						Static.bus.send(new Parts.Remove(loading));
 					}
 				};
-				page.fetch(Static.user);
+				try {
+					page.fetch(Static.user);
+				} catch (MoonlightFail f) {
+					Static.bus.send(new Commands.Error("Ошибка при загрузке страницы."));
+					Log.w("PageCommands", f);
+				}
+
 				Static.bus.unregister(page);
 				Static.last_page = page;
 

@@ -10,7 +10,6 @@
 		android:layout_marginLeft="@dimen/external_margins"
 		android:layout_marginRight="@dimen/external_margins"
 
-		android:background="@drawable/bg_part"
 		>
 
 

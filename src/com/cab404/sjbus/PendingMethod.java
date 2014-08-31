@@ -31,6 +31,25 @@ public class PendingMethod {
 	}
 
 	/**
+	 * Checks if method can be safely executed with given object.
+	 */
+	public boolean canBeInvokedWith(Object parameter) {
+
+		if (!(method.getParameterTypes().length == 1 || method.isVarArgs()))
+			return false;
+
+		Class[] m_par = method.getParameterTypes();
+
+		Class<?> p_type = parameter.getClass();
+		Class<?> m_type = m_par[0];
+
+		return m_type.isAssignableFrom(p_type);
+
+
+	}
+
+
+	/**
 	 * Checks if method can be safely executed with given object list.
 	 */
 	public boolean canBeInvokedWith(Object... parameters) {

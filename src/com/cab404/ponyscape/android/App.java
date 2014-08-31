@@ -23,7 +23,7 @@ public class App extends Application {
 		super.onCreate();
 
 		/* Готовим место для картинок */
-		File image_storage = new File(getFilesDir(), "img");
+		File image_storage = new File(getCacheDir(), "img");
 		if (!image_storage.exists() && !image_storage.mkdirs())
 			Log.w("Bootstrap", "Images won't be avalible.");
 

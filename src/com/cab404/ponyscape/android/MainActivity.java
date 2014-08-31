@@ -600,33 +600,35 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
-	/**
-	 * TODO: Вот тут вот нужно будет ловить всё, что не попадя.
-	 */
-	@Override protected void onNewIntent(Intent intent) {
+	@Override
+	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		Uri data = intent.getData();
-		Log.v("Main", "Получили новый Intent по адресу " + data);
-		List<String> segments = data.getPathSegments();
-		String command = null;
 
-		if (segments.size() == 0)
-			command = "page load /";
+		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
 
-		if (segments.size() == 2) {
-			if ("blog".equals(segments.get(0)))
-				command = "page load " + segments.get(1);
-			if ("profile".equals(segments.get(0)))
-				command = "user load " + segments.get(1);
-		}
-		if (segments.size() == 3) {
-			if ("blog".equals(segments.get(0)))
-				command = "post load " + segments.get(2).replace(".html", "");
-		}
+			Uri data = intent.getData();
+			Log.v("Main", "Получили новый Intent по адресу " + data);
+			List<String> segments = data.getPathSegments();
+			String command = null;
+			if (segments.size() == 0)
+				command = "page load /";
 
-		if (command != null)
-			Static.bus.send(new Commands.Run(command));
+			if (segments.size() == 2) {
+				if ("blog".equals(segments.get(0)))
+					command = "page load " + segments.get(1);
+				if ("profile".equals(segments.get(0)))
+					command = "user load " + segments.get(1);
+			}
+			if (segments.size() == 3) {
+				if ("blog".equals(segments.get(0)))
+					command = "post load " + segments.get(2).replace(".html", "");
+			}
 
+			if (command != null)
+				Static.bus.send(new Commands.Run(command));
+
+		} else
+			super.onNewIntent(intent);
 	}
 
 	/**

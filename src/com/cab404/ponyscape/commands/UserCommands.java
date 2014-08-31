@@ -9,6 +9,7 @@ import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.pages.ProfilePage;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.util.exceptions.LoadingFail;
+import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.ErrorPart;
@@ -40,7 +41,7 @@ public class UserCommands {
 								final ProfilePart part = new ProfilePart((Profile) object);
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
-										Static.bus.send(new Parts.Add(part));
+										Static.bus.send(new Parts.Run(part));
 									}
 								});
 								break;
@@ -65,6 +66,9 @@ public class UserCommands {
 					page.fetch(Static.user);
 				} catch (LoadingFail f) {
 					Log.w("Profile", name + ": Нет таких");
+				} catch (MoonlightFail f) {
+					Static.bus.send(new Commands.Error("Ошибка при запросе данных пользователя."));
+					Log.w("UserInfo", f);
 				}
 				Static.last_page = page;
 
