@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -96,7 +97,8 @@ public class MainActivity extends AbstractActivity {
 
 		findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
-				Static.bus.send(new Android.RootSizeChanged());
+				if (oL != l || oR != r)
+					Static.bus.send(new Android.RootSizeChanged());
 			}
 		});
 
@@ -164,9 +166,10 @@ public class MainActivity extends AbstractActivity {
 				findViewById(R.id.execution).setVisibility(View.VISIBLE);
 				command_running = true;
 				updateInput();
+
 				try {
 					Static.cm.run(data.toString());
-				} catch (RuntimeException e) {
+				} catch (InvocationTargetException e) {
 					/* Достаём из обёртки рефлексии */
 					Throwable ex = e.getCause();
 					while (ex instanceof InvocationTargetException)
@@ -188,8 +191,8 @@ public class MainActivity extends AbstractActivity {
 			} catch (NonEnclosedParesisException nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
 				line.setError("Незакрытые кавычки.");
-
 				Static.bus.send(new Commands.Finished());
+
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
@@ -199,7 +202,7 @@ public class MainActivity extends AbstractActivity {
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		running.get(requestCode).handle(resultCode, data);
+		running.remove(requestCode).handle(resultCode, data);
 	}
 
 	@Override public void onBackPressed() {
@@ -354,11 +357,9 @@ public class MainActivity extends AbstractActivity {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void error(Commands.Error err) {
-
 		Toast toast = Toast.makeText(this, err.error, Toast.LENGTH_SHORT);
 		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
 		toast.show();
-//		line.setError(err.error);
 	}
 
 	@Bus.Handler
@@ -410,7 +411,7 @@ public class MainActivity extends AbstractActivity {
 				.animate()
 				.scaleX(1).scaleY(1)
 				.setInterpolator(null)
-				.setDuration(items.getChildCount() * delay_per_item);
+				.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
 
 		for (int i = 0; i < items.getChildCount(); i++) {
 			final View anim = items.getChildAt(i);
@@ -430,7 +431,7 @@ public class MainActivity extends AbstractActivity {
 		}
 
 		findViewById(R.id.fade_bg).animate()
-				.setDuration(items.getChildCount() * delay_per_item)
+				.setDuration(items.getChildCount() * delay_per_item + delay_per_item)
 				.alpha(0)
 				.setListener(new Anim.AnimatorListenerImpl() {
 					@Override public void onAnimationEnd(Animator animator) {
@@ -468,7 +469,7 @@ public class MainActivity extends AbstractActivity {
 				.scaleX(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
 				.scaleY(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
 				.setInterpolator(new BounceInterpolator())
-				.setDuration(items.getChildCount() * delay_per_item);
+				.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
 
 		new Drawable() {
 			Movie movie = Movie.decodeFile("");
@@ -494,7 +495,7 @@ public class MainActivity extends AbstractActivity {
 							float dpi = getResources().getDisplayMetrics().density;
 							anim.animate()
 									.setInterpolator(new BounceInterpolator())
-									.setDuration(delay_per_item * 2)
+									.setDuration(delay_per_item * 2 + delay_per_item)
 									.x(items.getWidth() - anim.getWidth() + 2 * dpi);
 						}
 					},
@@ -598,11 +599,35 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
-	/**
-	 * TODO: Вот тут вот нужно будет ловить всё, что не попадя.
-	 */
-	@Override protected void onNewIntent(Intent intent) {
+	@Override
+	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+
+		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+
+			Uri data = intent.getData();
+			Log.v("Main", "Получили новый Intent по адресу " + data);
+			List<String> segments = data.getPathSegments();
+			String command = null;
+			if (segments.size() == 0)
+				command = "page load /";
+
+			if (segments.size() == 2) {
+				if ("blog".equals(segments.get(0)))
+					command = "page load " + segments.get(1);
+				if ("profile".equals(segments.get(0)))
+					command = "user load " + segments.get(1);
+			}
+			if (segments.size() == 3) {
+				if ("blog".equals(segments.get(0)))
+					command = "post load " + segments.get(2).replace(".html", "");
+			}
+
+			if (command != null)
+				Static.bus.send(new Commands.Run(command));
+
+		} else
+			super.onNewIntent(intent);
 	}
 
 	/**

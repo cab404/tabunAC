@@ -55,4 +55,13 @@ public class Parts {
 		public final Part part;
 		public Show(Part part) {this.part = part;}
 	}
+
+	/**
+	 * Запускает часть в отдельной Activity
+	 */
+	public static class Run {
+		public final Part part;
+		public Run(Part part) {this.part = part;}
+	}
+
 }

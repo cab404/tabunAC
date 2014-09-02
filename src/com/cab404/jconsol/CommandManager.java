@@ -188,7 +188,8 @@ public class CommandManager {
 		}
 	}
 
-	public void run(String str) {
+	public void run(String str)
+	throws InvocationTargetException, IllegalAccessException {
 
 		List<String> parts = splitCommand(str);
 
@@ -205,33 +206,29 @@ public class CommandManager {
 
 
         /* Searching for command */
-		try {
 
-			Object[] parameters = new Object[parts.size() - 2];
+		Object[] parameters = new Object[parts.size() - 2];
 
-			search:
-			for (CommandHolder holder : commands.getValues(parts.get(1))) {
-				Class<? extends ParameterConverter>[] params = holder.annnotation.params();
-				if (params.length == parts.size() - 2) {
+		search:
+		for (CommandHolder holder : commands.getValues(parts.get(1))) {
+			Class<? extends ParameterConverter>[] params = holder.annnotation.params();
+			if (params.length == parts.size() - 2) {
 
-					for (int i = 0; i < params.length; i++) {
-						ParameterConverter conv = getConverter(params[i]);
+				for (int i = 0; i < params.length; i++) {
+					ParameterConverter conv = getConverter(params[i]);
 
-						if (conv.isInstance(parts.get(i + 2)))
-							parameters[i] = conv.convert(parts.get(i + 2));
-						else continue search;
+					if (conv.isInstance(parts.get(i + 2)))
+						parameters[i] = conv.convert(parts.get(i + 2));
+					else continue search;
 
-					}
-
-					holder.method.invoke(holder.object, parameters);
-					return;
 				}
 
+				holder.method.invoke(holder.object, parameters);
+				return;
 			}
 
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			throw new RuntimeException(e);
 		}
+
 
 		throw new CommandNotFoundException();
 

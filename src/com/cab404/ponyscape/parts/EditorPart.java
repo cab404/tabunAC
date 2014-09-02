@@ -11,8 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.cab404.acli.Part;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.utils.Static;
 
 /**
  * @author cab404
@@ -71,18 +69,19 @@ public class EditorPart extends Part {
 
 			action.requestLayout();
 		}
+		if (plugins.length == 0) actions.setVisibility(View.GONE);
 
 		view.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
 				if (handler.finished(editor.getText()))
-					Static.bus.send(new Parts.Remove(EditorPart.this));
+					delete();
 			}
 		});
 
 		view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
 				handler.cancelled();
-				Static.bus.send(new Parts.Remove(EditorPart.this));
+				delete();
 			}
 		});
 

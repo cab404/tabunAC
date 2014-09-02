@@ -3,6 +3,7 @@ package com.cab404.ponyscape.android;
 import android.app.Application;
 import android.os.Handler;
 import android.util.Log;
+import com.cab404.acli.PartActivity;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.commands.*;
@@ -22,7 +23,7 @@ public class App extends Application {
 		super.onCreate();
 
 		/* Готовим место для картинок */
-		File image_storage = new File(getFilesDir(), "img");
+		File image_storage = new File(getCacheDir(), "img");
 		if (!image_storage.exists() && !image_storage.mkdirs())
 			Log.w("Bootstrap", "Images won't be avalible.");
 
@@ -37,6 +38,7 @@ public class App extends Application {
 		Static.cfg = Settings.load(this, "settings.bin");
 
 		Static.img.reconfigure();
+		PartActivity.setup();
 
         /* Регестрируем обработчики команд */
 		Static.cm.register(CoreCommands.class);

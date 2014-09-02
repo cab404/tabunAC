@@ -25,7 +25,7 @@ import com.cab404.sjbus.Bus;
  */
 public class TopicPart extends Part {
 
-	private Topic topic;
+	public final Topic topic;
 	private ViewGroup view;
 
 	public TopicPart(Topic topic) {

@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.Log;
 
+import static android.graphics.Color.*;
+
 /**
  * @author cab404
  */
@@ -82,11 +84,10 @@ public class BitmapMorph {
 
 						int len = (ox - x) * (ox - x) + (oy - y) * (oy - y);
 
-						if (len > pxpow)
-							if (len < pxpow + 1)
-								bitmap.setPixel(x, y, ((bitmap.getPixel(x, y) | 0xff000000) ^ 0xff000000) & 0xcc000000);
-							else
-								bitmap.setPixel(x, y, 0);
+						float squared = (float) Math.sqrt(len);
+
+						if (squared > pixels)
+							bitmap.setPixel(x, y, scaleAlpha(bitmap.getPixel(x, y), squared - pixels > 1 ? 0 : 1 - (squared - pixels)));
 
 					}
 
@@ -95,29 +96,55 @@ public class BitmapMorph {
 		return bitmap;
 	}
 
-	public static Bitmap background(Bitmap source, int color) {
-		int alpha_2 = Color.alpha(color);
+	public static Bitmap background(Bitmap source, int color_2) {
 
 		for (int x = 0; x < source.getWidth(); x++)
 			for (int y = 0; y < source.getHeight(); y++) {
-				int sc = source.getPixel(x, y);
-				int alpha_1 = Color.alpha(sc);
+				int color_1 = source.getPixel(x, y);
+				int alpha_1 = alpha(color_1);
+				int alpha_2 = alpha(color_2);
 
 				if (alpha_1 == 0) {
-					source.setPixel(x, y, color);
-					continue;
-				}
-				if (alpha_1 == 0xFF) {
+					source.setPixel(x, y, color_2);
 					continue;
 				}
 
-				float mul = alpha_1 / alpha_2;
+				if (alpha_1 > alpha_2) alpha_2 = 0;
+				float sum = alpha_1 + alpha_2;
+				float mul1 = alpha_1 / sum;
+				float mul2 = alpha_2 / sum;
 
+				int a = (int) (alpha(color_2) * mul2 + alpha(color_1) * mul1);
+				int r = (int) (red(color_2) * mul2 + red(color_1) * mul1);
+				int g = (int) (green(color_2) * mul2 + green(color_1) * mul1);
+				int b = (int) (blue(color_2) * mul2 + blue(color_1) * mul1);
 
+				source.setPixel(x, y, Color.argb(a, r, g, b));
 
-				source.setPixel(x, y, sc);
 			}
 		return source;
+	}
+
+	private static int scaleColor(int color, float value) {
+		return Color.argb(
+				((int) (((color & 0xff000000) >>> 24) * value) << 24),
+				((int) (((color & 0x00ff0000) >>> 16) * value) << 16),
+				((int) (((color & 0x0000ff00) >>> 8) * value) << 8),
+				((int) (((color & 0x000000ff)) * value))
+		);
+	}
+
+	private static int scaleAlpha(int color, float value) {
+		return ((color | 0xff000000) ^ 0xff000000) | ((int) (((color & 0xff000000) >>> 24) * value) << 24);
+	}
+
+	private static int mix(int c1, int c2) {
+		return Color.argb(
+				(alpha(c1) + alpha(c2)) / 2,
+				(red(c1) + red(c2)) / 2,
+				(green(c1) + green(c2)) / 2,
+				(blue(c1) + blue(c2)) / 2
+		);
 	}
 
 	public static Bitmap cut(Bitmap source, Rect rect) {
@@ -125,7 +152,9 @@ public class BitmapMorph {
 
 		for (int x = rect.left; x < rect.right; x++)
 			for (int y = rect.top; y < rect.bottom; y++)
-				bitmap.setPixel(x - rect.left, y - rect.top, source.getPixel(x, y));
+				if (x >= 0 && x < source.getWidth())
+					if (y >= 0 && y < source.getHeight())
+						bitmap.setPixel(x - rect.left, y - rect.top, source.getPixel(x, y));
 
 		return bitmap;
 	}
@@ -136,6 +165,14 @@ public class BitmapMorph {
 		for (int x = 0; x < bitmap.getWidth(); x++)
 			for (int y = 0; y < bitmap.getHeight(); y++)
 				bitmap.setPixel(x, y, loaded.getPixel(x, y));
+
+		return bitmap;
+	}
+
+	public static Bitmap tint(Bitmap bitmap, int tint) {
+		for (int x = 0; x < bitmap.getWidth(); x++)
+			for (int y = 0; y < bitmap.getHeight(); y++)
+				bitmap.setPixel(x, y, mix(tint, bitmap.getPixel(x, y)));
 
 		return bitmap;
 	}

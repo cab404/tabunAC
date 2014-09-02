@@ -39,6 +39,13 @@
 
 			<ImageView android:layout_width="32dp"
 			           android:layout_height="32dp"
+			           android:id="@+id/update"
+			           android:layout_gravity="center_vertical"
+			           android:src="@drawable/ic_update"
+			           android:layout_marginRight="8dp"
+			           android:padding="4dp"/>
+			<ImageView android:layout_width="32dp"
+			           android:layout_height="32dp"
 			           android:id="@+id/reply"
 			           android:layout_gravity="center_vertical"
 			           android:src="@drawable/ic_bar_pencil"

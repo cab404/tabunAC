@@ -11,9 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Comment;
+import com.cab404.libtabun.data.Type;
+import com.cab404.libtabun.requests.CommentAddRequest;
+import com.cab404.libtabun.requests.RefreshCommentsRequest;
+import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Android;
+import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataRequest;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Simple;
@@ -98,20 +103,72 @@ public class CommentListPart extends Part {
 
 	}
 
-	public void add(Comment comment) {
+	private int indexOf(int id) {
+
+		for (int i = 0; i < comments.size(); i++)
+			if (comments.get(i).id == id)
+				return i;
+
+		return -1;
+	}
+
+
+	public synchronized void add(Comment comment) {
 		if (comment.deleted) return;
 		if (comment.parent != 0 && !levels.containsKey(comment.parent)) return;
-		if (comment.parent == 0)
-			levels.put(comment.id, 0);
-		else
-			levels.put(comment.id, levels.get(comment.parent) + 1);
 
+		if (comment.parent == 0) {
+			levels.put(comment.id, 0);
+		} else {
+			int level = levels.get(comment.parent) + 1;
+			levels.put(comment.id, level);
+
+			for (int i = indexOf(comment.parent) + 1; i < comments.size(); i++)
+				if (levels.get(comments.get(i).id) < level) {
+					comments.add(i, comment);
+					return;
+				}
+		}
 		comments.add(comment);
 	}
+
 
 	public void update() {
 		if (listView != null)
 			((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+	}
+
+	private int max_comment_id() {
+		int max = 0;
+		for (Comment comment : comments)
+			max = Math.max(comment.id, max);
+		return max;
+	}
+
+	public void refresh() {
+		new Thread("Update thread " + topicPart.topic.id) {
+			@Override public void run() {
+
+				RefreshCommentsRequest request =
+						new RefreshCommentsRequest(Type.TOPIC, topicPart.topic.id, max_comment_id());
+				try {
+
+					request.exec(Static.user, Static.last_page);
+
+					for (Comment comment : request.comments)
+						add(comment);
+
+					Static.handler.post(new Runnable() {
+						@Override public void run() {
+							update();
+						}
+					});
+
+				} catch (MoonlightFail f) {
+					Static.bus.send(new Commands.Error("Не удалось обновить список комментариев."));
+				}
+			}
+		}.start();
 	}
 
 	private void comment(final Comment comment, final boolean isEditing) {
@@ -119,24 +176,41 @@ public class CommentListPart extends Part {
 		String title = comment == null ?
 				"Отвечаем в пост"
 				:
-				reply[((int) (Math.random() * reply.length))] + comment.author;
-		new EditorPart(title, "", new EditorPart.EditorActionHandler() {
+				reply[((int) (Math.random() * reply.length))] + comment.author.login;
+		EditorPart editorPart = new EditorPart(title, "", new EditorPart.EditorActionHandler() {
 			@Override public boolean finished(CharSequence text) {
 				if (text.length() > 3000 || text.length() < 2) {
 					Simple.msg("Текст комментария должен быть от 2 до 3000 символов и не содержать разного рода каку");
 					return false;
 				}
 
-				return false;
+				final CommentAddRequest request =
+						new CommentAddRequest(
+								Type.BLOG,
+								topicPart.topic.id,
+								comment == null ? 0 : comment.id,
+								text.toString()
+						);
+				new Thread(new Runnable() {
+					@Override public void run() {
+						try {
+							request.exec(Static.user, Static.last_page);
+							refresh();
+						} catch (MoonlightFail f) {
+							Static.bus.send(new Commands.Error("Не удалось добавить комментарий."));
+						}
+					}
+				}).start();
+
+				return true;
 			}
-			@Override public void cancelled() {}
+			@Override public void cancelled() {
+
+			}
 		});
 
-		Runnable runnable = new Runnable() {
-			@Override public void run() {
+		Static.bus.send(new Parts.Run(editorPart));
 
-			}
-		};
 	}
 
 	private void hideTree() {
@@ -228,6 +302,11 @@ public class CommentListPart extends Part {
 				hideTree();
 			}
 		});
+		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View onClick) {
+				refresh();
+			}
+		});
 
 		adapter = new CommentListAdapter(context);
 		listView.setAdapter(adapter);
@@ -311,7 +390,6 @@ public class CommentListPart extends Part {
 				part.convert(view, viewGroup.getContext());
 
 			/* Начинаем колбаситься */
-
 			LinearLayout.LayoutParams rootLayoutParams = (LinearLayout.LayoutParams) view.findViewById(R.id.root).getLayoutParams();
 			final int level = levels.get(comment.id);
 			int comment_pixel_offset = levels.get(comment.id) * comment_ladder;

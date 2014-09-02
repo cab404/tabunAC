@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
  */
 public class Bus {
 
-	boolean log = false;
+	boolean log = true;
 
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -60,16 +60,19 @@ public class Bus {
 		for (Method method : obj.getClass().getMethods())
 			if (method.getAnnotation(Handler.class) != null)
 				handlers.add(new PendingMethod(method, obj));
+
+		Log.w("SiJBus", handlers.size() + " handlers now");
 	}
 
 
 	public void send(final Object event) {
 		boolean something_was_invoked = false;
+//		Log.w("SiJBus", handlers.size() + " handlers now");
 
 		final String log_session = Integer.toHexString((int) (Math.random() * (Math.pow(16, 4) - Math.pow(16, 3)) + Math.pow(16, 3)));
 
-		if (log)
-			Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
+//		if (log)
+//			Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 		for (final PendingMethod method : handlers)
 			if (method.canBeInvokedWith(event)) {
 				something_was_invoked = true;
@@ -101,13 +104,15 @@ public class Bus {
 		if (log)
 			Log.v("SiJBus", "Unregistered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
 
-		for (int i = 0; i < handlers.size(); i++) {
+		for (int i = 0; i < handlers.size(); ) {
 			// Removing object if it is matching given
 			if (handlers.get(i).holdersEquals(obj))
 				handlers.remove(i);
 			else
 				i++;
 		}
+
+		Log.w("SiJBus", handlers.size() + " handlers now");
 	}
 
 }
