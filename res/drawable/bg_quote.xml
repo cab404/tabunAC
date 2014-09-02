@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-	<item>
-		<inset android:insetLeft="4dp">
-			<shape>
-
-
-				<solid android:color="@color/bg_item_shadow"/>
-			</shape>
-		</inset>
-	</item>
-
-	<item android:left="3dp"
-	      android:right="3dp"
+	<item android:right="-5dp"
+	      android:top="-5dp"
+	      android:bottom="-5dp"
 			>
 		<shape>
-			<solid android:color="@color/bg_item"/>
+			<stroke android:color="@color/bg_item_shadow"
+			        android:width="4dp"/>
 		</shape>
 	</item>
 

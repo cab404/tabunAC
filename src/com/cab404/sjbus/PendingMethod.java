@@ -35,7 +35,7 @@ public class PendingMethod {
 	 */
 	public boolean canBeInvokedWith(Object parameter) {
 
-		if (!(method.getParameterTypes().length == 1 || method.isVarArgs()))
+		if (method.getParameterTypes().length != 1)
 			return false;
 
 		Class[] m_par = method.getParameterTypes();

@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.commands;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.widget.Toast;
@@ -49,38 +50,42 @@ public class CoreCommands {
 
 	@Command(command = "login")
 	public void login() {
-		Static.bus.send(
-				new Android.StartActivityForResult(
-						new Intent("everypony.tabun.auth.TOKEN_REQUEST"),
-						new Android.StartActivityForResult.ResultHandler() {
-							@Override public void handle(int resultCode, Intent data) {
-								if (resultCode == Activity.RESULT_OK) {
-									Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
-									Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
-									Static.bus.send(new Login.Success());
-									Static.bus.send(new Commands.Clear());
-									Static.bus.send(new Commands.Finished());
-								} else {
-									Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
-									Static.bus.send(new Login.Failure());
+		try {
+			Static.bus.send(
+					new Android.StartActivityForResult(
+							new Intent("everypony.tabun.auth.TOKEN_REQUEST"),
+							new Android.StartActivityForResult.ResultHandler() {
+								@Override public void handle(int resultCode, Intent data) {
+									if (resultCode == Activity.RESULT_OK) {
+										Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
+										Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
+										Static.bus.send(new Login.Success());
+										Static.bus.send(new Commands.Clear());
+										Static.bus.send(new Commands.Finished());
+									} else {
+										Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
+										Static.bus.send(new Login.Failure());
+										Static.bus.send(new Commands.Clear());
+										Static.bus.send(new Commands.Finished());
+									}
+								}
+								@Override public void error(Throwable e) {
+									Toast.makeText(Static.app_context, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
+									Intent download = new Intent(
+											Intent.ACTION_VIEW,
+											Uri.parse("market://details?id=everypony.tabun.auth")
+									);
+									Static.bus.send(new Android.StartActivity(download));
 									Static.bus.send(new Commands.Clear());
 									Static.bus.send(new Commands.Finished());
 								}
-							}
-							@Override public void error(Throwable e) {
-								Toast.makeText(Static.app_context, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
-								Intent download = new Intent(
-										Intent.ACTION_VIEW,
-										Uri.parse("market://details?id=everypony.tabun.auth")
-								);
-								Static.bus.send(new Android.StartActivity(download));
-								Static.bus.send(new Commands.Clear());
-								Static.bus.send(new Commands.Finished());
-							}
 
-						}
-				)
-		);
+							}
+					)
+			);
+		} catch (ActivityNotFoundException e) {
+			Static.bus.send(new Commands.Error("TabunAuth не установлен."));
+		}
 
 	}
 

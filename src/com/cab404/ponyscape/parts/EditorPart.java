@@ -69,6 +69,7 @@ public class EditorPart extends Part {
 
 			action.requestLayout();
 		}
+		if (plugins.length == 0) actions.setVisibility(View.GONE);
 
 		view.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {

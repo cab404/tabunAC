@@ -43,15 +43,14 @@ public class ProfilePart extends Part {
 					final Bitmap bitmap = BitmapMorph.bevel(
 							BitmapMorph.background(
 									BitmapMorph.manualCopy(
-//											Bitmap.createScaledBitmap(
-													image.loaded
-//											,
-//													avatar.getWidth(),
-//													avatar.getHeight(),
-//													true
-//											)
+											Bitmap.createScaledBitmap(
+													image.loaded,
+													avatar.getWidth(),
+													avatar.getHeight(),
+													true
+											)
 									),
-									0xffffffff),
+									0x44ffffff),
 							bevel);
 
 					Static.handler.post(
@@ -90,7 +89,7 @@ public class ProfilePart extends Part {
 															),
 															0xff000000
 													),
-													4
+													3
 											),
 											bg_view.getWidth(),
 											bg_view.getHeight(),

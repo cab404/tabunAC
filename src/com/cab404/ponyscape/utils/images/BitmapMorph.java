@@ -96,32 +96,28 @@ public class BitmapMorph {
 		return bitmap;
 	}
 
-	public static Bitmap background(Bitmap source, int color) {
-		int alpha_2 = alpha(color);
-		if (alpha_2 == 0) return source;
+	public static Bitmap background(Bitmap source, int color_2) {
 
 		for (int x = 0; x < source.getWidth(); x++)
 			for (int y = 0; y < source.getHeight(); y++) {
-				int sc = source.getPixel(x, y);
-				int alpha_1 = alpha(sc);
+				int color_1 = source.getPixel(x, y);
+				int alpha_1 = alpha(color_1);
+				int alpha_2 = alpha(color_2);
 
 				if (alpha_1 == 0) {
-					source.setPixel(x, y, color);
+					source.setPixel(x, y, color_2);
 					continue;
 				}
 
-				if (alpha_1 == 0xFF) {
-					continue;
-				}
-
+				if (alpha_1 > alpha_2) alpha_2 = 0;
 				float sum = alpha_1 + alpha_2;
 				float mul1 = alpha_1 / sum;
 				float mul2 = alpha_2 / sum;
 
-				int a = color >>> 24;
-				int r = (int) (red(color) * mul2 + red(sc) * mul1);
-				int g = (int) (green(color) * mul2 + green(sc) * mul1);
-				int b = (int) (blue(color) * mul2 + blue(sc) * mul1);
+				int a = (int) (alpha(color_2) * mul2 + alpha(color_1) * mul1);
+				int r = (int) (red(color_2) * mul2 + red(color_1) * mul1);
+				int g = (int) (green(color_2) * mul2 + green(color_1) * mul1);
+				int b = (int) (blue(color_2) * mul2 + blue(color_1) * mul1);
 
 				source.setPixel(x, y, Color.argb(a, r, g, b));
 
