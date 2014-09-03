@@ -114,8 +114,15 @@ public class CommentListPart extends Part {
 
 
 	public synchronized void add(Comment comment) {
+		// Проверка на заглушку.
 		if (comment.deleted) return;
+
+		// Проверка на отсутствие родителя.
 		if (comment.parent != 0 && !levels.containsKey(comment.parent)) return;
+
+		// Проверка на повторения.
+		for (Comment cm : comments) if (comment.id == cm.id) return;
+
 
 		if (comment.parent == 0) {
 			levels.put(comment.id, 0);
@@ -320,19 +327,18 @@ public class CommentListPart extends Part {
 
 	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
 		super.onRemove(view, parent, context);
+
 		Static.bus.unregister(this);
+
 		if (!topic_visible)
 			Static.bus.send(new Parts.Collapse());
 
-		for (CommentPart part : adapter.comment_cache.values()) {
-			part.kill();
-		}
+		for (CommentPart part : adapter.comment_cache.values()) part.kill();
+
 	}
 
 	/**
-	 * Отступ всего дерева проставляем через setX в listView,
-	 * для отступов уровня используем отдельный View в комментарии,
-	 * в него заодно пихаем слушалки перехода по уровням и фоны.
+	 * Адаптер списка комментариев.
 	 */
 	private class CommentListAdapter extends BaseAdapter {
 
@@ -370,7 +376,7 @@ public class CommentListPart extends Part {
 			}
 		}
 
-		@SuppressWarnings("AssignmentToMethodParameter")
+		@SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {
 			final Comment comment = comments.get(i);
 			CommentPart part;
@@ -406,6 +412,7 @@ public class CommentListPart extends Part {
 			};
 			left_margin.setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);
+			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 
 			/* Достаём размер экрана */
 			int dWidth = context.getResources().getDisplayMetrics().widthPixels;

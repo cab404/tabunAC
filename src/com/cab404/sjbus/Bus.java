@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
  */
 public class Bus {
 
-	boolean log = true;
+	boolean log = false;
 
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -54,14 +54,21 @@ public class Bus {
 
 	}
 
-	public void register(Object obj) {
+	private void log(String str) {
+		log("SiJBus", str);
+	}
+
+	private void log(String tag, String str) {
 		if (log)
-			Log.v("SiJBus", "Registered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
+			Log.v(tag, str);
+	}
+
+	public void register(Object obj) {
+		log("Registered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
 		for (Method method : obj.getClass().getMethods())
 			if (method.getAnnotation(Handler.class) != null)
 				handlers.add(new PendingMethod(method, obj));
-
-		Log.w("SiJBus", handlers.size() + " handlers now");
+		log(handlers.size() + " handlers now");
 	}
 
 
@@ -80,8 +87,7 @@ public class Bus {
 				executor.execute(new Runnable() {
 					@Override public void run() {
 						try {
-							if (log)
-								Log.v("SiJBus:Send:" + log_session, "Invoking handler " + method.label);
+							log("SiJBus:Send:" + log_session, "Invoking handler " + method.label);
 							method.invoke(event);
 						} catch (Throwable t) {
 							throw new RuntimeException(
@@ -96,13 +102,11 @@ public class Bus {
 				});
 			}
 		if (!something_was_invoked)
-			if (log)
-				Log.v("SiJBus:Send:" + log_session, "No handlers was invoked on  event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
+			log("SiJBus:Send:" + log_session, "No handlers was invoked on  event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 	}
 
 	public void unregister(Object obj) {
-		if (log)
-			Log.v("SiJBus", "Unregistered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
+		log("Unregistered object of class " + obj.getClass() + ", inst. " + Integer.toHexString(obj.hashCode()));
 
 		for (int i = 0; i < handlers.size(); ) {
 			// Removing object if it is matching given
@@ -112,7 +116,7 @@ public class Bus {
 				i++;
 		}
 
-		Log.w("SiJBus", handlers.size() + " handlers now");
+		log(handlers.size() + " handlers now");
 	}
 
 }

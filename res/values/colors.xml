@@ -3,9 +3,11 @@
 
 
 	<color name="bg_main">#ff363b6c</color>
+	<color name="bg_tint">#aa000000</color>
 
 	<color name="bg_item">#ffffffff</color>
 	<color name="bg_item_shadow">#ff535353</color>
+	<color name="bg_item_new">#ffb5ffaa</color>
 
 	<color name="bg_footer">#ff7ca7fa</color>
 	<color name="bg_footer_shadow">#ff45575d</color>

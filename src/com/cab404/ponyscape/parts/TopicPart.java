@@ -96,7 +96,23 @@ public class TopicPart extends Part {
 		((TextView) view.findViewById(R.id.tags))
 				.setText(SU.deEntity(SU.join(topic.tags, ", ")));
 
-		((TextView) view.findViewById(R.id.id)).setText("#" + topic.id);
+		StringBuilder info = new StringBuilder("#" + topic.id);
+
+		if (topic.comments != 0) {
+			info
+					.append('\n')
+					.append(topic.comments)
+					.append(" ")
+					.append(context.getResources().getQuantityString(R.plurals.Mail_Label_Comments, topic.comments));
+			if (topic.comments_new != 0)
+				info
+						.append(", ")
+						.append(topic.comments_new)
+						.append(" ")
+						.append(context.getResources().getQuantityString(R.plurals.Mail_Label_NewComments, topic.comments_new));
+		}
+
+		((TextView) view.findViewById(R.id.id)).setText(info);
 
 
 //		view.setAlpha(0);

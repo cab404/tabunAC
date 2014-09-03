@@ -45,7 +45,7 @@
 		<item quantity="zero">страниц</item>
 		<item quantity="one">страница</item>
 		<item quantity="two">страницы</item>
-		<item quantity="few">страниц</item>
+		<item quantity="few">страницы</item>
 		<item quantity="many">страниц</item>
 		<item quantity="other">страниц..?</item>
 	</plurals>

@@ -2,6 +2,7 @@ package com.cab404.ponyscape.parts;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,10 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.DataAcquired;
-import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -67,16 +68,27 @@ public class CommentPart extends Part {
 			}
 		});
 
-		view.setOnLongClickListener(new View.OnLongClickListener() {
-			@Override public boolean onLongClick(View v) {
+		view.findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
 				View foo = view.findViewById(R.id.footer);
 				if (foo.getVisibility() == View.GONE)
 					foo.setVisibility(View.VISIBLE);
 				else
 					foo.setVisibility(View.GONE);
-				return true;
 			}
 		});
+
+		if (comment.is_new)
+			view.findViewById(R.id.root)
+					.setBackgroundColor(
+							context.getResources().getColor(R.color.bg_item_new)
+					);
+		else
+			view.findViewById(R.id.root)
+					.setBackgroundColor(
+							context.getResources().getColor(R.color.bg_item)
+					);
+		Log.v("Comment", "new" + comment.is_new);
 
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 	}
