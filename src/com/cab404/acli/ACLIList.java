@@ -68,6 +68,7 @@ public class ACLIList implements FragmentedList {
 
 			Anim.fadeOut(root.getChildAt(index), 200, new Runnable() {
 				@Override public void run() {
+					if (view.getParent() == null) return;
 					view.getLayoutParams().width = view.getChildAt(0).getWidth();
 					view.getLayoutParams().height = view.getChildAt(0).getHeight();
 

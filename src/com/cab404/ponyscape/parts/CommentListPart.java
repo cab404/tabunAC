@@ -202,13 +202,14 @@ public class CommentListPart extends Part {
 						isEditing ?
 								new CommentEditRequest(
 										comment.id,
-										comment.text
+										text.toString()
 								) {
 									@Override protected void handle(JSONObject object) {
 										super.handle(object);
-										Log.v("AGRH", object + "");
-										if (success)
+										if (success) {
 											comment.text = (String) object.get("sText");
+											adapter.comment_cache.remove(comment);
+										}
 									}
 								}
 								:
@@ -229,7 +230,9 @@ public class CommentListPart extends Part {
 
 							if (!success)
 								throw new MoonlightFail("breakout");
-
+							else {
+								Static.bus.send(new Commands.Success(msg));
+							}
 							refresh();
 
 						} catch (MoonlightFail f) {

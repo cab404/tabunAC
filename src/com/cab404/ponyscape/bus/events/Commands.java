@@ -34,6 +34,14 @@ public class Commands {
 	}
 
 	/**
+	 * Выводит ня на экран.
+	 */
+	public static class Success {
+		public final CharSequence msg;
+		public Success(CharSequence msg) {this.msg = msg;}
+	}
+
+	/**
 	 * Заменяет текст звездочками.
 	 */
 	public static class Hide { }
