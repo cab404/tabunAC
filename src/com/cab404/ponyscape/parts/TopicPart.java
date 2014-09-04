@@ -110,6 +110,7 @@ public class TopicPart extends Part {
 						.append(topic.comments_new)
 						.append(" ")
 						.append(context.getResources().getQuantityString(R.plurals.Mail_Label_NewComments, topic.comments_new));
+
 		}
 
 		((TextView) view.findViewById(R.id.id)).setText(info);

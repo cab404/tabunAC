@@ -28,14 +28,14 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new Parts.Add((new HelpPart())));
+		Static.bus.send(new Parts.Run((new HelpPart())));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}
 
 	@Command(command = "about")
 	public void displayCredits() {
-		Static.bus.send(new Parts.Add((new CreditsPart())));
+		Static.bus.send(new Parts.Run((new CreditsPart())));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}

@@ -38,6 +38,7 @@ public class EditorPart extends Part {
 				new SimpleEditorPlugin(R.drawable.ic_editor_italic, "<i>", "</i>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_underlined, "<u>", "</u>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<s>", "</s>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<blockquote>", "</blockquote>"),
 		};
 	}
 
@@ -105,10 +106,15 @@ public class EditorPart extends Part {
 
 		@Override public void performAction(EditText text) {
 			if (!text.hasSelection()) return;
+
 			CharSequence start = getStart();
 			CharSequence end = getEnd();
-			text.getText().insert(text.getSelectionStart(), start);
-			text.getText().insert(text.getSelectionEnd(), end);
+			int selectionEnd = text.getSelectionEnd();
+			int selectionStart = text.getSelectionStart();
+
+			text.getText().insert(selectionEnd, end);
+			text.getText().insert(selectionStart, start);
+			text.setSelection(selectionStart, start.length() + end.length() + selectionEnd);
 		}
 	}
 

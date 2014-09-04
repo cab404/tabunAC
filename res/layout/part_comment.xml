@@ -25,8 +25,8 @@
 			<LinearLayout android:orientation="horizontal"
 			              android:layout_width="match_parent"
 			              android:layout_height="wrap_content"
-			              android:layout_above="@+id/text"
-			              android:gravity="center_vertical">
+			              android:gravity="center_vertical"
+			              android:layout_toLeftOf="@+id/menu">
 				<TextView
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
@@ -53,20 +53,15 @@
 				          android:textStyle="bold"
 				          android:singleLine="true"
 				          android:layout_marginRight="8dp"/>
-				<ImageView
-						android:layout_width="30dp"
-						android:layout_height="30dp"
-						android:id="@+id/menu"
-						android:src="@drawable/ic_more"/>
 			</LinearLayout>
 			<LinearLayout android:orientation="horizontal"
 			              android:layout_width="match_parent"
 			              android:id="@+id/footer"
 			              android:layout_height="wrap_content"
-			              android:background="@color/bg_footer"
+			              android:background="@color/bg_item_shadow"
 			              android:gravity="right"
-			              android:visibility="invisible"
-			              android:layout_marginRight="30dp">
+			              android:visibility="visible"
+			              android:paddingRight="30dp">
 
 				<TextView android:layout_width="0dp"
 				          android:layout_height="wrap_content"
@@ -94,7 +89,8 @@
 				           android:src="@drawable/ic_bar_plus"
 				           android:padding="4dp"
 				           android:layout_marginRight="8dp"
-				           android:layout_weight="0.0"/>
+				           android:layout_weight="0.0"
+				           android:tint="@color/font_color_green"/>
 				<ImageView android:layout_width="30dp"
 				           android:layout_height="30dp"
 				           android:id="@+id/minus"
@@ -103,7 +99,8 @@
 				           android:src="@drawable/ic_bar_minus"
 				           android:padding="4dp"
 				           android:layout_marginRight="8dp"
-				           android:layout_weight="0.0"/>
+				           android:layout_weight="0.0"
+				           android:tint="@color/font_color_red"/>
 				<ImageView android:layout_width="30dp"
 				           android:layout_height="30dp"
 				           android:id="@+id/reply"
@@ -112,7 +109,23 @@
 				           android:src="@drawable/ic_bar_pencil"
 				           android:padding="4dp"
 				           android:layout_marginRight="8dp"/>
+				<ImageView android:layout_width="30dp"
+				           android:layout_height="30dp"
+				           android:id="@+id/edit"
+				           android:layout_gravity="center_vertical"
+				           android:soundEffectsEnabled="false"
+				           android:src="@drawable/ic_bar_settings"
+				           android:layout_marginRight="8dp"
+				           android:layout_weight="0.0"
+				           android:padding="4dp"/>
 			</LinearLayout>
+			<ImageView
+					android:layout_width="30dp"
+					android:layout_height="30dp"
+					android:id="@+id/menu"
+					android:src="@drawable/ic_more"
+					android:layout_alignParentRight="true"
+					android:layout_alignParentTop="true"/>
 		</RelativeLayout>
 		<LinearLayout
 				android:orientation="vertical"

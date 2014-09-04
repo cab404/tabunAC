@@ -12,7 +12,6 @@ import com.cab404.moonlight.util.exceptions.LoadingFail;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.parts.ProfilePart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
@@ -46,11 +45,14 @@ public class UserCommands {
 								});
 								break;
 							case BLOCK_ERROR:
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
-									}
-								});
+								switch ((TabunError) object) {
+									case NOT_FOUND:
+										Static.bus.send(new Commands.Error("Пользователя не существует."));
+										break;
+									default:
+										Static.bus.send(new Commands.Error("Произошла НЁХ. Свяжитесь со спецлужбами."));
+										break;
+								}
 								cancel();
 								break;
 						}

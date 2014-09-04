@@ -2,7 +2,6 @@ package com.cab404.ponyscape.parts;
 
 import android.animation.Animator;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,7 +87,6 @@ public class CommentPart extends Part {
 					.setBackgroundColor(
 							context.getResources().getColor(R.color.bg_item)
 					);
-		Log.v("Comment", "new" + comment.is_new);
 
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 	}
