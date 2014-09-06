@@ -62,32 +62,74 @@
 					android:textColor="#ffffff"/>
 		</LinearLayout>
 	</RelativeLayout>
+	<RelativeLayout android:orientation="horizontal"
+	              android:layout_width="320dp"
+	              android:layout_height="50dp"
+	              android:background="@drawable/bg_part_secondary"
+	              android:layout_marginTop="-24dp"
+			>
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="1999.00"
+				android:id="@+id/textView"
+				android:layout_alignParentTop="true"
+				android:layout_toRightOf="@+id/imageView"
+				android:layout_marginTop="9dp"
+				android:textSize="14dp"
+				android:textColor="@color/font_color_blue"/>
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="11234.12"
+				android:id="@+id/textView2"
+				android:layout_below="@+id/textView"
+				android:layout_alignLeft="@+id/textView"
+				android:layout_alignStart="@+id/textView"
+				android:textSize="14dp"
+				android:textColor="@color/font_color_green"/>
+		<ImageView
+				android:layout_width="16dp"
+				android:layout_height="wrap_content"
+				android:id="@+id/imageView"
+				android:src="@drawable/ic_powah"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentStart="true"
+				android:layout_above="@+id/textView2"
+				android:layout_alignTop="@+id/textView"
+				android:layout_marginLeft="8dp"
+				android:tint="@color/font_color_blue"/>
+		<ImageView android:layout_width="16dp"
+		           android:layout_height="wrap_content"
+		           android:id="@+id/imageView2"
+		           android:src="@drawable/ic_rating"
+		           android:layout_alignTop="@+id/textView2"
+		           android:layout_toLeftOf="@+id/textView2"
+		           android:layout_alignBottom="@+id/textView2"
+		           android:tint="@color/font_color_green"/>
+		<ImageView
+				android:layout_width="16dp"
+				android:layout_height="16dp"
+				android:id="@+id/imageView3"
+				android:src="@drawable/ic_bar_plus"
+				android:layout_centerVertical="true"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentEnd="true"
+				android:layout_marginLeft="8dp"
+				android:layout_marginRight="8dp"/>
+		<ImageView android:layout_width="16dp"
+		           android:layout_height="16dp"
+		           android:id="@+id/imageView4"
+		           android:src="@drawable/ic_bar_minus"
+		           android:layout_alignTop="@+id/imageView3"
+		           android:layout_toLeftOf="@+id/imageView3"/>
+	</RelativeLayout>
 	<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="320dp"
 			android:layout_height="wrap_content"
 			android:id="@+id/data_points"
-			android:layout_marginTop="-24dp">
-		<LinearLayout android:orientation="vertical"
-		              android:layout_width="320dp"
-		              android:layout_height="50dp"
-		              android:background="@drawable/bg_part"
-		              android:layout_marginTop="4dp"/>
-		<LinearLayout android:orientation="vertical"
-		              android:layout_width="320dp"
-		              android:layout_height="50dp"
-		              android:background="@drawable/bg_part"
-		              android:layout_marginTop="4dp"/>
-		<LinearLayout android:orientation="vertical"
-		              android:layout_width="320dp"
-		              android:layout_height="50dp"
-		              android:background="@drawable/bg_part"
-		              android:layout_marginTop="4dp"/>
-		<LinearLayout android:orientation="vertical"
-		              android:layout_width="320dp"
-		              android:layout_height="50dp"
-		              android:background="@drawable/bg_part"
-		              android:layout_marginTop="4dp"/>
+			>
 		<LinearLayout android:orientation="vertical"
 		              android:layout_width="320dp"
 		              android:layout_height="50dp"

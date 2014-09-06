@@ -18,6 +18,7 @@ import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -104,7 +105,14 @@ public class CoreCommands {
 		Static.bus.send(new Commands.Hide());
 
 		new Thread(new Runnable() {
+			@Bus.Handler
+			public void handle(Commands.Abort e) {
+				// Защищаемся от чтения пароля с экрана при отмене
+				Static.bus.send(new Commands.Clear());
+			}
+
 			@Override public void run() {
+				Static.bus.register(this);
 				final boolean success = (Static.user.login(login, password));
 
 				Static.handler.post(new Runnable() {

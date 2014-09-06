@@ -3,14 +3,35 @@
 <LinearLayout android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:background="@drawable/bg_part_footer"
+              android:background="@color/bg_footer"
               android:gravity="right"
               android:paddingTop="2dp"
               android:paddingBottom="2dp"
               android:layout_below="@+id/comment_list"
-              android:id="@+id/linearLayout"
               android:layout_alignParentBottom="true"
-              xmlns:android="http://schemas.android.com/apk/res/android">
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:hapticFeedbackEnabled="false">
+	<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:id="@+id/switch_button">
+		<ImageView
+				android:layout_width="32dp"
+				android:layout_height="32dp"
+				android:src="@drawable/ic_goto"/>
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="32dp"
+				android:text="+42 комментария"
+				android:id="@+id/switch_text"
+				android:layout_gravity="center_vertical"
+				android:gravity="center_vertical"
+				android:drawablePadding="5dp"
+				android:hapticFeedbackEnabled="false"
+				/>
+	</LinearLayout>
 	<ImageView android:layout_width="32dp"
 	           android:layout_height="32dp"
 	           android:id="@+id/update"

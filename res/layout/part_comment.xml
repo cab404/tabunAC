@@ -7,6 +7,7 @@
 		android:orientation="horizontal">
 	<View android:layout_width="0dp"
 	      android:layout_height="match_parent"
+	      android:clickable="true"
 	      android:id="@+id/start_clickable_margin"
 			/>
 	<LinearLayout
@@ -103,14 +104,6 @@
 				           android:tint="@color/font_color_red"/>
 				<ImageView android:layout_width="30dp"
 				           android:layout_height="30dp"
-				           android:id="@+id/reply"
-				           android:layout_gravity="center_vertical"
-				           android:soundEffectsEnabled="false"
-				           android:src="@drawable/ic_bar_pencil"
-				           android:padding="4dp"
-				           android:layout_marginRight="8dp"/>
-				<ImageView android:layout_width="30dp"
-				           android:layout_height="30dp"
 				           android:id="@+id/edit"
 				           android:layout_gravity="center_vertical"
 				           android:soundEffectsEnabled="false"
@@ -135,6 +128,14 @@
 				android:id="@+id/content"
 				android:paddingStart="24dp">
 		</LinearLayout>
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
+		           android:id="@+id/reply"
+		           android:soundEffectsEnabled="false"
+		           android:src="@drawable/ic_bar_pencil"
+		           android:padding="4dp"
+		           android:layout_marginRight="8dp"
+		           android:layout_gravity="right"/>
 	</LinearLayout>
 	<View android:layout_width="0dp"
 	      android:layout_height="match_parent"

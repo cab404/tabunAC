@@ -9,7 +9,9 @@
 		\n
 		А, и Apache HTTP Library, тоже няши, да.
 		\n
-		За финансовую помощь спасибо andreymal, 404, Albibarbatus и кому-то с WMID 294710348886!
+		За финансовую помощь спасибо GarrySeward, andreymal, 404, Albibarbatus и кому-то с WMID 294710348886!
+		\n
+		Спасибо s3rious за консультацию по UI!
 		\n
 		Вот.
 	</string>
@@ -59,7 +61,7 @@
 		<item quantity="other">комментариев</item>
 	</plurals>
 
-	<plurals name="Mail_Label_NewComments">
+	<plurals name="new_comments">
 		<item quantity="zero">новых</item>
 		<item quantity="one">новый</item>
 		<item quantity="two">новых</item>

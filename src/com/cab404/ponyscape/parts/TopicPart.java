@@ -109,7 +109,7 @@ public class TopicPart extends Part {
 						.append(", ")
 						.append(topic.comments_new)
 						.append(" ")
-						.append(context.getResources().getQuantityString(R.plurals.Mail_Label_NewComments, topic.comments_new));
+						.append(context.getResources().getQuantityString(R.plurals.new_comments, topic.comments_new));
 
 		}
 

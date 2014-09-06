@@ -145,6 +145,7 @@ public class CommentListPart extends Part {
 	public void update() {
 		if (listView != null)
 			((BaseAdapter) ((HeaderViewListAdapter) listView.getAdapter()).getWrappedAdapter()).notifyDataSetChanged();
+		updateNew();
 	}
 
 	private int max_comment_id() {
@@ -152,6 +153,39 @@ public class CommentListPart extends Part {
 		for (Comment comment : comments)
 			max = Math.max(comment.id, max);
 		return max;
+	}
+
+	private void move() {
+		update();
+		for (int i = 0; i < comments.size(); i++)
+			if (comments.get(i).is_new) {
+				comments.get(i).is_new = false;
+				listView.setSelectionFromTop(i, 10);
+				break;
+			}
+		updateNew();
+	}
+
+	private void updateNew() {
+		int new_c = 0;
+		for (Comment comment : comments)
+			if (comment.is_new)
+				new_c++;
+
+		if (new_c == 0)
+			view.findViewById(R.id.switch_button).setVisibility(View.GONE);
+		else
+			view.findViewById(R.id.switch_button).setVisibility(View.VISIBLE);
+
+		((TextView) view.findViewById(R.id.switch_text)).setText(
+				new_c + " " + getContext().getResources().getQuantityString(R.plurals.new_comments, new_c)
+		);
+	}
+
+	private void invalidateNew() {
+		for (Comment comment : comments)
+			comment.is_new = false;
+		update();
 	}
 
 	public void refresh() {
@@ -170,6 +204,7 @@ public class CommentListPart extends Part {
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
 							update();
+							updateNew();
 						}
 					});
 
@@ -233,6 +268,7 @@ public class CommentListPart extends Part {
 							else {
 								Static.bus.send(new Commands.Success(msg));
 							}
+
 							refresh();
 
 						} catch (MoonlightFail f) {
@@ -348,8 +384,14 @@ public class CommentListPart extends Part {
 				comment(null, false);
 			}
 		});
+		view.findViewById(R.id.switch_button).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View onClick) {
+				move();
+			}
+		});
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
+				invalidateNew();
 				refresh();
 			}
 		});
@@ -457,7 +499,11 @@ public class CommentListPart extends Part {
 			};
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);
-			left_margin.setOnClickListener(shiftInvoker);
+			left_margin.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					listView.smoothScrollToPositionFromTop(indexOf(comment.parent), 10);
+				}
+			});
 
 			/* Достаём размер экрана */
 			int dWidth = context.getResources().getDisplayMetrics().widthPixels;
