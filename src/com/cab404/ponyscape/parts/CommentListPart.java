@@ -273,7 +273,7 @@ public class CommentListPart extends Part {
 
 						} catch (MoonlightFail f) {
 							Static.bus.send(new Commands.Error(msg));
-							Static.bus.send(new EditorPart(title, text, handler));
+							Static.bus.send(new Parts.Run(new EditorPart(title, text, handler)));
 						}
 					}
 				}).start();
@@ -494,7 +494,10 @@ public class CommentListPart extends Part {
 			/* Ставим двигалку */
 			View.OnClickListener shiftInvoker = new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					setOffset(level);
+					if (c_level == level)
+						setOffset(0);
+					else
+						setOffset(level);
 				}
 			};
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);

@@ -34,11 +34,11 @@ public class EditorPart extends Part {
 		this.initial = initial;
 		this.handler = handler;
 		this.plugins = new EditorPlugin[]{
-				new SimpleEditorPlugin(R.drawable.ic_editor_bold, "<b>", "</b>"),
-				new SimpleEditorPlugin(R.drawable.ic_editor_italic, "<i>", "</i>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_bold, "<strong>", "</strong>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_italic, "<em>", "</em>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_underlined, "<u>", "</u>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<s>", "</s>"),
-				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<blockquote>", "</blockquote>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_quote, "<blockquote>", "</blockquote>"),
 		};
 	}
 
