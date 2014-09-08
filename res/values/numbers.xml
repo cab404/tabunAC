@@ -9,7 +9,7 @@
 
 	<dimen name="internal_margins">8dp</dimen>
 	<dimen name="external_margins">8dp</dimen>
-	<dimen name="corner_cut">10dp</dimen>
+	<dimen name="corner_cut">3dp</dimen>
 
 	<dimen name="comment_ladder">25dp</dimen>
 	<integer name="maximum_gradient_length">20</integer>

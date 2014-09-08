@@ -444,7 +444,7 @@ public class HtmlRipper {
 						int width = (int) (target.getWidth() - target.getTextSize());
 						if (use.getWidth() > width) {
 							int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
-							if (width != 0 && height != 0)
+							if (width > 0 && height > 0)
 								use = Bitmap.createScaledBitmap(
 										use,
 										width,

@@ -42,6 +42,10 @@ public class FollowableScrollView extends ScrollView {
 
 	boolean scroll_enabled = true;
 
+	@Override public int getMaxScrollAmount() {
+		return isScrollEnabled() ? super.getMaxScrollAmount() : 0;
+	}
+
 	@Override public boolean onTouchEvent(MotionEvent ev) {
 		boolean b = isScrollEnabled() && super.onTouchEvent(ev);
 

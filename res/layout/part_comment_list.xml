@@ -20,47 +20,15 @@
 
 		<ListView
 				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
+				android:layout_height="0dp"
 				android:id="@+id/comment_list"
 				android:smoothScrollbar="false"
 				android:divider="@null"
 				android:layout_weight="1"/>
+		<include android:layout_width="match_parent"
+		         android:layout_height="wrap_content"
+		         layout="@layout/part_comment_list_bar"/>
 
-		<LinearLayout android:orientation="horizontal"
-		              android:layout_width="match_parent"
-		              android:layout_height="wrap_content"
-		              android:background="@drawable/bg_part_footer"
-		              android:gravity="right"
-		              android:paddingTop="2dp"
-		              android:paddingBottom="2dp"
-		              android:layout_below="@+id/comment_list"
-		              android:id="@+id/menu"
-		              android:layout_alignParentBottom="true">
-
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/update"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_update"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/reply"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_bar_pencil"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/collapse_comments"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_collapse"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-
-		</LinearLayout>
 	</LinearLayout>
 	<LinearLayout
 			android:layout_width="match_parent"
@@ -70,12 +38,8 @@
 			android:id="@+id/expand_comments"
 			android:visibility="visible"
 
-			android:layout_marginTop="@dimen/internal_margins"
-			android:layout_marginLeft="@dimen/internal_margins"
-			android:layout_marginRight="@dimen/internal_margins"
-
 			android:background="@drawable/bg_part"
-			>
+			android:layout_margin="@dimen/external_margins">
 		<TextView
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/icons_size"

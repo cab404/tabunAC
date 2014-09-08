@@ -26,9 +26,10 @@ public class Images {
 	private Map<String, Reference<Bitmap>> cache;
 	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
 	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
+	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
 
 	private File cacheDir;
-	private long cut;
+	private long cut, file_cache;
 	private boolean load_blocked;
 
 	public static class CorruptedImageException extends RuntimeException {
@@ -45,24 +46,11 @@ public class Images {
 	}
 
 	public void reconfigure() {
-
-		if (Static.cfg.get(LOAD_BLOCK_CFG_ENTRY) == null) {
-			load_blocked = false;
-			Static.cfg.put(LOAD_BLOCK_CFG_ENTRY, load_blocked);
-			Static.cfg.save();
-		} else
-			load_blocked = (boolean) Static.cfg.get(LOAD_BLOCK_CFG_ENTRY);
-
-
-		if (Static.cfg.get(LIMIT_CFG_ENTRY) == null) {
-			cut = 3000000;
-			Static.cfg.put(LIMIT_CFG_ENTRY, cut);
-			Static.cfg.save();
-		} else
-			cut = (long) Static.cfg.get(LIMIT_CFG_ENTRY);
+		load_blocked = Static.cfg.ensure(LOAD_BLOCK_CFG_ENTRY, false);
+		file_cache = Static.cfg.ensure(FILE_CACHE_LIMIT_CFG_ENTRY, 30L * 1024L * 1024L);
+		cut = Static.cfg.ensure(LIMIT_CFG_ENTRY, 3000000L);
 
 	}
-
 
 	public synchronized void download(final String src) {
 		if (load_blocked) {

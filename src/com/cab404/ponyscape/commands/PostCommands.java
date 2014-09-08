@@ -51,13 +51,9 @@ public class PostCommands {
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
 								final TopicPart topicPart = new TopicPart((Topic) object);
-								list = new CommentListPart(topicPart);
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										Static.bus.send(new Parts.Add(topicPart));
-										Static.bus.send(new Parts.Add(list));
-									}
-								});
+								list = new CommentListPart(topicPart, topicPart.topic.id, false);
+								Static.bus.send(new Parts.Add(topicPart));
+								Static.bus.send(new Parts.Add(list));
 								break;
 							case BLOCK_COMMENT:
 								Static.handler.post(new Runnable() {
@@ -77,11 +73,7 @@ public class PostCommands {
 								all = (Integer) object;
 								break;
 							case BLOCK_ERROR:
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
-									}
-								});
+								Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
 								cancel();
 								break;
 						}

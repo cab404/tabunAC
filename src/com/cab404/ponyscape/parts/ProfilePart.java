@@ -13,6 +13,7 @@ import com.cab404.libtabun.data.Profile;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.DataAcquired;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.ViewSugar;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
 
@@ -22,6 +23,11 @@ import com.cab404.sjbus.Bus;
 public class ProfilePart extends Part {
 
 	View view;
+	@ViewSugar.Bind(R.id.strength)
+	TextView powah;
+	@ViewSugar.Bind(R.id.rating)
+	TextView ratin;
+
 	private final Profile profile;
 
 	public ProfilePart(Profile profile) {
@@ -115,10 +121,13 @@ public class ProfilePart extends Part {
 
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
 		view = inflater.inflate(R.layout.part_user_info, viewGroup, false);
+		ViewSugar.bind(this, view);
 		Static.bus.register(this);
 
 		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
 		((TextView) view.findViewById(R.id.name)).setText(profile.name);
+
+
 
 		view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {

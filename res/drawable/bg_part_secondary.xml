@@ -4,7 +4,7 @@
 
 	<item>
 		<shape>
-			<solid android:color="@color/bg_footer"/>
+			<solid android:color="@color/bg_item_shadow"/>
 			<corners android:radius="@dimen/corner_cut"/>
 		</shape>
 	</item>

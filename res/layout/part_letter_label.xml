@@ -23,5 +23,12 @@
 		          android:id="@+id/recipients"
 		          android:textSize="@dimen/small_text_size"
 		          android:textColor="@color/bg_item_shadow"/>
+		<TextView android:layout_width="wrap_content"
+		          android:layout_height="wrap_content"
+		          android:text="12.02.12"
+		          android:id="@+id/date"
+		          android:textSize="@dimen/small_text_size"
+		          android:textColor="@color/bg_item_shadow"
+		          android:layout_gravity="right"/>
 	</LinearLayout>
 </RelativeLayout>

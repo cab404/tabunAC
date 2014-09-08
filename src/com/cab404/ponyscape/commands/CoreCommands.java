@@ -18,6 +18,7 @@ import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -28,14 +29,14 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new Parts.Add((new HelpPart())));
+		Static.bus.send(new Parts.Run((new HelpPart())));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}
 
 	@Command(command = "about")
 	public void displayCredits() {
-		Static.bus.send(new Parts.Add((new CreditsPart())));
+		Static.bus.send(new Parts.Run((new CreditsPart())));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}
@@ -104,7 +105,14 @@ public class CoreCommands {
 		Static.bus.send(new Commands.Hide());
 
 		new Thread(new Runnable() {
+			@Bus.Handler
+			public void handle(Commands.Abort e) {
+				// Защищаемся от чтения пароля с экрана при отмене
+				Static.bus.send(new Commands.Clear());
+			}
+
 			@Override public void run() {
+				Static.bus.register(this);
 				final boolean success = (Static.user.login(login, password));
 
 				Static.handler.post(new Runnable() {
@@ -123,6 +131,7 @@ public class CoreCommands {
 					}
 				});
 
+				Static.bus.unregister(this);
 			}
 		}).start();
 	}

@@ -362,6 +362,14 @@ public class MainActivity extends AbstractActivity {
 		toast.show();
 	}
 
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void success(Commands.Success msg) {
+		Toast toast = Toast.makeText(this, msg.msg, Toast.LENGTH_SHORT);
+		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY));
+		toast.show();
+	}
+
+
 	@Bus.Handler
 	public synchronized void startActivityFromEvent(Android.StartActivityForResult e) {
 		int request_key = (int) ((Math.random() - 0.5) * 2 * Integer.MAX_VALUE);

@@ -9,7 +9,9 @@
 		\n
 		А, и Apache HTTP Library, тоже няши, да.
 		\n
-		За финансовую помощь спасибо andreymal, 404, Albibarbatus и кому-то с WMID 294710348886!
+		За финансовую помощь спасибо GarrySeward, andreymal, 404, Albibarbatus и кому-то с WMID 294710348886!
+		\n
+		Спасибо s3rious за консультацию по UI!
 		\n
 		Вот.
 	</string>
@@ -45,7 +47,7 @@
 		<item quantity="zero">страниц</item>
 		<item quantity="one">страница</item>
 		<item quantity="two">страницы</item>
-		<item quantity="few">страниц</item>
+		<item quantity="few">страницы</item>
 		<item quantity="many">страниц</item>
 		<item quantity="other">страниц..?</item>
 	</plurals>
@@ -59,7 +61,7 @@
 		<item quantity="other">комментариев</item>
 	</plurals>
 
-	<plurals name="Mail_Label_NewComments">
+	<plurals name="new_comments">
 		<item quantity="zero">новых</item>
 		<item quantity="one">новый</item>
 		<item quantity="two">новых</item>
@@ -97,5 +99,6 @@
 		<item>"Выше вершится таинство написания ответа на комментарий загадочного пони - "</item>
 	</string-array>
 
+	<string name="mail.recipients">, и ещё %d пони</string>
 
 </resources>
