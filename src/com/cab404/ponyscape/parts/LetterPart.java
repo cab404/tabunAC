@@ -51,6 +51,12 @@ public class LetterPart extends Part {
 			}
 		});
 
+		view.findViewById(R.id.tags).setVisibility(View.GONE);
+		view.findViewById(R.id.plus).setVisibility(View.GONE);
+		view.findViewById(R.id.zero).setVisibility(View.GONE);
+		view.findViewById(R.id.minus).setVisibility(View.GONE);
+		view.findViewById(R.id.rating).setVisibility(View.GONE);
+
 		((TextView) view.findViewById(R.id.data))
 				.setText(Simple.buildRecipients(context, letter));
 
@@ -78,7 +84,6 @@ public class LetterPart extends Part {
 			}
 		});
 
-		view.findViewById(R.id.tags).setVisibility(View.GONE);
 
 		StringBuilder info = new StringBuilder("#" + letter.id);
 

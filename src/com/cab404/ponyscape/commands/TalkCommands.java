@@ -113,7 +113,6 @@ public class TalkCommands {
 					@Override public void handle(final Object object, final int key) {
 
 						super.handle(object, key);
-						Log.v("Letters", "Object gain");
 						switch (key) {
 							case BLOCK_LETTER_HEADER:
 								final LetterPart topicPart = new LetterPart((Letter) object);

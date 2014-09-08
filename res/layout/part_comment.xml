@@ -122,7 +122,7 @@
 			           android:id="@+id/edit"
 			           android:layout_gravity="center_vertical"
 			           android:soundEffectsEnabled="false"
-			           android:src="@drawable/ic_bar_settings"
+			           android:src="@drawable/ic_bar_pencil"
 			           android:layout_marginRight="8dp"
 			           android:layout_weight="0.0"
 			           android:padding="4dp"/>
@@ -130,7 +130,7 @@
 			           android:layout_height="32dp"
 			           android:id="@+id/reply"
 			           android:soundEffectsEnabled="false"
-			           android:src="@drawable/ic_bar_pencil"
+			           android:src="@drawable/ic_reply"
 			           android:padding="4dp"
 			           android:layout_marginRight="8dp"
 			           android:layout_gravity="right"/>

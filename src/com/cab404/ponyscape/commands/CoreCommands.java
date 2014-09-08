@@ -131,6 +131,7 @@ public class CoreCommands {
 					}
 				});
 
+				Static.bus.unregister(this);
 			}
 		}).start();
 	}

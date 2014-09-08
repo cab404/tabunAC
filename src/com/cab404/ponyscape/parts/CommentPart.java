@@ -73,6 +73,14 @@ public class CommentPart extends Part {
 
 		}
 
+		view.findViewById(R.id.favourite).setVisibility(View.GONE);
+		if (isLetter) {
+			view.findViewById(R.id.plus).setVisibility(View.GONE);
+			view.findViewById(R.id.edit).setVisibility(View.GONE);
+			view.findViewById(R.id.minus).setVisibility(View.GONE);
+			view.findViewById(R.id.rating).setVisibility(View.GONE);
+		}
+
 //		view.findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
 //			@Override public void onClick(View v) {
 //				View foo = view.findViewById(R.id.footer);
