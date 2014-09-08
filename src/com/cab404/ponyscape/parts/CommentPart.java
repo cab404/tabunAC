@@ -23,12 +23,14 @@ import com.cab404.sjbus.Bus;
  */
 public class CommentPart extends Part {
 
+	private final boolean isLetter;
 	private CharSequence text = null;
 	public final Comment comment;
 	private HtmlRipper ripper;
 
 	View view;
-	public CommentPart(Comment comment) {
+	public CommentPart(Comment comment, boolean isLetter) {
+		this.isLetter = isLetter;
 		Static.bus.register(this);
 		this.comment = comment;
 	}
@@ -55,27 +57,31 @@ public class CommentPart extends Part {
 		((TextView) view.findViewById(R.id.rating))
 				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
 
-		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor comment " + comment.id + " +1"));
-			}
-		});
 
-		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor comment " + comment.id + " -1"));
-			}
-		});
+		if (!isLetter) {
+			view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View view) {
+					Static.bus.send(new Commands.Run("votefor comment " + comment.id + " +1"));
+				}
+			});
 
-		view.findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				View foo = view.findViewById(R.id.footer);
-				if (foo.getVisibility() == View.GONE)
-					foo.setVisibility(View.VISIBLE);
-				else
-					foo.setVisibility(View.GONE);
-			}
-		});
+			view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View view) {
+					Static.bus.send(new Commands.Run("votefor comment " + comment.id + " -1"));
+				}
+			});
+
+		}
+
+//		view.findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
+//			@Override public void onClick(View v) {
+//				View foo = view.findViewById(R.id.footer);
+//				if (foo.getVisibility() == View.GONE)
+//					foo.setVisibility(View.VISIBLE);
+//				else
+//					foo.setVisibility(View.GONE);
+//			}
+//		});
 
 		if (comment.is_new)
 			view.findViewById(R.id.root)

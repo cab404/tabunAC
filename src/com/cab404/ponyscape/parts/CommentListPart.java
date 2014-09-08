@@ -74,7 +74,9 @@ public class CommentListPart extends Part {
 	/**
 	 * Связанный с нашим героем заголовок топика
 	 */
-	private TopicPart topicPart;
+	private Part part;
+	private final int id;
+	private final boolean isLetter;
 
 	/**
 	 * Блямба, на которую если нажать, то появятся комментарии.
@@ -87,8 +89,10 @@ public class CommentListPart extends Part {
 	private View list_root;
 
 
-	public CommentListPart(TopicPart topicPart) {
-		this.topicPart = topicPart;
+	public CommentListPart(Part part, int id, boolean isLetter) {
+		this.part = part;
+		this.id = id;
+		this.isLetter = isLetter;
 		comments = new ArrayList<>();
 		levels = new HashMap<>();
 	}
@@ -189,11 +193,11 @@ public class CommentListPart extends Part {
 	}
 
 	public void refresh() {
-		new Thread("Update thread " + topicPart.topic.id) {
+		new Thread("Update thread " + id) {
 			@Override public void run() {
 
 				RefreshCommentsRequest request =
-						new RefreshCommentsRequest(Type.TOPIC, topicPart.topic.id, max_comment_id());
+						new RefreshCommentsRequest(isLetter ? Type.TALK : Type.TOPIC, id, max_comment_id());
 				try {
 
 					request.exec(Static.user, Static.last_page);
@@ -215,7 +219,12 @@ public class CommentListPart extends Part {
 		}.start();
 	}
 
+	/**
+	 * Добавляет новый комментарий или редактирует существующий.
+	 */
 	private void comment(final Comment comment, final boolean isEditing) {
+		if (isEditing && isLetter) return;
+
 		final String[] reply = getContext().getResources().getStringArray(R.array.reply_to);
 
 		final String title = isEditing ?
@@ -249,8 +258,8 @@ public class CommentListPart extends Part {
 								}
 								:
 								new CommentAddRequest(
-										Type.BLOG,
-										topicPart.topic.id,
+										isLetter ? Type.TALK : Type.BLOG,
+										id,
 										comment == null ? 0 : comment.id,
 										text.toString()
 								);
@@ -311,7 +320,7 @@ public class CommentListPart extends Part {
 						new Runnable() {
 							@Override public void run() {
 								topic_visible = true;
-								topicPart.show();
+								Static.bus.send(new Parts.Show(part));
 							}
 						}
 				);
@@ -329,7 +338,7 @@ public class CommentListPart extends Part {
 		Static.bus.send(height);
 		final int heightPixels = height.height;
 
-		topicPart.hide();
+		Static.bus.send(new Parts.Hide(part));
 		saved_height = expand_view.getHeight();
 		Static.bus.send(new Parts.Expand());
 
@@ -417,8 +426,7 @@ public class CommentListPart extends Part {
 
 		Static.bus.unregister(this);
 
-		if (!topic_visible)
-			Static.bus.send(new Parts.Collapse());
+		Static.bus.send(new Parts.Collapse());
 
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
@@ -470,7 +478,7 @@ public class CommentListPart extends Part {
 
 			/* Проверяем кэш на наличие собранных вьюх */
 			if (!comment_cache.containsKey(comment)) {
-				part = new CommentPart(comment);
+				part = new CommentPart(comment, isLetter);
 				comment_cache.put(comment, part);
 			} else {
 				part = comment_cache.get(comment);

@@ -27,6 +27,21 @@ public class Settings {
 		this(new JSONObject(), new File(context.getFilesDir(), filename));
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T> T ensure(String key, T def_value) {
+		Object curr = Static.cfg.get(key);
+
+		if (curr == null) {
+			put(key, def_value);
+			save();
+			return def_value;
+		} else {
+			if (Integer.class.isAssignableFrom(def_value.getClass()))
+				curr = Integer.parseInt(curr.toString());
+			return (T) curr;
+		}
+	}
+
 	/**
 	 * data.get(key)
 	 */

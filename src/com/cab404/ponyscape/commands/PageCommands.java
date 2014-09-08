@@ -4,11 +4,9 @@ import android.util.Log;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
-import com.cab404.libtabun.data.Blog;
-import com.cab404.libtabun.data.Paginator;
-import com.cab404.libtabun.data.TabunError;
-import com.cab404.libtabun.data.Topic;
+import com.cab404.libtabun.data.*;
 import com.cab404.libtabun.modules.BlogModule;
+import com.cab404.libtabun.modules.LetterLabelModule;
 import com.cab404.libtabun.modules.TopicModule;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.framework.ModularBlockParser;
@@ -50,6 +48,7 @@ public class PageCommands {
 					@Override protected void bindParsers(ModularBlockParser base) {
 						super.bindParsers(base);
 						base.bind(new TopicModule(TopicModule.Mode.LIST), BLOCK_TOPIC_HEADER);
+						base.bind(new LetterLabelModule(), BLOCK_LETTER_LABEL);
 						base.bind(new BlogModule(), BLOCK_BLOG_INFO);
 					}
 
@@ -64,12 +63,16 @@ public class PageCommands {
 								cancel();
 								break;
 							case BLOCK_PAGINATION:
+								Log.v("Page", "Paginator");
 								Static.bus.send(new Parts.Add(new PaginatorPart((Paginator) object)));
 								break;
 							case BLOCK_BLOG_INFO:
 								Static.bus.send(new Parts.Add(new BlogPart((Blog) object)));
 								break;
-
+							case BLOCK_LETTER_LABEL:
+								Log.v("Page", "Label");
+								Static.bus.send(new Parts.Add(new LetterLabelPart((LetterLabel) object)));
+								break;
 						}
 					}
 

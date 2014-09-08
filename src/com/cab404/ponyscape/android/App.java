@@ -47,6 +47,7 @@ public class App extends Application {
 		Static.cm.register(VoteCommands.class);
 		Static.cm.register(MakeCommands.class);
 		Static.cm.register(UserCommands.class);
+		Static.cm.register(TalkCommands.class);
 
 	}
 

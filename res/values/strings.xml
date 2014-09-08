@@ -99,5 +99,6 @@
 		<item>"Выше вершится таинство написания ответа на комментарий загадочного пони - "</item>
 	</string-array>
 
+	<string name="mail.recipients">, и ещё %d пони</string>
 
 </resources>

@@ -23,7 +23,7 @@ public class ViewSugar {
 	}
 
 	public static void bind(Object object, View view) {
-		for (Field field : object.getClass().getFields()) {
+		for (Field field : object.getClass().getDeclaredFields()) {
 			Bind annotation = field.getAnnotation(Bind.class);
 			if (annotation != null) {
 				field.setAccessible(true);

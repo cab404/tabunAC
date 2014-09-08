@@ -32,4 +32,5 @@ public class Static {
 
 	public static Images img = null;
 
+
 }
