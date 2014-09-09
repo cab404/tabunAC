@@ -10,15 +10,18 @@ import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.moonlight.util.SU;
-import com.cab404.ponyscape.bus.events.Android;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Login;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.events.*;
+import com.cab404.ponyscape.bus.events.Shortcuts.LaunchShortcut;
 import com.cab404.ponyscape.parts.CreditsPart;
+import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
+import org.json.simple.JSONArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author cab404
@@ -41,6 +44,61 @@ public class CoreCommands {
 		Static.bus.send(new Commands.Clear());
 	}
 
+
+	@Command(command = "aliases")
+	public void aliases() {
+		final StringBuilder aliases = new StringBuilder();
+		JSONArray shortcuts = (JSONArray) Static.cfg.get("main.shortcuts");
+
+		if (shortcuts == null) shortcuts = new JSONArray();
+
+		for (Object string_actulally : shortcuts) {
+			final LaunchShortcut shortcut = new LaunchShortcut(string_actulally.toString());
+			aliases.append(shortcut.name + "->" + shortcut.command + "\n");
+		}
+
+		EditorPart editorPart = new EditorPart("Редактируем меню", aliases, new EditorPart.EditorActionHandler() {
+			@Override public boolean finished(CharSequence text) {
+				List<String> lines = SU.split(text.toString(), "\n");
+				List<LaunchShortcut> new_shortcuts = new ArrayList<>();
+
+
+				int line_num = 0;
+				for (String line : lines) {
+					line_num++;
+
+					if (line.isEmpty()) continue;
+
+					if (!line.contains("->")) {
+						Static.bus.send(new Commands.Error("Нет разделителя в строке " + line_num));
+						return false;
+					} else {
+						List<String> parts = SU.split(line, "->", 2);
+						LaunchShortcut n = new LaunchShortcut(parts.get(0), parts.get(1));
+						new_shortcuts.add(n);
+					}
+
+				}
+
+				JSONArray shkts = new JSONArray();
+				for (LaunchShortcut shortcut : new_shortcuts) {
+					shkts.add(shortcut.toString());
+				}
+
+				Static.cfg.put("main.shortcuts", shkts);
+				Static.bus.send(new Shortcuts.Update());
+				Static.bus.send(new Commands.Finished());
+				Static.bus.send(new Commands.Clear());
+				return true;
+			}
+			@Override public void cancelled() {
+
+			}
+		}, new EditorPart.EditorPlugin[]{});
+
+		Static.bus.send(new Parts.Run(editorPart));
+
+	}
 
 	@Command(command = "clear")
 	public void clear() {

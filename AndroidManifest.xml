@@ -46,6 +46,7 @@
 		</activity>
 
 		<activity android:name="com.cab404.acli.PartActivity"
+		          android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
 		          android:theme="@style/Ponyscape.Dialog"
 		          android:label="@string/label_editor_activity"/>
 

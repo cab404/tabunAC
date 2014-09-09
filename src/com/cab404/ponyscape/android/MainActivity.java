@@ -20,7 +20,6 @@ import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.jconsol.NonEnclosedParesisException;
 import com.cab404.libtabun.util.TabunAccessProfile;
-import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.*;
@@ -582,31 +581,6 @@ public class MainActivity extends AbstractActivity {
 		line.setEnabled(!command_running && bar_enabled && !aliases_menu_active);
 	}
 
-	/**
-	 * Алиас.
-	 */
-	public static class LaunchShortcut {
-		String name;
-		String command;
-
-		public LaunchShortcut(String serialized) {
-			String[] data = SU.splitToArray(serialized, '/');
-
-			name = SU.drl(data[0]);
-			command = SU.drl(data[1]);
-		}
-
-		public String toString() {
-			return SU.rl(name) + "/" + SU.rl(command);
-		}
-
-		public LaunchShortcut(String name, String command) {
-			this.name = name;
-			this.command = command;
-		}
-
-	}
-
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -651,7 +625,7 @@ public class MainActivity extends AbstractActivity {
 		views.removeViews(0, views.getChildCount());
 
 		for (Object string_actulally : shortcuts) {
-			final LaunchShortcut shortcut = new LaunchShortcut(string_actulally.toString());
+			final Shortcuts.LaunchShortcut shortcut = new Shortcuts.LaunchShortcut(string_actulally.toString());
 
 			View view = inflater.inflate(R.layout.shortcut, views, false);
 			((TextView) view.findViewById(R.id.label)).setText(shortcut.name);

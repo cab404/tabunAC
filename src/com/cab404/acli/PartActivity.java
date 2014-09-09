@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.LinearLayout;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.Android;
@@ -65,7 +66,13 @@ public class PartActivity extends Activity implements FragmentedList {
 		int part_data_id = getIntent().getIntExtra("part_data_id", -1);
 
 
-		part = part_data_valve.get(part_data_id);
+		part = part_data_valve.remove(part_data_id);
+
+		if (part == null) {
+			finish();
+			Log.e("PartActivity", "Data index was empty");
+			return;
+		}
 
 		part.onInsert(this);
 
