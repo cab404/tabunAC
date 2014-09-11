@@ -32,7 +32,7 @@ public class LetterPart extends Part {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
-		((TextView) view.findViewById(R.id.text))
+		((TextView) view.findViewById(R.id.title))
 				.setText(SU.deEntity(letter.title));
 
 		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));

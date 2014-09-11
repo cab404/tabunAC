@@ -3,13 +3,14 @@ package com.cab404.ponyscape.parts;
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Comment;
+import com.cab404.libtabun.data.Letter;
+import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.CommentAddRequest;
 import com.cab404.libtabun.requests.CommentEditRequest;
@@ -20,7 +21,6 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Android;
 import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataRequest;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
@@ -35,11 +35,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Когда с постами ещё можно обойтись LinearLayout, тут памяти просто не хватит. Так что адаптеры.
- *
  * @author cab404
  */
 public class CommentListPart extends Part {
+
 	/**
 	 * Список отступов комментариев.
 	 */
@@ -61,27 +60,9 @@ public class CommentListPart extends Part {
 	 */
 	private ViewGroup view;
 
-	/**
-	 * Не раскрыто ли дерево комментариев?
-	 */
-	private boolean topic_visible = true;
-
-	/**
-	 * Сохранённая высота блямбы раскрытия комментариев. Криво. Но работает. (Но криво)
-	 */
-	private int saved_height = 0;
-
-	/**
-	 * Связанный с нашим героем заголовок топика
-	 */
-	private Part part;
 	private final int id;
 	private final boolean isLetter;
-
-	/**
-	 * Блямба, на которую если нажать, то появятся комментарии.
-	 */
-	private View expand_view;
+	private Part topicPart;
 
 	/**
 	 * То, в чем лежат кнопки управления и пост.
@@ -89,8 +70,7 @@ public class CommentListPart extends Part {
 	private View list_root;
 
 
-	public CommentListPart(Part part, int id, boolean isLetter) {
-		this.part = part;
+	public CommentListPart(int id, boolean isLetter) {
 		this.id = id;
 		this.isLetter = isLetter;
 		comments = new ArrayList<>();
@@ -99,14 +79,8 @@ public class CommentListPart extends Part {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void onConfigChange(Android.RootSizeChanged e) {
-		if (!topic_visible) {
-			listView.invalidate();
-			DataRequest.ListSize size = new DataRequest.ListSize();
-			Static.bus.send(size);
-			list_root.getLayoutParams().height = expand_view.getLayoutParams().height = size.height;
-			view.requestLayout();
-		}
-
+		listView.invalidate();
+		view.requestLayout();
 	}
 
 	private int indexOf(int id) {
@@ -145,6 +119,22 @@ public class CommentListPart extends Part {
 		comments.add(comment);
 	}
 
+	public synchronized void add(Topic topic) {
+		View topic_view = ((TopicPart) (topicPart = new TopicPart(topic)))
+				.create(LayoutInflater.from(getContext()), listView, getContext());
+		// Отключаем переход по нажатию заголовка.
+		topic_view.findViewById(R.id.title).setOnClickListener(null);
+		listView.addHeaderView(topic_view);
+	}
+
+	public synchronized void add(Letter letter) {
+		View letter_view = ((LetterPart) (topicPart = new LetterPart(letter)))
+				.create(LayoutInflater.from(getContext()), listView, getContext());
+		// Отключаем переход по нажатию заголовка.
+		letter_view.findViewById(R.id.title).setOnClickListener(null);
+		listView.addHeaderView(letter_view);
+	}
+
 
 	public void update() {
 		if (listView != null)
@@ -159,6 +149,9 @@ public class CommentListPart extends Part {
 		return max;
 	}
 
+	/**
+	 * Переходит к следующему комментарию.
+	 */
 	private void move() {
 		update();
 		for (int i = 0; i < comments.size(); i++)
@@ -170,6 +163,9 @@ public class CommentListPart extends Part {
 		updateNew();
 	}
 
+	/**
+	 * Обновляет список новых комментариев (не загружает их с сервера.)
+	 */
 	private void updateNew() {
 		int new_c = 0;
 		for (Comment comment : comments)
@@ -186,12 +182,18 @@ public class CommentListPart extends Part {
 		);
 	}
 
+	/**
+	 * Убирает все отметки новых комментариев.
+	 */
 	private void invalidateNew() {
 		for (Comment comment : comments)
 			comment.is_new = false;
 		update();
 	}
 
+	/**
+	 * Тянет новые комментарии с сервера
+	 */
 	public void refresh() {
 		new Thread("Update thread " + id) {
 			@Override public void run() {
@@ -298,96 +300,11 @@ public class CommentListPart extends Part {
 
 	}
 
-	private void hideTree() {
-		if (topic_visible) return;
-		topic_visible = true;
-
-						/* Включаем обратно скролл и комманд-бар*/
-		Static.bus.send(new Parts.Collapse());
-
-						/* Показываем вьюху раскрытия */
-		Anim.fadeIn(expand_view, 200);
-						/* Выносим прозрачность у дерева, чтобы потом убить его в ноль и менять высоту одного expand_view */
-		Anim.fadeOut(list_root, 100, new Runnable() {
-			@Override public void run() {
-				list_root.setVisibility(View.GONE);
-				expand_view.setVisibility(View.VISIBLE);
-				Anim.resize(
-						expand_view,
-						saved_height,
-						-1,
-						100,
-						new Runnable() {
-							@Override public void run() {
-								topic_visible = true;
-								Static.bus.send(new Parts.Show(part));
-							}
-						}
-				);
-
-			}
-		});
-
-	}
-
-	private void showTree() {
-		if (!topic_visible) return;
-		topic_visible = false;
-
-		DataRequest.ListSize height = new DataRequest.ListSize();
-		Static.bus.send(height);
-		final int heightPixels = height.height;
-
-		Static.bus.send(new Parts.Hide(part));
-		saved_height = expand_view.getHeight();
-		Static.bus.send(new Parts.Expand());
-
-
-		Anim.fadeOut(expand_view, 200);
-		Anim.resize(
-				expand_view,
-				heightPixels,
-				-1,
-				200,
-				new Runnable() {
-					@Override public void run() {
-						list_root.setVisibility(View.VISIBLE);
-						expand_view.setVisibility(View.GONE);
-
-						list_root.getLayoutParams().height = expand_view.getLayoutParams().height;
-						view.requestLayout();
-
-						Anim.fadeIn(list_root, 200, new Runnable() {
-							@Override public void run() {
-								Log.v("CommentListPart", "Expand finished.");
-							}
-						});
-					}
-				}
-		);
-	}
-
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
-		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
+		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list_separate, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
 
-		expand_view = view.findViewById(R.id.expand_comments);
-		list_root = view.findViewById(R.id.comment_list_root);
-
-		/* Раскрытие дерева комментариев */
-		expand_view.setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View onClick) {
-				showTree();
-			}
-		});
-
-		/* Скрытие дерева комментариев */
-		view.findViewById(R.id.collapse_comments).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View onClick) {
-				hideTree();
-			}
-		});
 		view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
 				comment(null, false);
@@ -430,6 +347,11 @@ public class CommentListPart extends Part {
 
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
+//		Да, я тоже ненавижу Java в такие моменты ._.
+		if (isLetter)
+			((LetterPart) topicPart).onRemove(null, null, null);
+		else
+			((TopicPart) topicPart).onRemove(null, null, null);
 	}
 
 	/**
@@ -515,6 +437,15 @@ public class CommentListPart extends Part {
 					listView.smoothScrollToPositionFromTop(indexOf(comment.parent), 10);
 				}
 			});
+			left_margin.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override public boolean onLongClick(View v) {
+					if (c_level == level)
+						setOffset(0);
+					else
+						setOffset(level);
+					return true;
+				}
+			});
 
 			/* Достаём размер экрана */
 			int dWidth = context.getResources().getDisplayMetrics().widthPixels;
@@ -555,4 +486,5 @@ public class CommentListPart extends Part {
 			return view;
 		}
 	}
+
 }

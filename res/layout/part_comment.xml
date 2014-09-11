@@ -74,6 +74,15 @@
 				android:id="@+id/content"
 				android:paddingStart="24dp">
 		</LinearLayout>
+		<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/bg_item_shadow"
+				android:layout_marginTop="2dp"
+				android:layout_marginBottom="2dp"
+				android:layout_margin="5dp"
+				android:layout_marginRight="5dp">
+		</View>
 		<LinearLayout
 				android:orientation="horizontal"
 				android:layout_width="fill_parent"

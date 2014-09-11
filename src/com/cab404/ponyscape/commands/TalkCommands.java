@@ -115,10 +115,14 @@ public class TalkCommands {
 						super.handle(object, key);
 						switch (key) {
 							case BLOCK_LETTER_HEADER:
-								final LetterPart topicPart = new LetterPart((Letter) object);
-								list = new CommentListPart(topicPart, id, true);
-								Static.bus.send(new Parts.Add(topicPart));
-								Static.bus.send(new Parts.Add(list));
+								final Letter letter = (Letter) object;
+								list = new CommentListPart(letter.id, true);
+								Static.bus.send(new Parts.Run(list));
+								Static.handler.post(new Runnable() {
+									@Override public void run() {
+										list.add(letter);
+									}
+								});
 								break;
 							case BLOCK_COMMENT:
 								Static.handler.post(new Runnable() {

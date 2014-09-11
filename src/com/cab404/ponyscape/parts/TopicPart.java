@@ -37,9 +37,9 @@ public class TopicPart extends Part {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
-		((TextView) view.findViewById(R.id.text))
+		((TextView) view.findViewById(R.id.title))
 				.setText(SU.deEntity(topic.title));
-		view.findViewById(R.id.text)
+		view.findViewById(R.id.title)
 				.setOnClickListener(new View.OnClickListener() {
 					@Override public void onClick(View unused) {
 						Static.bus.send(new Commands.Run("post load " + topic.id));

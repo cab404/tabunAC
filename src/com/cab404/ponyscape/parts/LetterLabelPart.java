@@ -55,7 +55,7 @@ public class LetterLabelPart extends Part {
 					context.getResources().getColor(R.color.bg_item)
 			);
 
-		label.setText(SU.drl(data.title));
+		label.setText(SU.deEntity(data.title));
 		recipients.setText(Simple.buildRecipients(context, data));
 //		date.setText(DateUtils.convertToString(data.date, context));
 

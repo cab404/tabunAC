@@ -11,10 +11,7 @@ import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.parts.CommentListPart;
-import com.cab404.ponyscape.parts.ErrorPart;
-import com.cab404.ponyscape.parts.StaticTextPart;
-import com.cab404.ponyscape.parts.TopicPart;
+import com.cab404.ponyscape.parts.*;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
@@ -50,11 +47,16 @@ public class PostCommands {
 						super.handle(object, key);
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
-								final TopicPart topicPart = new TopicPart((Topic) object);
-								list = new CommentListPart(topicPart, topicPart.topic.id, false);
-								Static.bus.send(new Parts.Add(topicPart));
-								Static.bus.send(new Parts.Add(list));
+								final Topic topic = (Topic) object;
+								list = new CommentListPart(topic.id, false);
+								Static.bus.send(new Parts.Run(list));
+								Static.handler.post(new Runnable() {
+									@Override public void run() {
+										list.add(topic);
+									}
+								});
 								break;
+
 							case BLOCK_COMMENT:
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
@@ -104,6 +106,11 @@ public class PostCommands {
 				});
 			}
 		}).start();
+	}
+
+	@Command(command = "create", params = {Int.class})
+	public void create() {
+
 	}
 
 
