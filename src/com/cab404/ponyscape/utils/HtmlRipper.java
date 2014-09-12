@@ -21,7 +21,7 @@ import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.sjbus.Bus;
 
 import java.util.ArrayList;
@@ -432,7 +432,7 @@ public class HtmlRipper {
 		/* Эту фигню я юзаю для получения и вставки изображений по местам. */
 		final Object reader = new Object() {
 			@Bus.Handler()
-			public void image(final DataAcquired.Image.Loaded loaded) {
+			public void image(final GotData.Image.Loaded loaded) {
 				if (!loadImages.contains(loaded.src)) return;
 
 				new Thread(new Runnable() {
@@ -483,7 +483,7 @@ public class HtmlRipper {
 			}
 
 			@Bus.Handler(executor = AppContextExecutor.class)
-			public void error(DataAcquired.Image.Error err) {
+			public void error(GotData.Image.Error err) {
 				Bitmap replace = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
 				replace.eraseColor(Color.RED);
 

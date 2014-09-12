@@ -4,14 +4,12 @@ import android.util.Log;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Int;
-import com.cab404.jconsol.converters.Str;
 import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.VoteRequest;
 import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
-import org.json.simple.JSONObject;
 
 /**
  * @author cab404
@@ -20,98 +18,69 @@ import org.json.simple.JSONObject;
 public class VoteCommands {
 
 	@Command(command = "post", params = {Int.class, Int.class})
-	public void post(final Integer id, final Integer vote) {
-		Web.checkNetworkConnection();
-
-		new Thread(new Runnable() {
-			@Override public void run() {
-				try {
-
-					VoteRequest request = new VoteRequest(id, vote, Type.TOPIC) {
-						@Override protected void handle(JSONObject object) {
-							super.handle(object);
-							if (!success)
-								Static.bus.send(new Commands.Error(msg));
-							else
-								Static.bus.send(new DataAcquired.PostVote(id, result));
-
-						}
-					};
-					request.exec(Static.user, Static.last_page);
-
-					Static.handler.post(new Runnable() {
-						@Override public void run() {
-							Static.bus.send(new Commands.Clear());
-							Static.bus.send(new Commands.Finished());
-						}
-					});
-
-				} catch (Exception e) {
-					Log.e("VOTE_POST", "ERR", e);
-				}
-			}
-		}).start();
+	public void topic(final Integer id, final Integer vote) {
+		vote(Type.TOPIC, id, vote);
 	}
 
 	@Command(command = "comment", params = {Int.class, Int.class})
 	public void comment(final Integer id, final Integer vote) {
-		Web.checkNetworkConnection();
-
-		new Thread(new Runnable() {
-			@Override public void run() {
-				try {
-					VoteRequest request = new VoteRequest(id, vote, Type.COMMENT) {
-						@Override protected void handle(JSONObject object) {
-							super.handle(object);
-							if (!success)
-								Static.bus.send(new Commands.Error(msg));
-							else
-								Static.bus.send(new DataAcquired.CommentVote(id, result));
-						}
-					};
-					request.exec(Static.user, Static.last_page);
-
-					Static.handler.post(new Runnable() {
-						@Override public void run() {
-							Static.bus.send(new Commands.Clear());
-							Static.bus.send(new Commands.Finished());
-						}
-					});
-				} catch (Exception e) {
-					Log.e("VOTE_COMMENT", "ERR", e);
-				}
-			}
-		}).start();
+		vote(Type.COMMENT, id, vote);
 	}
 
 
-	@Command(command = "user", params = {Str.class, Int.class})
-	public void user(String name, Integer vote) {
-		Web.checkNetworkConnection();
-
+	@Command(command = "user", params = {Int.class, Int.class})
+	public void user(Integer id, Integer vote) {
+		vote(Type.USER, id, vote);
 	}
 
 
 	@Command(command = "blog", params = {Int.class, Int.class})
 	public void blog(Integer id, Integer vote) {
+		vote(Type.BLOG, id, vote);
+	}
+
+	void send(Type type, int id, float result) {
+		switch (type) {
+			case COMMENT:
+				Static.bus.send(new GotData.Vote.Comment(id, Math.round(result)));
+				break;
+			case TOPIC:
+				Static.bus.send(new GotData.Vote.Topic(id, Math.round(result)));
+				break;
+			case BLOG:
+				Static.bus.send(new GotData.Vote.Blog(id, result));
+				break;
+			case USER:
+				Static.bus.send(new GotData.Vote.User(id, result));
+				break;
+		}
+	}
+
+	void vote(final Type type, final int id, final int vote) {
 		Web.checkNetworkConnection();
 
-		final VoteRequest request = new VoteRequest(id, vote, Type.COMMENT);
+		final VoteRequest request = new VoteRequest(id, vote, type);
 		new Thread(new Runnable() {
 			@Override public void run() {
 				try {
 					request.exec(Static.user, Static.last_page);
-					Static.handler.post(new Runnable() {
-						@Override public void run() {
-							Static.bus.send(new Commands.Clear());
-							Static.bus.send(new Commands.Finished());
-						}
-					});
+
+					if (request.success()) {
+						Static.bus.send(new Commands.Success(request.msg));
+						send(type, id, request.result);
+					} else
+						Static.bus.send(new Commands.Error(request.msg));
+
 				} catch (Exception e) {
-					Log.e("VOTE_BLOG", "ERR", e);
+					Static.bus.send(new Commands.Error("Не удалось проголосовать."));
+					Log.e("VOTE", "ERR", e);
+				} finally {
+					Static.bus.send(new Commands.Clear());
+					Static.bus.send(new Commands.Finished());
 				}
 			}
 		}).start();
+
 	}
 
 }

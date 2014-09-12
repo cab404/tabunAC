@@ -7,12 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.cab404.acli.Part;
-import com.cab404.libtabun.data.Topic;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
@@ -25,10 +24,10 @@ import com.cab404.sjbus.Bus;
  */
 public class TopicPart extends Part {
 
-	public final Topic topic;
+	public final com.cab404.libtabun.data.Topic topic;
 	private ViewGroup view;
 
-	public TopicPart(Topic topic) {
+	public TopicPart(com.cab404.libtabun.data.Topic topic) {
 		this.topic = topic;
 	}
 	private HtmlRipper ripper;
@@ -123,7 +122,7 @@ public class TopicPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(DataAcquired.PostVote vote) {
+	public void handleVoteChange(GotData.Vote.Topic vote) {
 		if (vote.id == topic.id) {
 			topic.votes = (vote.votes > 0 ? "+" : "") + vote.votes;
 			final TextView rating = ((TextView) view.findViewById(R.id.rating));

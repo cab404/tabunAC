@@ -12,7 +12,7 @@ import com.cab404.libtabun.data.Blog;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
@@ -29,7 +29,7 @@ public class BlogPart extends Part {
 	public BlogPart(Blog blog) {this.blog = blog;}
 
 	@Bus.Handler
-	public void handleTitleImage(DataAcquired.Image.Loaded img) {
+	public void handleTitleImage(GotData.Image.Loaded img) {
 		if (img.src.equals(blog.icon)) {
 			int w = img.loaded.getWidth();
 			int h = img.loaded.getHeight();

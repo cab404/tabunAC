@@ -7,11 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.cab404.acli.Part;
-import com.cab404.libtabun.data.Comment;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.utils.DateUtils;
 import com.cab404.ponyscape.utils.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
@@ -25,11 +24,11 @@ public class CommentPart extends Part {
 
 	private final boolean isLetter;
 	private CharSequence text = null;
-	public final Comment comment;
+	public final com.cab404.libtabun.data.Comment comment;
 	private HtmlRipper ripper;
 
 	View view;
-	public CommentPart(Comment comment, boolean isLetter) {
+	public CommentPart(com.cab404.libtabun.data.Comment comment, boolean isLetter) {
 		this.isLetter = isLetter;
 		Static.bus.register(this);
 		this.comment = comment;
@@ -112,7 +111,7 @@ public class CommentPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(DataAcquired.CommentVote vote) {
+	public void handleVoteChange(GotData.Vote.Comment vote) {
 		if (comment.id == vote.id) {
 			comment.votes = vote.votes;
 			final TextView rating = (TextView) view.findViewById(R.id.rating);

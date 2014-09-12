@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import com.cab404.moonlight.util.SU;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.utils.Static;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -54,14 +54,14 @@ public class Images {
 
 	public synchronized void download(final String src) {
 		if (load_blocked) {
-			Static.bus.send(new DataAcquired.Image.Error(src));
+			Static.bus.send(new GotData.Image.Error(src));
 			return;
 		}
 
 		/* Смотрим в кэше. */
 		if (cache.containsKey(src) && cache.get(src).get() != null) {
 			Log.v("ImageLoader", "Got " + src + " from cache");
-			Static.bus.send(new DataAcquired.Image.Loaded(cache.get(src).get(), src));
+			Static.bus.send(new GotData.Image.Loaded(cache.get(src).get(), src));
 			return;
 		}
 
@@ -144,7 +144,7 @@ public class Images {
 						return;
 					}
 
-					Static.bus.send(new DataAcquired.Image.Loaded(bitmap, src));
+					Static.bus.send(new GotData.Image.Loaded(bitmap, src));
 
 
 //					handler.handleBitmap(src, bitmap);
@@ -152,7 +152,7 @@ public class Images {
 					// Используем крайние меры отлова бродячих ошибок.
 				} catch (Throwable e) {
 					Log.e("Images", "Не могу загрузить картинку из" + src, e);
-					Static.bus.send(new DataAcquired.Image.Error(src));
+					Static.bus.send(new GotData.Image.Error(src));
 				}
 				loading.remove(src);
 

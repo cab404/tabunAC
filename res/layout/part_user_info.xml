@@ -44,7 +44,7 @@
 				android:layout_alignParentEnd="true"
 				android:layout_marginRight="20dp"
 				android:layout_marginLeft="10dp"
-				>
+				android:id="@+id/linearLayout">
 			<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -65,8 +65,8 @@
 			              android:layout_width="wrap_content"
 			              android:layout_height="wrap_content"
 			              android:gravity="center_vertical">
-				<ImageView android:layout_width="16dp"
-				           android:layout_height="@dimen/small_text_size"
+				<ImageView android:layout_width="18dp"
+				           android:layout_height="match_parent"
 				           android:src="@drawable/ic_powah"
 				           android:tint="#ffffff"/>
 				<TextView
@@ -83,8 +83,8 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content">
 				<ImageView
-						android:layout_width="16dp"
-						android:layout_height="@dimen/small_text_size"
+						android:layout_width="18dp"
+						android:layout_height="match_parent"
 						android:src="@drawable/ic_rating"
 						android:tint="#ffffff"/>
 				<TextView
@@ -98,22 +98,26 @@
 			</LinearLayout>
 		</LinearLayout>
 		<ImageView
-				android:layout_width="16dp"
-				android:layout_height="16dp"
+				android:layout_width="32dp"
+				android:layout_height="32dp"
 				android:id="@+id/plus"
 				android:src="@drawable/ic_bar_plus"
 				android:tint="#ffffff"
-				android:layout_alignParentTop="true"
-				android:layout_toLeftOf="@+id/minus"/>
-		<ImageView android:layout_width="16dp"
-		           android:layout_height="16dp"
+				android:layout_alignTop="@+id/linearLayout"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentEnd="true"
+				android:layout_marginRight="8dp"/>
+		<ImageView android:layout_width="32dp"
+		           android:layout_height="32dp"
 		           android:id="@+id/minus"
 		           android:src="@drawable/ic_bar_minus"
 		           android:tint="#ffffff"
 		           android:layout_gravity="right"
-		           android:layout_alignParentTop="true"
+		           android:layout_below="@+id/plus"
 		           android:layout_alignParentRight="true"
-		           android:layout_alignParentEnd="true"/>
+		           android:layout_alignParentEnd="true"
+		           android:layout_marginRight="8dp"
+		           android:layout_marginTop="8dp"/>
 	</RelativeLayout>
 	<LinearLayout
 			android:orientation="vertical"

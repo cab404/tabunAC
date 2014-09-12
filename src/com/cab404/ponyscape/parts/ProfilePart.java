@@ -11,7 +11,9 @@ import android.widget.TextView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Profile;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.AppContextExecutor;
+import com.cab404.ponyscape.bus.events.Commands;
+import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.ViewSugar;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
@@ -36,7 +38,7 @@ public class ProfilePart extends Part {
 
 
 	@Bus.Handler
-	public void handleImages(final DataAcquired.Image.Loaded image) {
+	public void handleImages(final GotData.Image.Loaded image) {
 
 		if (image.src.equals(profile.big_icon)) {
 			new Thread(new Runnable() {
@@ -119,6 +121,14 @@ public class ProfilePart extends Part {
 
 	}
 
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void onVoted(GotData.Vote.User e) {
+		if (e.id == profile.id) {
+			profile.votes = e.votes;
+			((TextView) view.findViewById(R.id.rating)).setText(profile.votes + "");
+		}
+	}
+
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
 		view = inflater.inflate(R.layout.part_user_info, viewGroup, false);
 		ViewSugar.bind(this, view);
@@ -126,8 +136,20 @@ public class ProfilePart extends Part {
 
 		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
 		((TextView) view.findViewById(R.id.name)).setText(profile.name);
+		((TextView) view.findViewById(R.id.strength)).setText(profile.strength + "");
+		((TextView) view.findViewById(R.id.rating)).setText(profile.votes + "");
 
+		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				Static.bus.send(new Commands.Run("votefor user " + profile.id + " 1"));
+			}
+		});
 
+		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				Static.bus.send(new Commands.Run("votefor user " + profile.id + " -1"));
+			}
+		});
 
 		view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {

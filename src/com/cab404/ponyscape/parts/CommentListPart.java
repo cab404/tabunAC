@@ -1,7 +1,6 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -465,11 +464,7 @@ public class CommentListPart extends Part {
 			view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
 
 			/* Заморочисто ставим фон правого марджина */
-			if (Build.VERSION.SDK_INT >= 16) {
-				left_margin.setBackground(level_indicator);
-			} else {
-				left_margin.setBackgroundDrawable(level_indicator);
-			}
+			left_margin.setBackgroundDrawable(level_indicator);
 
 			/* Ставим слушалки на кнопки */
 			view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
