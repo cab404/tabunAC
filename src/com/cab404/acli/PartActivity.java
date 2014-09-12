@@ -43,6 +43,7 @@ public class PartActivity extends Activity implements FragmentedList {
 
 			Intent intent = new Intent(Static.app_context, PartActivity.class);
 			intent.putExtra("part_data_id", id);
+			intent.putExtra("floating", run.floating);
 
 			part_data_valve.put(id, run.part);
 			Static.bus.send(new Android.StartActivity(intent));
@@ -59,14 +60,20 @@ public class PartActivity extends Activity implements FragmentedList {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		if (getIntent().getBooleanExtra("floating", false))
+			setTheme(R.style.Ponyscape_Dialog);
+		else
+			setTheme(R.style.Ponyscape);
+
 		setContentView(R.layout.activity_part);
 
 		ViewSugar.bind(this);
 
 		int part_data_id = getIntent().getIntExtra("part_data_id", -1);
 
-
 		part = part_data_valve.remove(part_data_id);
+
 
 		if (part == null) {
 			finish();

@@ -40,7 +40,7 @@ public class UserCommands {
 								final ProfilePart part = new ProfilePart((Profile) object);
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
-										Static.bus.send(new Parts.Run(part));
+										Static.bus.send(new Parts.Run(part, true));
 									}
 								});
 								break;

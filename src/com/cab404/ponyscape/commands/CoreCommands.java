@@ -32,14 +32,14 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new Parts.Run((new HelpPart())));
+		Static.bus.send(new Parts.Run((new HelpPart()), true));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}
 
 	@Command(command = "about")
 	public void displayCredits() {
-		Static.bus.send(new Parts.Run((new CreditsPart())));
+		Static.bus.send(new Parts.Run((new CreditsPart()), true));
 		Static.bus.send(new Commands.Finished());
 		Static.bus.send(new Commands.Clear());
 	}
@@ -96,7 +96,7 @@ public class CoreCommands {
 			}
 		}, new EditorPart.EditorPlugin[]{});
 
-		Static.bus.send(new Parts.Run(editorPart));
+		Static.bus.send(new Parts.Run(editorPart, true));
 
 	}
 

@@ -43,13 +43,16 @@ public class PostCommands {
 					int num = 0;
 
 					@Override public void handle(final Object object, final int key) {
-
 						super.handle(object, key);
+
+						if (list == null) {
+							list = new CommentListPart(id, false);
+							Static.bus.send(new Parts.Run(list, false));
+						}
+
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
 								final Topic topic = (Topic) object;
-								list = new CommentListPart(topic.id, false);
-								Static.bus.send(new Parts.Run(list));
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
 										list.add(topic);

@@ -111,13 +111,16 @@ public class TalkCommands {
 					int num = 0;
 
 					@Override public void handle(final Object object, final int key) {
-
 						super.handle(object, key);
+
+						if (list == null) {
+							list = new CommentListPart(id, false);
+							Static.bus.send(new Parts.Run(list, false));
+						}
+
 						switch (key) {
 							case BLOCK_LETTER_HEADER:
 								final Letter letter = (Letter) object;
-								list = new CommentListPart(letter.id, true);
-								Static.bus.send(new Parts.Run(list));
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
 										list.add(letter);

@@ -61,7 +61,10 @@ public class Parts {
 	 */
 	public static class Run {
 		public final Part part;
-		public Run(Part part) {this.part = part;}
+		public final boolean floating;
+		public Run(Part part, boolean floating) {this.part = part;
+			this.floating = floating;
+		}
 	}
 
 }

@@ -148,6 +148,10 @@ public class CommentListPart extends Part {
 		return max;
 	}
 
+	private void select(int index) {
+		listView.setSelectionFromTop(index + 1, 10);
+	}
+
 	/**
 	 * Переходит к следующему комментарию.
 	 */
@@ -156,7 +160,7 @@ public class CommentListPart extends Part {
 		for (int i = 0; i < comments.size(); i++)
 			if (comments.get(i).is_new) {
 				comments.get(i).is_new = false;
-				listView.setSelectionFromTop(i, 10);
+				select(i);
 				break;
 			}
 		updateNew();
@@ -283,7 +287,7 @@ public class CommentListPart extends Part {
 
 						} catch (MoonlightFail f) {
 							Static.bus.send(new Commands.Error(msg));
-							Static.bus.send(new Parts.Run(new EditorPart(title, text, handler)));
+							Static.bus.send(new Parts.Run(new EditorPart(title, text, handler), true));
 						}
 					}
 				}).start();
@@ -295,7 +299,7 @@ public class CommentListPart extends Part {
 			}
 		});
 
-		Static.bus.send(new Parts.Run(editorPart));
+		Static.bus.send(new Parts.Run(editorPart, true));
 
 	}
 
@@ -433,7 +437,7 @@ public class CommentListPart extends Part {
 			right_margin.setOnClickListener(shiftInvoker);
 			left_margin.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					listView.smoothScrollToPositionFromTop(indexOf(comment.parent), 10);
+					select(indexOf(comment.parent));
 				}
 			});
 			left_margin.setOnLongClickListener(new View.OnLongClickListener() {
