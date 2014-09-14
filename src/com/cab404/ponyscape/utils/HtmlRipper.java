@@ -261,6 +261,8 @@ public class HtmlRipper {
 							if (link.isEmpty())
 								continue;
 
+							if (link.startsWith("//"))
+								link = "http:" + link;
 							if (link.startsWith("/"))
 								link = "http://" + Static.user.getHost().getHostName() + link;
 
@@ -531,7 +533,7 @@ public class HtmlRipper {
 	private TextView form(String text, Context context) {
 		TextView view = new TextView(context);
 		simpleEscape(view, text, context);
-		view.setTextIsSelectable(true);
+//		view.setTextIsSelectable(true);
 		view.setMovementMethod(LinkMovementMethod.getInstance());
 		return view;
 	}

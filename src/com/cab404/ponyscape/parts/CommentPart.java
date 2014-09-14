@@ -42,6 +42,7 @@ public class CommentPart extends Part {
 
 	public void convert(final View view, Context context) {
 		this.view = view;
+
 		view.findViewById(R.id.footer).setVisibility(View.GONE);
 
 		if (ripper == null) {
@@ -80,16 +81,6 @@ public class CommentPart extends Part {
 			view.findViewById(R.id.rating).setVisibility(View.GONE);
 		}
 
-//		view.findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
-//			@Override public void onClick(View v) {
-//				View foo = view.findViewById(R.id.footer);
-//				if (foo.getVisibility() == View.GONE)
-//					foo.setVisibility(View.VISIBLE);
-//				else
-//					foo.setVisibility(View.GONE);
-//			}
-//		});
-
 		if (comment.is_new)
 			view.findViewById(R.id.root)
 					.setBackgroundColor(
@@ -102,6 +93,8 @@ public class CommentPart extends Part {
 					);
 
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
+
+
 	}
 
 	public void kill() {

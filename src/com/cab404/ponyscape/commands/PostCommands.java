@@ -27,29 +27,17 @@ public class PostCommands {
 		Web.checkNetworkConnection();
 
 		final StaticTextPart loading = new StaticTextPart();
-		Static.bus.send(new Parts.Clear());
-		Static.bus.send(new Parts.Add(loading));
-		loading.setText("Загружаю пост...");
-
-		Static.history.add("post load " + id);
 
 		new Thread(new Runnable() {
 			@Override public void run() {
 
+				final CommentListPart list = new CommentListPart(id, false);
+				Static.bus.send(new Parts.Run(list, false));
 
 				TabunPage page = new TopicPage(id) {
-					CommentListPart list;
-					int all = 0;
-					int num = 0;
 
 					@Override public void handle(final Object object, final int key) {
 						super.handle(object, key);
-
-						if (list == null) {
-							list = new CommentListPart(id, false);
-							Static.bus.send(new Parts.Run(list, false));
-						}
-
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
 								final Topic topic = (Topic) object;
@@ -67,18 +55,10 @@ public class PostCommands {
 										list.update();
 									}
 								});
-								num++;
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										loading.setText("Загружено " + num + " из " + all + " комментариев.");
-									}
-								});
 								break;
-							case BLOCK_COMMENT_NUM:
-								all = (Integer) object;
-								break;
+
 							case BLOCK_ERROR:
-								Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
+								Static.bus.send(new Parts.Run(new ErrorPart((TabunError) object), true));
 								cancel();
 								break;
 						}
@@ -88,9 +68,9 @@ public class PostCommands {
 					@Bus.Handler
 					public void cancel(Commands.Abort abort) {
 						super.cancel();
-						Static.bus.send(new Parts.Remove(loading));
 					}
 				};
+
 				try {
 					page.fetch(Static.user);
 				} catch (MoonlightFail f) {
@@ -100,13 +80,8 @@ public class PostCommands {
 				Static.bus.unregister(page);
 				Static.last_page = page;
 
-				Static.handler.post(new Runnable() {
-					@Override public void run() {
-						loading.delete();
-						Static.bus.send(new Commands.Clear());
-						Static.bus.send(new Commands.Finished());
-					}
-				});
+				Static.bus.send(new Commands.Clear());
+				Static.bus.send(new Commands.Finished());
 			}
 		}).start();
 	}

@@ -68,7 +68,6 @@ public class CommentListPart extends Part {
 	 */
 	private View list_root;
 
-
 	public CommentListPart(int id, boolean isLetter) {
 		this.id = id;
 		this.isLetter = isLetter;
@@ -148,19 +147,24 @@ public class CommentListPart extends Part {
 		return max;
 	}
 
-	private void select(int index) {
-		listView.setSelectionFromTop(index + 1, 10);
+	private void select(int index, int from) {
+		if (from > index || index - from < 10)
+			listView.smoothScrollToPositionFromTop(index + 1, 10);
+		else
+			listView.setSelectionFromTop(index + 1, 10);
 	}
 
 	/**
 	 * Переходит к следующему комментарию.
 	 */
+	private int last = 0;
 	private void move() {
 		update();
 		for (int i = 0; i < comments.size(); i++)
 			if (comments.get(i).is_new) {
 				comments.get(i).is_new = false;
-				select(i);
+				select(i, last);
+				last = i;
 				break;
 			}
 		updateNew();
@@ -435,17 +439,10 @@ public class CommentListPart extends Part {
 			};
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);
-			left_margin.setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View v) {
-					select(indexOf(comment.parent));
-				}
-			});
+			left_margin.setOnClickListener(shiftInvoker);
 			left_margin.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override public boolean onLongClick(View v) {
-					if (c_level == level)
-						setOffset(0);
-					else
-						setOffset(level);
+					select(indexOf(comment.parent), indexOf(comment.id));
 					return true;
 				}
 			});

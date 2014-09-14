@@ -17,10 +17,10 @@ import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.Web;
-import com.cab404.sjbus.Bus;
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -54,13 +54,15 @@ public class CoreCommands {
 
 		for (Object string_actulally : shortcuts) {
 			final LaunchShortcut shortcut = new LaunchShortcut(string_actulally.toString());
-			aliases.append(shortcut.name + "->" + shortcut.command + "\n");
+			aliases.append(shortcut.name).append("->").append(shortcut.command).append("\n");
 		}
 
 		EditorPart editorPart = new EditorPart("Редактируем меню", aliases, new EditorPart.EditorActionHandler() {
-			@Override public boolean finished(CharSequence text) {
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean finished(CharSequence text) {
 				List<String> lines = SU.split(text.toString(), "\n");
-				List<LaunchShortcut> new_shortcuts = new ArrayList<>();
+				Collection<LaunchShortcut> new_shortcuts = new ArrayList<>();
 
 
 				int line_num = 0;
@@ -163,14 +165,7 @@ public class CoreCommands {
 		Static.bus.send(new Commands.Hide());
 
 		new Thread(new Runnable() {
-			@Bus.Handler
-			public void handle(Commands.Abort e) {
-				// Защищаемся от чтения пароля с экрана при отмене
-				Static.bus.send(new Commands.Clear());
-			}
-
 			@Override public void run() {
-				Static.bus.register(this);
 				final boolean success = (Static.user.login(login, password));
 
 				Static.handler.post(new Runnable() {
@@ -189,7 +184,6 @@ public class CoreCommands {
 					}
 				});
 
-				Static.bus.unregister(this);
 			}
 		}).start();
 	}
