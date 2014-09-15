@@ -218,13 +218,15 @@ public class CommentListPart extends Part {
 
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
-							update();
+                            update();
 							updateNew();
+                            ((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
 						}
 					});
 
 				} catch (MoonlightFail f) {
 					Static.bus.send(new Commands.Error("Не удалось обновить список комментариев."));
+                    ((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
 				}
 			}
 		}.start();
@@ -326,6 +328,7 @@ public class CommentListPart extends Part {
 		});
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
+                ((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.anim_luna); // показываем, что грузим комментарии
 				invalidateNew();
 				refresh();
 			}
