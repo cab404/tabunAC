@@ -218,15 +218,21 @@ public class CommentListPart extends Part {
 
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
-                            update();
+							update();
 							updateNew();
-                            ((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
 						}
 					});
 
 				} catch (MoonlightFail f) {
 					Static.bus.send(new Commands.Error("Не удалось обновить список комментариев."));
-                    ((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
+				} finally {
+
+					Static.handler.post(new Runnable() {
+						@Override public void run() {
+							((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
+						}
+					});
+
 				}
 			}
 		}.start();
@@ -328,7 +334,7 @@ public class CommentListPart extends Part {
 		});
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
-                ((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.anim_luna); // показываем, что грузим комментарии
+				((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.anim_luna); // показываем, что грузим комментарии
 				invalidateNew();
 				refresh();
 			}
@@ -344,7 +350,7 @@ public class CommentListPart extends Part {
 //		listView.setAdapter(adapter);
 
 		if (Build.VERSION.SDK_INT >= 12) {
-		/* Fadein-аем */
+			/* Fadein-аем */
 			view.setAlpha(0);
 			view.animate().alpha(1).setDuration(200);
 		}
@@ -361,10 +367,9 @@ public class CommentListPart extends Part {
 
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
-//		Да, я тоже ненавижу Java в такие моменты ._.
-		if (isLetter)
+		if (topicPart instanceof LetterPart)
 			((LetterPart) topicPart).onRemove(null, null, null);
-		else
+		if (topicPart instanceof TopicPart)
 			((TopicPart) topicPart).onRemove(null, null, null);
 	}
 
