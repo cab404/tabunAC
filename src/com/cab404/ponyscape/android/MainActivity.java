@@ -1,10 +1,12 @@
 package com.cab404.ponyscape.android;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -94,12 +96,13 @@ public class MainActivity extends AbstractActivity {
         /* Убираем меню ссылок */
 		hideAliases(0);
 
-		findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
-				if (oL != l || oR != r)
-					Static.bus.send(new Android.RootSizeChanged());
-			}
-		});
+		if (Build.VERSION.SDK_INT >= 11)
+			findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
+					if (oL != l || oR != r)
+						Static.bus.send(new Android.RootSizeChanged());
+				}
+			});
 
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
@@ -413,40 +416,51 @@ public class MainActivity extends AbstractActivity {
 		aliases_menu_active = false;
 		updateInput();
 
-		final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
-		findViewById(R.id.command_bg)
-				.animate()
-				.scaleX(1).scaleY(1)
-				.setInterpolator(null)
-				.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
 
-		for (int i = 0; i < items.getChildCount(); i++) {
-			final View anim = items.getChildAt(i);
+		if (Build.VERSION.SDK_INT >= 12) {
 
-			Static.handler.postDelayed(
-					new Runnable() {
-						public void run() {
-							anim.animate()
-									.setInterpolator(null)
-									.setDuration(delay_per_item * 2)
-									.x(items.getWidth() + anim.getWidth());
+			final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
+
+			findViewById(R.id.command_bg)
+					.animate()
+					.scaleX(1).scaleY(1)
+					.setInterpolator(null)
+					.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
+
+			for (int i = 0; i < items.getChildCount(); i++) {
+				final View anim = items.getChildAt(i);
+
+				Static.handler.postDelayed(
+						new Runnable() {
+							@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+							public void run() {
+								anim.animate()
+										.setInterpolator(null)
+										.setDuration(delay_per_item * 2)
+										.x(items.getWidth() + anim.getWidth());
+							}
+						},
+						i * delay_per_item
+				);
+
+			}
+
+			findViewById(R.id.fade_bg).animate()
+					.setDuration(items.getChildCount() * delay_per_item + delay_per_item)
+					.alpha(0)
+					.setListener(new Anim.AnimatorListenerImpl() {
+						@Override public void onAnimationEnd(Animator animator) {
+							findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
+							findViewById(R.id.fade_bg).setVisibility(View.GONE);
 						}
-					},
-					i * delay_per_item
-			);
+					});
 
+		} else {
+			Anim.fadeOut(findViewById(R.id.fade_bg));
+			Anim.fadeOut(findViewById(R.id.command_bg));
+			Anim.fadeOut(findViewById(R.id.commands_root));
+			Anim.fadeOut(findViewById(R.id.menu_scroll_pane));
 		}
-
-		findViewById(R.id.fade_bg).animate()
-				.setDuration(items.getChildCount() * delay_per_item + delay_per_item)
-				.alpha(0)
-				.setListener(new Anim.AnimatorListenerImpl() {
-					@Override public void onAnimationEnd(Animator animator) {
-						findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
-						findViewById(R.id.fade_bg).setVisibility(View.GONE);
-					}
-				});
-
 	}
 
 	/**
@@ -467,60 +481,70 @@ public class MainActivity extends AbstractActivity {
 		aliases_menu_active = true;
 		updateInput();
 
+		if (Build.VERSION.SDK_INT >= 12) {
 
-		final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
-		final View button = findViewById(R.id.command_bg);
+			final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
+			final View button = findViewById(R.id.command_bg);
 
-		findViewById(R.id.command_bg).animate()
+			findViewById(R.id.command_bg).animate()
 				/* Размер иконки умножен на 4, т.к лень вручную вбивать размер всяких оффсетов и другой галиматьи.*/
-				.scaleX(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
-				.scaleY(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
-				.setInterpolator(new BounceInterpolator())
-				.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
+					.scaleX(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
+					.scaleY(((float) items.getHeight() * 2 + button.getHeight() * 4) / button.getHeight())
+					.setInterpolator(new BounceInterpolator())
+					.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
 
-		new Drawable() {
-			Movie movie = Movie.decodeFile("");
-			@Override public void draw(Canvas canvas) {
-				movie.draw(canvas, 0, 0);
-			}
-			@Override public void setAlpha(int alpha) {
-			}
-			@Override public void setColorFilter(ColorFilter cf) {
-			}
-			@Override public int getOpacity() {
-				return PixelFormat.OPAQUE;
-			}
-		};
+			new Drawable() {
+				Movie movie = Movie.decodeFile("");
+				@Override public void draw(Canvas canvas) {
+					movie.draw(canvas, 0, 0);
+				}
+				@Override public void setAlpha(int alpha) {
+				}
+				@Override public void setColorFilter(ColorFilter cf) {
+				}
+				@Override public int getOpacity() {
+					return PixelFormat.OPAQUE;
+				}
+			};
 
-		for (int i = 0; i < items.getChildCount(); i++) {
-			final View anim = items.getChildAt(i);
-			anim.setX(items.getWidth() + anim.getWidth());
+			for (int i = 0; i < items.getChildCount(); i++) {
+				final View anim = items.getChildAt(i);
+				anim.setX(items.getWidth() + anim.getWidth());
 
-			Static.handler.postDelayed(
-					new Runnable() {
-						public void run() {
-							float dpi = getResources().getDisplayMetrics().density;
-							anim.animate()
-									.setInterpolator(new BounceInterpolator())
-									.setDuration(delay_per_item * 2 + delay_per_item)
-									.x(items.getWidth() - anim.getWidth() + 2 * dpi);
+				Static.handler.postDelayed(
+						new Runnable() {
+							@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1) public void run() {
+								float dpi = getResources().getDisplayMetrics().density;
+								anim.animate()
+										.setInterpolator(new BounceInterpolator())
+										.setDuration(delay_per_item * 2 + delay_per_item)
+										.x(items.getWidth() - anim.getWidth() + 2 * dpi);
+							}
+						},
+						(items.getChildCount() - i) * delay_per_item
+				);
+
+			}
+
+			findViewById(R.id.fade_bg).animate()
+					.setDuration(items.getChildCount() * delay_per_item + delay_per_item)
+					.alpha(1)
+					.setListener(new Anim.AnimatorListenerImpl() {
+						@Override public void onAnimationStart(Animator animator) {
+							findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);
 						}
-					},
-					(items.getChildCount() - i) * delay_per_item
-			);
+					});
+
+			findViewById(R.id.menu_scroll_pane).setVisibility(View.VISIBLE);
+
+		} else {
+
+			Anim.fadeIn(findViewById(R.id.fade_bg));
+			Anim.fadeIn(findViewById(R.id.command_bg));
+			Anim.fadeIn(findViewById(R.id.commands_root));
+			Anim.fadeIn(findViewById(R.id.menu_scroll_pane));
 
 		}
-
-		findViewById(R.id.fade_bg).animate()
-				.setDuration(items.getChildCount() * delay_per_item + delay_per_item)
-				.alpha(1)
-				.setListener(new Anim.AnimatorListenerImpl() {
-					@Override public void onAnimationStart(Animator animator) {
-						findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);
-					}
-				});
-
-		findViewById(R.id.menu_scroll_pane).setVisibility(View.VISIBLE);
 	}
 
 	/**

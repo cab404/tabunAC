@@ -80,7 +80,7 @@ public class PageCommands {
 					@Bus.Handler
 					public void cancel(Commands.Abort abort) {
 						super.cancel();
-						Static.bus.send(new Parts.Remove(loading));
+						loading.delete();
 					}
 				};
 				try {
@@ -97,7 +97,7 @@ public class PageCommands {
 					@Override public void run() {
 						Static.bus.send(new Commands.Clear());
 						Static.bus.send(new Commands.Finished());
-						Static.bus.send(new Parts.Remove(loading));
+						loading.delete();
 					}
 				});
 			}

@@ -1,6 +1,8 @@
 package com.cab404.ponyscape.utils.views.animation;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.view.View;
 import com.cab404.ponyscape.utils.Static;
 
@@ -21,12 +23,17 @@ public class Anim {
 	}
 
 	public static void fadeOut(final View view, int duration, final Runnable onFinish) {
-		view.animate().alpha(0).setDuration(duration).setListener(new AnimatorListenerImpl() {
-			@Override public void onAnimationEnd(Animator animator) {
-				view.setVisibility(View.INVISIBLE);
-				onFinish.run();
-			}
-		});
+		if (Build.VERSION.SDK_INT >= 12)
+			view.animate().alpha(0).setDuration(duration).setListener(new AnimatorListenerImpl() {
+				@Override public void onAnimationEnd(Animator animator) {
+					view.setVisibility(View.INVISIBLE);
+					onFinish.run();
+				}
+			});
+		else {
+			view.setVisibility(View.INVISIBLE);
+			onFinish.run();
+		}
 	}
 
 	public static void fadeIn(final View view) {
@@ -39,11 +46,15 @@ public class Anim {
 
 	public static void fadeIn(final View view, int duration, final Runnable onFinish) {
 		view.setVisibility(View.VISIBLE);
-		view.animate().alpha(1).setDuration(duration).setListener(new AnimatorListenerImpl() {
-			@Override public void onAnimationEnd(Animator animator) {
-				onFinish.run();
-			}
-		});
+		if (Build.VERSION.SDK_INT >= 12)
+			view.animate().alpha(1).setDuration(duration).setListener(new AnimatorListenerImpl() {
+				@Override public void onAnimationEnd(Animator animator) {
+					onFinish.run();
+				}
+			});
+		else
+			onFinish.run();
+
 	}
 
 	public static void resize(final View view, final int newHeight, final int newWidth, final int animLen, final Runnable onFinish) {
@@ -109,6 +120,7 @@ public class Anim {
 		});
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static class AnimatorListenerImpl implements Animator.AnimatorListener {
 		@Override public void onAnimationStart(Animator animation) {}
 		@Override public void onAnimationEnd(Animator animation) {}

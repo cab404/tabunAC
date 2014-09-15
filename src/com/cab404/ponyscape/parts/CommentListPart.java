@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -123,6 +124,7 @@ public class CommentListPart extends Part {
 		// Отключаем переход по нажатию заголовка.
 		topic_view.findViewById(R.id.title).setOnClickListener(null);
 		listView.addHeaderView(topic_view);
+		listView.setAdapter(adapter);
 	}
 
 	public synchronized void add(Letter letter) {
@@ -148,7 +150,7 @@ public class CommentListPart extends Part {
 	}
 
 	private void select(int index, int from) {
-		if (from > index || index - from < 10)
+		if (from > index || index - from < 10 && Build.VERSION.SDK_INT >= 11)
 			listView.smoothScrollToPositionFromTop(index + 1, 10);
 		else
 			listView.setSelectionFromTop(index + 1, 10);
@@ -336,11 +338,13 @@ public class CommentListPart extends Part {
 
 		adapter = new CommentListAdapter(context);
 		listView.addFooterView(footer);
-		listView.setAdapter(adapter);
+//		listView.setAdapter(adapter);
 
+		if (Build.VERSION.SDK_INT >= 12) {
 		/* Fadein-аем */
-		view.setAlpha(0);
-		view.animate().alpha(1).setDuration(200);
+			view.setAlpha(0);
+			view.animate().alpha(1).setDuration(200);
+		}
 
 		return view;
 	}

@@ -1,12 +1,16 @@
 package com.cab404.ponyscape.utils.views.animation;
 
 import android.animation.TimeInterpolator;
+import android.annotation.TargetApi;
+import android.os.Build;
 
 /**
  * Hop, skip and jump!
  *
  * @author cab404
  */
+
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BounceInterpolator implements TimeInterpolator {
 
 	@Override public float getInterpolation(float input) {

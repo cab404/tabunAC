@@ -1,10 +1,15 @@
 package com.cab404.ponyscape.utils;
 
 import android.content.Context;
+import android.util.Base64;
 import android.widget.Toast;
 import com.cab404.libtabun.data.Letter;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
+
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author cab404
@@ -33,6 +38,15 @@ public class Simple {
 		} else
 			return (SU.join(letter.recipients, ", "));
 
+	}
+
+
+	public static String md5(String str) {
+		try {
+			return Base64.encodeToString(MessageDigest.getInstance("MD5").digest(String.valueOf(str).getBytes(Charset.forName("UTF-8"))), Base64.URL_SAFE);
+		} catch (NoSuchAlgorithmException e) {
+			return "00000000000000000000000";
+		}
 	}
 
 

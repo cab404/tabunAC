@@ -1,7 +1,9 @@
 package com.cab404.ponyscape.parts;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,19 +50,21 @@ public class TopicPart extends Part {
 
 		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
 		ripper.escape(topic.text);
-		view.findViewById(R.id.content).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			int last_width = 0;
-			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
+
+		if (Build.VERSION.SDK_INT >= 11)
+			view.findViewById(R.id.content).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				int last_width = 0;
+				@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
 				/*
 				 * Запускаем обновление раскладки только при изменении ширины.
 				 * Если убрать, то WebView заспамит в лог кучу ошибок: так он кидает только одну :D
 				 */
-				if (last_width != view.getWidth()) {
-					last_width = view.getWidth();
-					ripper.layout();
+					if (last_width != view.getWidth()) {
+						last_width = view.getWidth();
+						ripper.layout();
+					}
 				}
-			}
-		});
+			});
 
 		((TextView) view.findViewById(R.id.data))
 				.setText(topic.author.login
@@ -128,12 +132,16 @@ public class TopicPart extends Part {
 			final TextView rating = ((TextView) view.findViewById(R.id.rating));
 
 			// Скрываем и показываем уже изменённый рейтинг.
-			rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
-				@Override public void onAnimationEnd(Animator animation) {
-					((TextView) view.findViewById(R.id.rating)).setText(topic.votes);
-					rating.animate().scaleX(1).setDuration(100).setListener(null);
-				}
-			});
+			if (Build.VERSION.SDK_INT >= 12)
+				rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
+					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1) @Override public void onAnimationEnd(Animator animation) {
+						((TextView) view.findViewById(R.id.rating)).setText(topic.votes);
+						rating.animate().scaleX(1).setDuration(100).setListener(null);
+					}
+				});
+			else
+				((TextView) view.findViewById(R.id.rating)).setText(topic.votes);
+
 		}
 	}
 

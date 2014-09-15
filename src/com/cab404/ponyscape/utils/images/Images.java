@@ -4,8 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.utils.DateUtils;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,9 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
 import java.lang.ref.Reference;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author cab404
@@ -48,8 +47,32 @@ public class Images {
 	public void reconfigure() {
 		load_blocked = Static.cfg.ensure(LOAD_BLOCK_CFG_ENTRY, false);
 		file_cache = Static.cfg.ensure(FILE_CACHE_LIMIT_CFG_ENTRY, 30L * 1024L * 1024L);
-		cut = Static.cfg.ensure(LIMIT_CFG_ENTRY, 3000000L);
+		cut = Static.cfg.ensure(LIMIT_CFG_ENTRY, 3L * 1024L * 1024L);
+		clear();
+	}
 
+	public void clear() {
+		ArrayList<File> files = new ArrayList<>(Arrays.asList(cacheDir.listFiles()));
+		Collections.sort(files, new Comparator<File>() {
+			@Override public int compare(File lhs, File rhs) {
+				return (int) (lhs.lastModified() - rhs.lastModified());
+			}
+		});
+		long limit = 0;
+		for (File file : cacheDir.listFiles()) {
+			limit += file.length();
+			if (limit > file_cache) {
+				Calendar instance = Calendar.getInstance();
+				instance.clear();
+				instance.setTimeInMillis(file.lastModified());
+				Log.v("Images", "Удаляю " + file.getName() + ", последнее изменение " + DateUtils.convertToString(instance, Static.app_context));
+				if (!file.delete())
+					Log.wtf("Images", "Не удалось удалить изображение из кэша!");
+				else
+					limit -= file.length();
+			}
+		}
+		Log.v("Images", "Очистка выполнена, в кэше оставлено " + limit + " байт картинок из " + file_cache + " разрешенных.");
 	}
 
 	public synchronized void download(final String src) {
@@ -75,7 +98,7 @@ public class Images {
 			@Override public void run() {
 				try {
 
-					File file = new File(cacheDir, SU.rl(src));
+					File file = new File(cacheDir, Simple.md5(src));
 					BitmapFactory.Options opt = new BitmapFactory.Options();
 					opt.inPurgeable = true;
 

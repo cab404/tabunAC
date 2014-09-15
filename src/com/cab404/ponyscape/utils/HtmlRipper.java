@@ -437,25 +437,25 @@ public class HtmlRipper {
 			public void image(final GotData.Image.Loaded loaded) {
 				if (!loadImages.contains(loaded.src)) return;
 
-				new Thread(new Runnable() {
-					@Override public void run() {
-
-						Bitmap use = loaded.loaded;
-
-						/* Попытка убрать автоперевод строки при большой картинке.*/
-						int width = (int) (target.getWidth() - target.getTextSize());
-						if (use.getWidth() > width) {
-							int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
-							if (width > 0 && height > 0)
-								use = Bitmap.createScaledBitmap(
-										use,
-										width,
-										height,
-										true
-								);
-						}
-
-						final Bitmap scaled = use;
+//				new Thread(new Runnable() {
+//					@Override public void run() {
+//
+//						Bitmap use = loaded.loaded;
+//
+//						/* Попытка убрать автоперевод строки при большой картинке.*/
+//						int width = (int) (target.getWidth() - target.getTextSize());
+//						if (use.getWidth() > width) {
+//							int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
+//							if (width > 0 && height > 0)
+//								use = Bitmap.createScaledBitmap(
+//										use,
+//										width,
+//										height,
+//										true
+//								);
+//						}
+//
+//						final Bitmap scaled = use;
 						Runnable insert = new Runnable() {
 							@Override public void run() {
 								for (ImageSpan span : targets.getValues(loaded.src)) {
@@ -468,7 +468,7 @@ public class HtmlRipper {
 
 									builder.removeSpan(span);
 									builder.setSpan(
-											new ImageSpan(context, scaled),
+											new ImageSpan(context, loaded.loaded),
 											start,
 											end,
 											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -479,9 +479,9 @@ public class HtmlRipper {
 						};
 
 						Static.handler.post(insert);
-
-					}
-				}).start();
+//
+//					}
+//				}).start();
 			}
 
 			@Bus.Handler(executor = AppContextExecutor.class)
