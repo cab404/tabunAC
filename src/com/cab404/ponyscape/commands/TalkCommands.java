@@ -51,6 +51,7 @@ public class TalkCommands {
 
 						switch (key) {
 							case BLOCK_LETTER_HEADER:
+								Log.v("Talk", "Header");
 								final Letter letter = (Letter) object;
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
@@ -59,6 +60,7 @@ public class TalkCommands {
 								});
 								break;
 							case BLOCK_COMMENT:
+								Log.v("Talk", "Comment");
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
 										list.add((com.cab404.libtabun.data.Comment) object);

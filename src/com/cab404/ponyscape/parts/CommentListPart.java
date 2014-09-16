@@ -133,12 +133,13 @@ public class CommentListPart extends Part {
 		// Отключаем переход по нажатию заголовка.
 		letter_view.findViewById(R.id.title).setOnClickListener(null);
 		listView.addHeaderView(letter_view);
+		listView.setAdapter(adapter);
 	}
 
 
 	public void update() {
 		if (listView != null)
-			((BaseAdapter) ((HeaderViewListAdapter) listView.getAdapter()).getWrappedAdapter()).notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		updateNew();
 	}
 
