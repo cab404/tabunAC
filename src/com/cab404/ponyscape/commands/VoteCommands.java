@@ -6,8 +6,7 @@ import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Int;
 import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.VoteRequest;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 
@@ -42,16 +41,16 @@ public class VoteCommands {
 	void send(Type type, int id, float result) {
 		switch (type) {
 			case COMMENT:
-				Static.bus.send(new GotData.Vote.Comment(id, Math.round(result)));
+				Static.bus.send(new E.GotData.Vote.Comment(id, Math.round(result)));
 				break;
 			case TOPIC:
-				Static.bus.send(new GotData.Vote.Topic(id, Math.round(result)));
+				Static.bus.send(new E.GotData.Vote.Topic(id, Math.round(result)));
 				break;
 			case BLOG:
-				Static.bus.send(new GotData.Vote.Blog(id, result));
+				Static.bus.send(new E.GotData.Vote.Blog(id, result));
 				break;
 			case USER:
-				Static.bus.send(new GotData.Vote.User(id, result));
+				Static.bus.send(new E.GotData.Vote.User(id, result));
 				break;
 		}
 	}
@@ -66,17 +65,17 @@ public class VoteCommands {
 					request.exec(Static.user);
 
 					if (request.success()) {
-						Static.bus.send(new Commands.Success(request.msg));
+						Static.bus.send(new E.Commands.Success(request.msg));
 						send(type, id, request.result);
 					} else
-						Static.bus.send(new Commands.Error(request.msg));
+						Static.bus.send(new E.Commands.Error(request.msg));
 
 				} catch (Exception e) {
-					Static.bus.send(new Commands.Error("Не удалось проголосовать."));
+					Static.bus.send(new E.Commands.Error("Не удалось проголосовать."));
 					Log.e("VOTE", "ERR", e);
 				} finally {
-					Static.bus.send(new Commands.Clear());
-					Static.bus.send(new Commands.Finished());
+					Static.bus.send(new E.Commands.Clear());
+					Static.bus.send(new E.Commands.Finished());
 				}
 			}
 		}).start();

@@ -9,8 +9,7 @@ import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.pages.LetterPage;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CommentListPart;
 import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.utils.Simple;
@@ -29,8 +28,8 @@ public class TalkCommands {
 	@Command(command = "box")
 	public void list() {
 		Static.history.add("mail box");
-		Static.bus.send(new Commands.Finished());
-		Static.bus.send(new Commands.Run("page load /talk/inbox"));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Run("page load /talk/inbox"));
 	}
 
 
@@ -42,7 +41,7 @@ public class TalkCommands {
 			@Override public void run() {
 
 				final CommentListPart list = new CommentListPart(id, true);
-				Static.bus.send(new Parts.Run(list, false));
+				Static.bus.send(new E.Parts.Run(list, false));
 
 				TabunPage page = new LetterPage(id) {
 
@@ -69,7 +68,7 @@ public class TalkCommands {
 								});
 								break;
 							case BLOCK_ERROR:
-								Static.bus.send(new Parts.Run(new ErrorPart((TabunError) object), true));
+								Static.bus.send(new E.Parts.Run(new ErrorPart((TabunError) object), true));
 								cancel();
 								break;
 						}
@@ -77,21 +76,21 @@ public class TalkCommands {
 
 					{Static.bus.register(this);}
 					@Bus.Handler
-					public void cancel(Commands.Abort abort) {
+					public void cancel(E.Commands.Abort abort) {
 						super.cancel();
 					}
 				};
 				try {
 					page.fetch(Static.user);
 				} catch (MoonlightFail f) {
-					Static.bus.send(new Commands.Error("Ошибка при загрузке письма."));
+					Static.bus.send(new E.Commands.Error("Ошибка при загрузке письма."));
 					Log.w("PageCommands", f);
 				}
 				Static.bus.unregister(page);
 				Static.last_page = page;
 
-				Static.bus.send(new Commands.Clear());
-				Static.bus.send(new Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
+				Static.bus.send(new E.Commands.Finished());
 			}
 		}).start();
 	}

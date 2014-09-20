@@ -12,13 +12,11 @@ import com.cab404.acli.Part;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.GotData;
-import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.utils.text.DateUtils;
-import com.cab404.ponyscape.utils.text.HtmlRipper;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
+import com.cab404.ponyscape.utils.text.DateUtils;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -43,7 +41,7 @@ public class TopicPart extends Part {
 		view.findViewById(R.id.title)
 				.setOnClickListener(new View.OnClickListener() {
 					@Override public void onClick(View unused) {
-						Static.bus.send(new Commands.Run("post load " + topic.id));
+						Static.bus.send(new E.Commands.Run("post load " + topic.id));
 					}
 				});
 
@@ -80,19 +78,19 @@ public class TopicPart extends Part {
 
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor post " + topic.id + " 1"));
+				Static.bus.send(new E.Commands.Run("votefor post " + topic.id + " 1"));
 			}
 		});
 
 		view.findViewById(R.id.zero).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor post " + topic.id + " 0"));
+				Static.bus.send(new E.Commands.Run("votefor post " + topic.id + " 0"));
 			}
 		});
 
 		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor post " + topic.id + " -1"));
+				Static.bus.send(new E.Commands.Run("votefor post " + topic.id + " -1"));
 			}
 		});
 
@@ -126,7 +124,7 @@ public class TopicPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(GotData.Vote.Topic vote) {
+	public void handleVoteChange(E.GotData.Vote.Topic vote) {
 		if (vote.id == topic.id) {
 			topic.votes = (vote.votes > 0 ? "+" : "") + vote.votes;
 			final TextView rating = ((TextView) view.findViewById(R.id.rating));
@@ -156,11 +154,11 @@ public class TopicPart extends Part {
 	public void hide() {
 //		initial_height = view.getHeight();
 //		Anim.resize(view, 0, -1, 200, null);
-		Static.bus.send(new Parts.Hide(this));
+		Static.bus.send(new E.Parts.Hide(this));
 	}
 
 	public void show() {
-		Static.bus.send(new Parts.Show(this));
+		Static.bus.send(new E.Parts.Show(this));
 //		Anim.resize(view, initial_height, -1, 200, new Runnable() {
 //			@Override public void run() {
 //				view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;

@@ -24,14 +24,14 @@ import com.cab404.jconsol.NonEnclosedParesisException;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.*;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.animation.BounceInterpolator;
+import com.cab404.ponyscape.utils.state.AliasUtils;
+import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
-import org.json.simple.JSONArray;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Запущеные для результата задания. Точнее, слушалки этих самых результатов.
 	 */
-	private Map<Integer, Android.StartActivityForResult.ResultHandler> running = new HashMap<>();
+	private Map<Integer, E.Android.StartActivityForResult.ResultHandler> running = new HashMap<>();
 	/**
 	 * Менеджер всея листа.
 	 */
@@ -77,13 +77,13 @@ public class MainActivity extends AbstractActivity {
 		line.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override public boolean onEditorAction(TextView textView, int ime, KeyEvent kE) {
 				if (kE == null || kE.getAction() == KeyEvent.ACTION_UP)
-					Static.bus.send(new Commands.Run(textView.getText().toString()));
+					Static.bus.send(new E.Commands.Run(textView.getText().toString()));
 				return true;
 			}
 		});
 
 		/* Обновляем меню ссылок*/
-		updateShortcutList();
+		updateAliasList();
 
 		/* Пытаемся подгрузить юзверя из файла. */
 		Object o = Static.cfg.get("main.profile");
@@ -100,7 +100,7 @@ public class MainActivity extends AbstractActivity {
 			findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 				@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
 					if (oL != l || oR != r)
-						Static.bus.send(new Android.RootSizeChanged());
+						Static.bus.send(new E.Android.RootSizeChanged());
 				}
 			});
 
@@ -183,17 +183,17 @@ public class MainActivity extends AbstractActivity {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
 				line.setError("Команда не найдена");
 
-				Static.bus.send(new Commands.Finished());
+				Static.bus.send(new E.Commands.Finished());
 
 			} catch (Simple.NetworkNotFound nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
 				line.setError("Нет подключения к Сети");
 
-				Static.bus.send(new Commands.Finished());
+				Static.bus.send(new E.Commands.Finished());
 			} catch (NonEnclosedParesisException nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
 				line.setError("Незакрытые кавычки.");
-				Static.bus.send(new Commands.Finished());
+				Static.bus.send(new E.Commands.Finished());
 
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
@@ -210,11 +210,11 @@ public class MainActivity extends AbstractActivity {
 
 	@Override public void onBackPressed() {
 		if (command_running) {
-			Static.bus.send(new Commands.Abort());
-			Static.bus.send(new Commands.Finished());
+			Static.bus.send(new E.Commands.Abort());
+			Static.bus.send(new E.Commands.Finished());
 		} else if (Static.history.size() > 1) {
 			Static.history.remove(Static.history.size() - 1);
-			Static.bus.send(new Commands.Run(Static.history.remove(Static.history.size() - 1)));
+			Static.bus.send(new E.Commands.Run(Static.history.remove(Static.history.size() - 1)));
 		} else {
 			super.onBackPressed();
 		}
@@ -226,10 +226,10 @@ public class MainActivity extends AbstractActivity {
      */
 
 	/**
-	 * Скрывает вводимые символы, отменяется на {@link MainActivity#finished(Commands.Finished) finished()}
+	 * Скрывает вводимые символы, отменяется на {@link MainActivity#finished(com.cab404.ponyscape.bus.E.Commands.Finished) finished()}
 	 */
 	@Bus.Handler
-	public void hideInputCharacters(Commands.Hide e) {
+	public void hideInputCharacters(E.Commands.Hide e) {
 		line.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 	}
 
@@ -237,7 +237,7 @@ public class MainActivity extends AbstractActivity {
 	 * Убирает анимацию загрузки и снимает блокировку ввода.
 	 */
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void finished(Commands.Finished event) {
+	public void finished(E.Commands.Finished event) {
 		command_running = false;
 		line.setInputType(InputType.TYPE_CLASS_TEXT);
 		updateInput();
@@ -252,7 +252,7 @@ public class MainActivity extends AbstractActivity {
 		findViewById(R.id.execution).setVisibility(View.GONE);
 		if (!command_queue.isEmpty()) {
 			Log.v("MainActivity", "Command queue is not empty, executing command from queue. Queue size: " + command_queue.size());
-			Static.bus.send(new Commands.Run(command_queue.remove(0)));
+			Static.bus.send(new E.Commands.Run(command_queue.remove(0)));
 		}
 	}
 
@@ -260,7 +260,7 @@ public class MainActivity extends AbstractActivity {
 	 * Очищает список частей
 	 */
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void clear(Commands.Clear event) {
+	public void clear(E.Commands.Clear event) {
 		line.setText("");
 	}
 
@@ -269,7 +269,7 @@ public class MainActivity extends AbstractActivity {
 	 */
 	private List<String> command_queue = new ArrayList<>();
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void runCommand(final Commands.Run event) {
+	public void runCommand(final E.Commands.Run event) {
 		if (!command_running) {
 			line.setText(event.command);
 			execute();
@@ -279,14 +279,14 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void updateShortcuts(Shortcuts.Update event) {
-		updateShortcutList();
+	public void updateShortcuts(E.Aliases.Update event) {
+		updateAliasList();
 		showAliases(0);
 		hideAliases(0);
 	}
 
 	@Bus.Handler
-	public void size(DataRequest.ListSize e) {
+	public void size(E.DataRequest.ListSize e) {
 		View root = findViewById(R.id.data_root);
 		e.width = root.getWidth();
 		e.height = root.getHeight();
@@ -295,7 +295,7 @@ public class MainActivity extends AbstractActivity {
 
 	boolean bar_locked_by_expansion = false;
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void expand(Parts.Expand e) {
+	public void expand(E.Parts.Expand e) {
 		findViewById(R.id.data).setPadding(0, 0, 0, 0);
 		findViewById(R.id.data).requestLayout();
 		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
@@ -303,7 +303,7 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void collapse(Parts.Collapse e) {
+	public void collapse(E.Parts.Collapse e) {
 		findViewById(R.id.data).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
 		findViewById(R.id.data).requestLayout();
 		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(true);
@@ -311,18 +311,18 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Bus.Handler
-	protected void lockListScroll(Parts.Lock event) {
+	protected void lockListScroll(E.Parts.Lock event) {
 		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void clear(Parts.Clear clear) {
+	public void clear(E.Parts.Clear clear) {
 		for (int i = list.size() - 1; i > -1; i--)
 			list.remove(list.partAt(i));
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void focus(Parts.Focus event) {
+	public void focus(E.Parts.Focus event) {
 		int index = list.indexOf(event.part);
 		int scroll = 0;
 
@@ -339,34 +339,34 @@ public class MainActivity extends AbstractActivity {
 
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void add(Parts.Add add) {
+	public void add(E.Parts.Add add) {
 		list.add(add.part);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void remove(Parts.Remove remove) {
+	public void remove(E.Parts.Remove remove) {
 		list.removeSlowly(remove.part);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void hide(Parts.Hide remove) {
+	public void hide(E.Parts.Hide remove) {
 		list.hide(remove.part);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void show(Parts.Show remove) {
+	public void show(E.Parts.Show remove) {
 		list.show(remove.part);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void error(Commands.Error err) {
+	public void error(E.Commands.Error err) {
 		Toast toast = Toast.makeText(this, err.error, Toast.LENGTH_SHORT);
 		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
 		toast.show();
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void success(Commands.Success msg) {
+	public void success(E.Commands.Success msg) {
 		Toast toast = Toast.makeText(this, msg.msg, Toast.LENGTH_SHORT);
 		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY));
 		toast.show();
@@ -374,7 +374,7 @@ public class MainActivity extends AbstractActivity {
 
 
 	@Bus.Handler
-	public synchronized void startActivityFromEvent(Android.StartActivityForResult e) {
+	public synchronized void startActivityFromEvent(E.Android.StartActivityForResult e) {
 		int request_key = (int) ((Math.random() - 0.5) * 2 * Integer.MAX_VALUE);
 		running.put(request_key, e.handler);
 		try {
@@ -385,7 +385,7 @@ public class MainActivity extends AbstractActivity {
 		}
 	}
 	@Bus.Handler
-	public void startActivityFromEvent(Android.StartActivity e) {
+	public void startActivityFromEvent(E.Android.StartActivity e) {
 		startActivity(e.activity);
 	}
 
@@ -631,7 +631,7 @@ public class MainActivity extends AbstractActivity {
 			}
 
 			if (command != null)
-				Static.bus.send(new Commands.Run(command));
+				Static.bus.send(new E.Commands.Run(command));
 
 		} else
 			super.onNewIntent(intent);
@@ -640,30 +640,23 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Обновляет список алиасов из глобальных настроек
 	 */
-	@SuppressWarnings("unchecked")
-	protected void updateShortcutList() {
-		JSONArray shortcuts = (JSONArray) Static.cfg.get("main.shortcuts");
-		if (shortcuts == null) shortcuts = new JSONArray();
-
+	protected void updateAliasList() {
 		LayoutInflater inflater = getLayoutInflater();
 		LinearLayout views = (LinearLayout) findViewById(R.id.commands_root);
 		views.removeViews(0, views.getChildCount());
 
-		for (Object string_actulally : shortcuts) {
-			final Shortcuts.LaunchShortcut shortcut = new Shortcuts.LaunchShortcut(string_actulally.toString());
-
+		for (final AliasUtils.Alias alias : AliasUtils.getAliases()) {
 			View view = inflater.inflate(R.layout.shortcut, views, false);
-			((TextView) view.findViewById(R.id.label)).setText(shortcut.name);
+			((TextView) view.findViewById(R.id.label)).setText(alias.name);
+
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Static.bus.send(new Commands.Run(shortcut.command));
+					Static.bus.send(new E.Commands.Run(alias.command));
 					closeAliases(view);
 				}
 			});
 			views.addView(view);
 		}
 
-		Static.cfg.data.put("main.shortcuts", shortcuts);
-		Static.cfg.save();
 	}
 }

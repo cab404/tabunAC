@@ -30,8 +30,8 @@ public class Static {
 
 	public static Context app_context = null;
 	public static Handler handler = null;
+	public static Pools pools = null;
 
 	public static Images img = null;
-
 
 }

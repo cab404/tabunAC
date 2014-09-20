@@ -10,8 +10,7 @@ import com.cab404.libtabun.pages.ProfilePage;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.util.exceptions.LoadingFail;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.ProfilePart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
@@ -40,17 +39,17 @@ public class UserCommands {
 								final ProfilePart part = new ProfilePart((Profile) object);
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
-										Static.bus.send(new Parts.Run(part, true));
+										Static.bus.send(new E.Parts.Run(part, true));
 									}
 								});
 								break;
 							case BLOCK_ERROR:
 								switch ((TabunError) object) {
 									case NOT_FOUND:
-										Static.bus.send(new Commands.Error("Пользователя не существует."));
+										Static.bus.send(new E.Commands.Error("Пользователя не существует."));
 										break;
 									default:
-										Static.bus.send(new Commands.Error("Произошла НЁХ. Свяжитесь со спецлужбами."));
+										Static.bus.send(new E.Commands.Error("Произошла НЁХ. Свяжитесь со спецлужбами."));
 										break;
 								}
 								cancel();
@@ -60,7 +59,7 @@ public class UserCommands {
 
 					{Static.bus.register(this);}
 					@Bus.Handler
-					public void cancel(Commands.Abort abort) {
+					public void cancel(E.Commands.Abort abort) {
 						super.cancel();
 					}
 				};
@@ -69,15 +68,15 @@ public class UserCommands {
 				} catch (LoadingFail f) {
 					Log.w("Profile", name + ": Нет таких");
 				} catch (MoonlightFail f) {
-					Static.bus.send(new Commands.Error("Ошибка при запросе данных пользователя."));
+					Static.bus.send(new E.Commands.Error("Ошибка при запросе данных пользователя."));
 					Log.w("UserInfo", f);
 				}
 				Static.last_page = page;
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
-						Static.bus.send(new Commands.Clear());
-						Static.bus.send(new Commands.Finished());
+						Static.bus.send(new E.Commands.Clear());
+						Static.bus.send(new E.Commands.Finished());
 					}
 				});
 			}

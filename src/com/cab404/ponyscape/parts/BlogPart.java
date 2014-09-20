@@ -11,8 +11,7 @@ import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Blog;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
@@ -29,7 +28,7 @@ public class BlogPart extends Part {
 	public BlogPart(Blog blog) {this.blog = blog;}
 
 	@Bus.Handler
-	public void handleTitleImage(GotData.Image.Loaded img) {
+	public void handleTitleImage(E.GotData.Image.Loaded img) {
 		if (img.src.equals(blog.icon)) {
 			int w = img.loaded.getWidth();
 			int h = img.loaded.getHeight();
@@ -55,7 +54,7 @@ public class BlogPart extends Part {
 		((TextView) view.findViewById(R.id.title)).setText(SU.deEntity(blog.name));
 		view.findViewById(R.id.create).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
-				Static.bus.send(new Commands.Run("post create " + blog.id));
+				Static.bus.send(new E.Commands.Run("post create " + blog.id));
 			}
 		});
 

@@ -9,7 +9,7 @@ import com.cab404.acli.Part;
 import com.cab404.libtabun.data.LetterLabel;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.Commands;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.views.ViewSugar;
@@ -40,7 +40,7 @@ public class LetterLabelPart extends Part {
 
 		view.setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
-				Static.bus.send(new Commands.Run("mail load " + data.id));
+				Static.bus.send(new E.Commands.Run("mail load " + data.id));
 			}
 		});
 

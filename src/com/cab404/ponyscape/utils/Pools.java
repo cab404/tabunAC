@@ -1,0 +1,19 @@
+package com.cab404.ponyscape.utils;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Thread pools for various things.
+ *
+ * @author cab404
+ */
+public class Pools {
+	/**
+	 * Операции над картинками - скалирование, блюр, всё такое.
+	 */
+	public ThreadPoolExecutor
+			img_oper = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+
+}

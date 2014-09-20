@@ -9,9 +9,7 @@ import android.widget.LinearLayout;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.android.AbstractActivity;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.Android;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.views.ViewSugar;
 import com.cab404.sjbus.Bus;
@@ -41,7 +39,7 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 
 	private static class PartLaunchHandler {
 		@Bus.Handler
-		public void handleRun(Parts.Run run) {
+		public void handleRun(E.Parts.Run run) {
 			int id = (int) (Math.random() * Integer.MAX_VALUE);
 
 			Intent intent = new Intent(Static.app_context, PartActivity.class);
@@ -49,7 +47,7 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 			intent.putExtra("floating", run.floating);
 
 			part_data_valve.put(id, run.part);
-			Static.bus.send(new Android.StartActivity(intent));
+			Static.bus.send(new E.Android.StartActivity(intent));
 		}
 	}
 
@@ -91,17 +89,17 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 	}
 
 	@Override protected void onDestroy() {
-		super.onDestroy();
 		part.onRemove(root.getChildAt(0), root, this);
+		super.onDestroy();
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onStart(Commands.Run unused) {
+	public void onStart(E.Commands.Run unused) {
 		findViewById(R.id.loading).setVisibility(View.VISIBLE);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onFinish(Commands.Finished unused) {
+	public void onFinish(E.Commands.Finished unused) {
 		findViewById(R.id.loading).setVisibility(View.GONE);
 	}
 }

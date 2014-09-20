@@ -9,8 +9,7 @@ import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CommentListPart;
 import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.parts.StaticTextPart;
@@ -41,7 +40,7 @@ public class PostCommands {
 			@Override public void run() {
 
 				final CommentListPart list = new CommentListPart(id, false);
-				Static.bus.send(new Parts.Run(list, false));
+				Static.bus.send(new E.Parts.Run(list, false));
 
 				TabunPage page = new TopicPage(id) {
 
@@ -67,7 +66,7 @@ public class PostCommands {
 								break;
 
 							case BLOCK_ERROR:
-								Static.bus.send(new Parts.Run(new ErrorPart((TabunError) object), true));
+								Static.bus.send(new E.Parts.Run(new ErrorPart((TabunError) object), true));
 								cancel();
 								break;
 						}
@@ -75,7 +74,7 @@ public class PostCommands {
 
 					{Static.bus.register(this);}
 					@Bus.Handler
-					public void cancel(Commands.Abort abort) {
+					public void cancel(E.Commands.Abort abort) {
 						super.cancel();
 					}
 				};
@@ -83,7 +82,7 @@ public class PostCommands {
 				try {
 					page.fetch(Static.user);
 				} catch (MoonlightFail f) {
-					Static.bus.send(new Commands.Error("Ошибка при загрузке поста."));
+					Static.bus.send(new E.Commands.Error("Ошибка при загрузке поста."));
 					Log.w("PageCommands", f);
 				}
 
@@ -93,8 +92,8 @@ public class PostCommands {
 				Static.bus.unregister(page);
 				Static.last_page = page;
 
-				Static.bus.send(new Commands.Clear());
-				Static.bus.send(new Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
+				Static.bus.send(new E.Commands.Finished());
 			}
 		}).start();
 	}

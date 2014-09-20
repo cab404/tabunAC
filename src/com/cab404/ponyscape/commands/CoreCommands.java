@@ -10,13 +10,13 @@ import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.moonlight.util.SU;
-import com.cab404.ponyscape.bus.events.*;
-import com.cab404.ponyscape.bus.events.Shortcuts.LaunchShortcut;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.state.AliasUtils;
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
@@ -32,16 +32,16 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new Parts.Run((new HelpPart()), true));
-		Static.bus.send(new Commands.Finished());
-		Static.bus.send(new Commands.Clear());
+		Static.bus.send(new E.Parts.Run((new HelpPart()), true));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
 	}
 
 	@Command(command = "about")
 	public void displayCredits() {
-		Static.bus.send(new Parts.Run((new CreditsPart()), true));
-		Static.bus.send(new Commands.Finished());
-		Static.bus.send(new Commands.Clear());
+		Static.bus.send(new E.Parts.Run((new CreditsPart()), true));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
 	}
 
 
@@ -53,7 +53,7 @@ public class CoreCommands {
 		if (shortcuts == null) shortcuts = new JSONArray();
 
 		for (Object string_actulally : shortcuts) {
-			final LaunchShortcut shortcut = new LaunchShortcut(string_actulally.toString());
+			final AliasUtils.Alias shortcut = new AliasUtils.Alias(string_actulally.toString());
 			aliases.append(shortcut.name).append("->").append(shortcut.command).append("\n");
 		}
 
@@ -62,7 +62,7 @@ public class CoreCommands {
 			@Override
 			public boolean finished(CharSequence text) {
 				List<String> lines = SU.split(text.toString(), "\n");
-				Collection<LaunchShortcut> new_shortcuts = new ArrayList<>();
+				Collection<AliasUtils.Alias> new_shortcuts = new ArrayList<>();
 
 
 				int line_num = 0;
@@ -72,25 +72,21 @@ public class CoreCommands {
 					if (line.isEmpty()) continue;
 
 					if (!line.contains("->")) {
-						Static.bus.send(new Commands.Error("Нет разделителя в строке " + line_num));
+						Static.bus.send(new E.Commands.Error("Нет разделителя в строке " + line_num));
 						return false;
 					} else {
 						List<String> parts = SU.split(line, "->", 2);
-						LaunchShortcut n = new LaunchShortcut(parts.get(0), parts.get(1));
+						AliasUtils.Alias n = new AliasUtils.Alias(parts.get(0), parts.get(1));
 						new_shortcuts.add(n);
 					}
 
 				}
 
-				JSONArray shkts = new JSONArray();
-				for (LaunchShortcut shortcut : new_shortcuts) {
-					shkts.add(shortcut.toString());
-				}
+				AliasUtils.setAliases(new_shortcuts);
 
-				Static.cfg.put("main.shortcuts", shkts);
-				Static.bus.send(new Shortcuts.Update());
-				Static.bus.send(new Commands.Finished());
-				Static.bus.send(new Commands.Clear());
+				Static.bus.send(new E.Aliases.Update());
+				Static.bus.send(new E.Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
 				return true;
 			}
 			@Override public void cancelled() {
@@ -98,36 +94,36 @@ public class CoreCommands {
 			}
 		}, new EditorPart.EditorPlugin[]{});
 
-		Static.bus.send(new Parts.Run(editorPart, true));
+		Static.bus.send(new E.Parts.Run(editorPart, true));
 
 	}
 
 	@Command(command = "clear")
 	public void clear() {
-		Static.bus.send(new Parts.Clear());
-		Static.bus.send(new Commands.Finished());
-		Static.bus.send(new Commands.Clear());
+		Static.bus.send(new E.Parts.Clear());
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
 	}
 
 	@Command(command = "login")
 	public void login() {
 		try {
 			Static.bus.send(
-					new Android.StartActivityForResult(
+					new E.Android.StartActivityForResult(
 							new Intent("everypony.tabun.auth.TOKEN_REQUEST"),
-							new Android.StartActivityForResult.ResultHandler() {
+							new E.Android.StartActivityForResult.ResultHandler() {
 								@Override public void handle(int resultCode, Intent data) {
 									if (resultCode == Activity.RESULT_OK) {
 										Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
 										Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
-										Static.bus.send(new Login.Success());
-										Static.bus.send(new Commands.Clear());
-										Static.bus.send(new Commands.Finished());
+										Static.bus.send(new E.Login.Success());
+										Static.bus.send(new E.Commands.Clear());
+										Static.bus.send(new E.Commands.Finished());
 									} else {
 										Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
-										Static.bus.send(new Login.Failure());
-										Static.bus.send(new Commands.Clear());
-										Static.bus.send(new Commands.Finished());
+										Static.bus.send(new E.Login.Failure());
+										Static.bus.send(new E.Commands.Clear());
+										Static.bus.send(new E.Commands.Finished());
 									}
 								}
 								@Override public void error(Throwable e) {
@@ -136,25 +132,25 @@ public class CoreCommands {
 											Intent.ACTION_VIEW,
 											Uri.parse("market://details?id=everypony.tabun.auth")
 									);
-									Static.bus.send(new Android.StartActivity(download));
-									Static.bus.send(new Commands.Clear());
-									Static.bus.send(new Commands.Finished());
+									Static.bus.send(new E.Android.StartActivity(download));
+									Static.bus.send(new E.Commands.Clear());
+									Static.bus.send(new E.Commands.Finished());
 								}
 
 							}
 					)
 			);
 		} catch (ActivityNotFoundException e) {
-			Static.bus.send(new Commands.Error("TabunAuth не установлен."));
+			Static.bus.send(new E.Commands.Error("TabunAuth не установлен."));
 		}
 
 	}
 
 	@Command(command = "search", params = Str.class)
 	public void search(final String term) {
-		Static.bus.send(new Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
-		Static.bus.send(new Commands.Finished());
-		Static.bus.send(new Commands.Clear());
+		Static.bus.send(new E.Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
 	}
 
 
@@ -162,7 +158,7 @@ public class CoreCommands {
 	public void login(final String login, final String password) {
 		Simple.checkNetworkConnection();
 
-		Static.bus.send(new Commands.Hide());
+		Static.bus.send(new E.Commands.Hide());
 
 		new Thread(new Runnable() {
 			@Override public void run() {
@@ -181,14 +177,14 @@ public class CoreCommands {
 						if (success) {
 							Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
 							Static.cfg.put("main.profile", Static.user.serialize());
-							Static.bus.send(new Login.Success());
+							Static.bus.send(new E.Login.Success());
 							Static.cfg.save();
-							Static.bus.send(new Commands.Clear());
+							Static.bus.send(new E.Commands.Clear());
 						} else {
 							Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
-							Static.bus.send(new Login.Failure());
+							Static.bus.send(new E.Login.Failure());
 						}
-						Static.bus.send(new Commands.Finished());
+						Static.bus.send(new E.Commands.Finished());
 					}
 				});
 

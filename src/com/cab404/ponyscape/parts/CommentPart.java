@@ -9,8 +9,7 @@ import android.widget.TextView;
 import com.cab404.acli.Part;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.text.DateUtils;
 import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
@@ -61,13 +60,13 @@ public class CommentPart extends Part {
 		if (!isLetter) {
 			view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Static.bus.send(new Commands.Run("votefor comment " + comment.id + " +1"));
+					Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " +1"));
 				}
 			});
 
 			view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Static.bus.send(new Commands.Run("votefor comment " + comment.id + " -1"));
+					Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " -1"));
 				}
 			});
 
@@ -104,7 +103,7 @@ public class CommentPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(GotData.Vote.Comment vote) {
+	public void handleVoteChange(E.GotData.Vote.Comment vote) {
 		if (comment.id == vote.id) {
 			comment.votes = vote.votes;
 			final TextView rating = (TextView) view.findViewById(R.id.rating);

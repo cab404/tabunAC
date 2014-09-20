@@ -4,7 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.text.*;
+import android.text.Editable;
+import android.text.Layout;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.*;
 import android.util.Log;
@@ -21,7 +24,7 @@ import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.ponyscape.utils.spans.LitespoilerSpan;
@@ -436,80 +439,85 @@ public class HtmlRipper {
 		/* Эту фигню я юзаю для получения и вставки изображений по местам. */
 		final Object reader = new Object() {
 			@Bus.Handler()
-			public void image(final GotData.Image.Loaded loaded) {
+			public void image(final E.GotData.Image.Loaded loaded) {
 				if (!loadImages.contains(loaded.src)) return;
 
 				final boolean downscale = (boolean) Static.cfg.get(Images.DOWNSCALE_IMAGES_CFG_ENTRY);
 
-				new Thread() {
-					@Override public void run() {
+				Static.pools.img_oper.execute(
+						new Runnable() {
+							@Override public void run() {
 
-						Bitmap use = loaded.loaded;
+								Bitmap use = loaded.loaded;
 
-						/* Downscale-им! */
-							/* Попытка убрать автоперевод строки при большой картинке.*/
-						for (final ImageSpan span : targets.getValues(loaded.src)) {
-							Tag img = meta.get(span);
+								/* Downscale-им! */
+								/* Попытка убрать автоперевод строки при большой картинке.*/
+								for (final ImageSpan span : targets.getValues(loaded.src)) {
+									Tag img = meta.get(span);
 
-							Integer width, height;
+									if (downscale) {
 
-							if (img.get("width").isEmpty())
-								width = null;
-							else
-								width = Integer.parseInt(img.get("width"));
+										Integer width, height;
+										if (img.get("width").isEmpty())
+											width = null;
+										else
+											width = Integer.parseInt(img.get("width"));
 
-							if (img.get("height").isEmpty())
-								height = null;
-							else {
-								height = Integer.parseInt(img.get("height"));
-								if (width == null)
-									width = (int) (height * ((float) use.getWidth() / (float) use.getHeight()));
-							}
+										if (img.get("height").isEmpty())
+											height = null;
+										else {
+											height = Integer.parseInt(img.get("height"));
+											if (width == null)
+												width = (int) (height * ((float) use.getWidth() / (float) use.getHeight()));
+										}
 
-							if (width != null && height == null)
-								height = (int) (width * ((float) use.getHeight() / (float) use.getWidth()));
+										if (width != null && height == null)
+											height = (int) (width * ((float) use.getHeight() / (float) use.getWidth()));
 
-							if (width == null) {
-								width = (int) (target.getWidth() - target.getTextSize());
-								height = (int) (width * ((float) use.getHeight() / (float) use.getWidth()));
-								if (use.getWidth() > width)
-									if (width > 0 && height > 0)
-										use = Static.img.scale(loaded, width, height);
-							} else {
-								use = Static.img.scale(loaded, width, height);
-							}
+										if (width == null) {
+											width = (int) (target.getWidth() - target.getTextSize());
+											height = (int) (width * ((float) use.getHeight() / (float) use.getWidth()));
+											if (use.getWidth() > width)
+												if (width > 0 && height > 0)
+													use = Static.img.scale(loaded, width, height);
+										} else {
+											use = Static.img.scale(loaded, width, height);
+										}
 
-							final Bitmap scaled = use;
-							Runnable insert = new Runnable() {
-								@Override public void run() {
-									int start = builder.getSpanStart(span);
-									int end = builder.getSpanEnd(span);
+									}
 
-									if (start == -1)
-										return;
+									final Bitmap scaled = use;
+									Runnable insert = new Runnable() {
+										@Override public void run() {
+											int start = builder.getSpanStart(span);
+											int end = builder.getSpanEnd(span);
 
-									builder.removeSpan(span);
-									builder.setSpan(
-											new ImageSpan(context, scaled),
-											start,
-											end,
-											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-									);
-									target.setText(builder);
+											if (start == -1)
+												return;
+
+											builder.removeSpan(span);
+											builder.setSpan(
+													new ImageSpan(context, scaled),
+													start,
+													end,
+													Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+											);
+											target.setText(builder);
+										}
+									};
+									Static.handler.post(insert);
+
 								}
-							};
-							Static.handler.post(insert);
 
+							}
 						}
-
-					}
-				}.start();
+				);
 
 
 			}
 
 			@Bus.Handler(executor = AppContextExecutor.class)
-			public void error(GotData.Image.Error err) {
+			public void error(E.GotData.Image.Error err) {
 				Bitmap replace = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
 				replace.eraseColor(Color.RED);
 

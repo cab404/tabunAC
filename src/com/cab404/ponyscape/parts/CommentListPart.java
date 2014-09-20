@@ -20,13 +20,11 @@ import com.cab404.libtabun.requests.RefreshCommentsRequest;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.Android;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.images.LevelDrawable;
 import com.cab404.ponyscape.utils.animation.Anim;
+import com.cab404.ponyscape.utils.images.LevelDrawable;
 import com.cab404.sjbus.Bus;
 import org.json.simple.JSONObject;
 
@@ -78,7 +76,7 @@ public class CommentListPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onConfigChange(Android.RootSizeChanged e) {
+	public void onConfigChange(E.Android.RootSizeChanged e) {
 		listView.invalidate();
 		view.requestLayout();
 	}
@@ -229,7 +227,7 @@ public class CommentListPart extends Part {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new Commands.Error("Не удалось обновить список комментариев."));
+					Static.bus.send(new E.Commands.Error("Не удалось обновить список комментариев."));
 				} finally {
 
 					Static.handler.post(new Runnable() {
@@ -299,14 +297,14 @@ public class CommentListPart extends Part {
 							if (!success)
 								throw new MoonlightFail("breakout");
 							else {
-								Static.bus.send(new Commands.Success(msg));
+								Static.bus.send(new E.Commands.Success(msg));
 							}
 
 							refresh();
 
 						} catch (MoonlightFail f) {
-							Static.bus.send(new Commands.Error(msg));
-							Static.bus.send(new Parts.Run(new EditorPart(title, text, handler), true));
+							Static.bus.send(new E.Commands.Error(msg));
+							Static.bus.send(new E.Parts.Run(new EditorPart(title, text, handler), true));
 						}
 					}
 				}).start();
@@ -318,7 +316,7 @@ public class CommentListPart extends Part {
 			}
 		});
 
-		Static.bus.send(new Parts.Run(editorPart, true));
+		Static.bus.send(new E.Parts.Run(editorPart, true));
 
 	}
 
@@ -369,7 +367,7 @@ public class CommentListPart extends Part {
 
 		Static.bus.unregister(this);
 
-		Static.bus.send(new Parts.Collapse());
+		Static.bus.send(new E.Parts.Collapse());
 
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
