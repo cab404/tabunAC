@@ -6,7 +6,6 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import com.cab404.ponyscape.R;
 
 /**
@@ -72,7 +71,6 @@ public class LevelDrawable extends Drawable {
 
 		}
 
-		Log.v("Levels", "Drawing self");
 	}
 
 	@Override public void setAlpha(int alpha) {

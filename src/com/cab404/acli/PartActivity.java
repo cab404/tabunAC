@@ -1,13 +1,16 @@
 package com.cab404.acli;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.android.AbstractActivity;
+import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Android;
+import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.views.ViewSugar;
@@ -19,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author cab404
  */
-public class PartActivity extends Activity implements FragmentedList {
+public class PartActivity extends AbstractActivity implements FragmentedList {
 
 	protected static Map<Integer, Part> part_data_valve = new ConcurrentHashMap<>();
 
@@ -90,5 +93,15 @@ public class PartActivity extends Activity implements FragmentedList {
 	@Override protected void onDestroy() {
 		super.onDestroy();
 		part.onRemove(root.getChildAt(0), root, this);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void onStart(Commands.Run unused) {
+		findViewById(R.id.loading).setVisibility(View.VISIBLE);
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void onFinish(Commands.Finished unused) {
+		findViewById(R.id.loading).setVisibility(View.GONE);
 	}
 }
