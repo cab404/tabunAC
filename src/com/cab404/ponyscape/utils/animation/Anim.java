@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.utils.views.animation;
+package com.cab404.ponyscape.utils.animation;
 
 import android.animation.Animator;
 import android.annotation.TargetApi;

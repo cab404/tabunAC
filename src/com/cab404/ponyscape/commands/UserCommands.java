@@ -13,8 +13,8 @@ import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.ProfilePart;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -25,7 +25,7 @@ public class UserCommands {
 
 	@Command(command = "load", params = Str.class)
 	public static void load(final String name) {
-		Web.checkNetworkConnection();
+		Simple.checkNetworkConnection();
 
 		new Thread(new Runnable() {
 			@Override public void run() {

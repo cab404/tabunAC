@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.utils;
+package com.cab404.ponyscape.utils.text;
 
 import android.content.Context;
 import com.cab404.ponyscape.R;

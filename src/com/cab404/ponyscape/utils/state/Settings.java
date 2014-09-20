@@ -1,7 +1,8 @@
-package com.cab404.ponyscape.utils;
+package com.cab404.ponyscape.utils.state;
 
 import android.content.Context;
 import android.util.Log;
+import com.cab404.ponyscape.utils.Static;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;

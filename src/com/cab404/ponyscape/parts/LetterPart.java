@@ -11,7 +11,7 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.utils.HtmlRipper;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 

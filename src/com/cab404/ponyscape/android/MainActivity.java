@@ -25,11 +25,11 @@ import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.*;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
-import com.cab404.ponyscape.utils.views.animation.Anim;
-import com.cab404.ponyscape.utils.views.animation.BounceInterpolator;
+import com.cab404.ponyscape.utils.animation.Anim;
+import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.sjbus.Bus;
 import org.json.simple.JSONArray;
 
@@ -185,7 +185,7 @@ public class MainActivity extends AbstractActivity {
 
 				Static.bus.send(new Commands.Finished());
 
-			} catch (Web.NetworkNotFound nf) {
+			} catch (Simple.NetworkNotFound nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
 				line.setError("Нет подключения к Сети");
 
@@ -204,6 +204,7 @@ public class MainActivity extends AbstractActivity {
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Log.v("Main", "Got  activity result!");
 		running.remove(requestCode).handle(resultCode, data);
 	}
 

@@ -15,8 +15,8 @@ import com.cab404.ponyscape.bus.events.Shortcuts.LaunchShortcut;
 import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.HelpPart;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
@@ -160,13 +160,21 @@ public class CoreCommands {
 
 	@Command(command = "login", params = {Str.class, Str.class})
 	public void login(final String login, final String password) {
-		Web.checkNetworkConnection();
+		Simple.checkNetworkConnection();
 
 		Static.bus.send(new Commands.Hide());
 
 		new Thread(new Runnable() {
 			@Override public void run() {
-				final boolean success = (Static.user.login(login, password));
+
+				boolean run_result;
+				try {
+					run_result = Static.user.login(login, password);
+				} catch (Exception e) {
+					run_result = false;
+				}
+
+				final boolean success = run_result;
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {

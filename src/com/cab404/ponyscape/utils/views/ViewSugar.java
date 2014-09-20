@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.utils;
+package com.cab404.ponyscape.utils.views;
 
 import android.app.Activity;
 import android.view.View;

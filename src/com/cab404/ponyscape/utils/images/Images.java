@@ -4,8 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.util.SparseArray;
 import com.cab404.ponyscape.bus.events.GotData;
-import com.cab404.ponyscape.utils.DateUtils;
+import com.cab404.ponyscape.utils.text.DateUtils;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import org.apache.http.HttpResponse;
@@ -15,6 +16,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 /**
@@ -23,9 +25,11 @@ import java.util.*;
 public class Images {
 	private HashSet<String> loading;
 	private Map<String, Reference<Bitmap>> cache;
+	private Map<String, SparseArray<Reference<Bitmap>>> scaled;
 	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
 	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
 	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
+	public static final String DOWNSCALE_IMAGES_CFG_ENTRY = "images.downscale";
 
 	private File cacheDir;
 	private long cut, file_cache;
@@ -41,6 +45,7 @@ public class Images {
 		this.cacheDir = cacheDir;
 
 		cache = new HashMap<>();
+		scaled = new HashMap<>();
 		loading = new HashSet<>();
 	}
 
@@ -48,11 +53,33 @@ public class Images {
 		load_blocked = Static.cfg.ensure(LOAD_BLOCK_CFG_ENTRY, false);
 		file_cache = Static.cfg.ensure(FILE_CACHE_LIMIT_CFG_ENTRY, 30L * 1024L * 1024L);
 		cut = Static.cfg.ensure(LIMIT_CFG_ENTRY, 3L * 1024L * 1024L);
+
+		Static.cfg.ensure(DOWNSCALE_IMAGES_CFG_ENTRY, true);
+
 		clear();
 	}
 
+	public synchronized Bitmap scale(GotData.Image.Loaded loaded, int w, int h) {
+		if (scaled.containsKey(loaded.src))
+			scaled.put(loaded.src, new SparseArray<Reference<Bitmap>>());
+
+		SparseArray<Reference<Bitmap>> versions = scaled.get(loaded.src);
+		final int encoded_size = (w << 16) | h;
+
+		if (versions == null) {
+			versions = new SparseArray<>();
+			scaled.put(loaded.src, versions);
+		}
+		if (versions.get(encoded_size) != null)
+			return versions.get(encoded_size).get();
+
+		final Bitmap scaled = Bitmap.createScaledBitmap(loaded.loaded, w, h, true);
+		versions.put(encoded_size, new WeakReference<>(scaled));
+		return scaled;
+	}
+
 	public void clear() {
-		ArrayList<File> files = new ArrayList<>(Arrays.asList(cacheDir.listFiles()));
+		List<File> files = new ArrayList<>(Arrays.asList(cacheDir.listFiles()));
 		Collections.sort(files, new Comparator<File>() {
 			@Override public int compare(File lhs, File rhs) {
 				return (int) (lhs.lastModified() - rhs.lastModified());

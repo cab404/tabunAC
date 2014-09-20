@@ -7,7 +7,7 @@ import com.cab404.acli.PartActivity;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.commands.*;
-import com.cab404.ponyscape.utils.Settings;
+import com.cab404.ponyscape.utils.state.Settings;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.sjbus.Bus;

@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.utils;
+package com.cab404.ponyscape.utils.text;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,12 +22,12 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.images.Images;
+import com.cab404.ponyscape.utils.spans.LitespoilerSpan;
 import com.cab404.sjbus.Bus;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Rips html into view list
@@ -182,7 +182,7 @@ public class HtmlRipper {
 		 * Исправляем проблему с header-ом.
 		 * Даже не знаю, какой умный пегас умудрился панель действий отправить в текст.
 		 */
-		int header_end_index = text.indexOf(header_end);
+		final int header_end_index = text.indexOf(header_end);
 		final SpannableStringBuilder builder =
 				new SpannableStringBuilder(
 						header_end_index == -1 ?
@@ -197,6 +197,7 @@ public class HtmlRipper {
 		final Collection<String> loadImages = new HashSet<>();
 		/* Куда пихать загруженное. */
 		final ArrayMap<String, ImageSpan> targets = new ArrayMap<>();
+		final HashMap<ImageSpan, Tag> meta = new HashMap<>();
 
 		/*
 		 * Отклонение от индексов. Мы меняем текст дерева, но так как теги привязаны, нам нужно учитывать это вручную.
@@ -415,6 +416,7 @@ public class HtmlRipper {
 
 							off += "||image||".length();
 							targets.add(src, replacer);
+							meta.put(replacer, tag);
 							loadImages.add(src);
 
 							break;
@@ -437,51 +439,73 @@ public class HtmlRipper {
 			public void image(final GotData.Image.Loaded loaded) {
 				if (!loadImages.contains(loaded.src)) return;
 
-//				new Thread(new Runnable() {
-//					@Override public void run() {
-//
-//						Bitmap use = loaded.loaded;
-//
-//						/* Попытка убрать автоперевод строки при большой картинке.*/
-//						int width = (int) (target.getWidth() - target.getTextSize());
-//						if (use.getWidth() > width) {
-//							int height = (int) (width * (use.getHeight() / (float) use.getWidth()));
-//							if (width > 0 && height > 0)
-//								use = Bitmap.createScaledBitmap(
-//										use,
-//										width,
-//										height,
-//										true
-//								);
-//						}
-//
-//						final Bitmap scaled = use;
-						Runnable insert = new Runnable() {
-							@Override public void run() {
-								for (ImageSpan span : targets.getValues(loaded.src)) {
+				final boolean downscale = (boolean) Static.cfg.get(Images.DOWNSCALE_IMAGES_CFG_ENTRY);
+
+				new Thread() {
+					@Override public void run() {
+
+						Bitmap use = loaded.loaded;
+
+						/* Downscale-им! */
+							/* Попытка убрать автоперевод строки при большой картинке.*/
+						for (final ImageSpan span : targets.getValues(loaded.src)) {
+							Tag img = meta.get(span);
+
+							Integer width, height;
+
+							if (img.get("width").isEmpty())
+								width = null;
+							else
+								width = Integer.parseInt(img.get("width"));
+
+							if (img.get("height").isEmpty())
+								height = null;
+							else {
+								height = Integer.parseInt(img.get("height"));
+								if (width == null)
+									width = (int) (height * ((float) use.getWidth() / (float) use.getHeight()));
+							}
+
+							if (width != null && height == null)
+								height = (int) (width * ((float) use.getHeight() / (float) use.getWidth()));
+
+							if (width == null) {
+								width = (int) (target.getWidth() - target.getTextSize());
+								height = (int) (width * ((float) use.getHeight() / (float) use.getWidth()));
+								if (use.getWidth() > width)
+									if (width > 0 && height > 0)
+										use = Static.img.scale(loaded, width, height);
+							} else {
+								use = Static.img.scale(loaded, width, height);
+							}
+
+							final Bitmap scaled = use;
+							Runnable insert = new Runnable() {
+								@Override public void run() {
 									int start = builder.getSpanStart(span);
 									int end = builder.getSpanEnd(span);
 
-									if (start == -1) {
-										continue;
-									}
+									if (start == -1)
+										return;
 
 									builder.removeSpan(span);
 									builder.setSpan(
-											new ImageSpan(context, loaded.loaded),
+											new ImageSpan(context, scaled),
 											start,
 											end,
 											Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 									);
 									target.setText(builder);
 								}
-							}
-						};
+							};
+							Static.handler.post(insert);
 
-						Static.handler.post(insert);
-//
-//					}
-//				}).start();
+						}
+
+					}
+				}.start();
+
+
 			}
 
 			@Bus.Handler(executor = AppContextExecutor.class)
@@ -747,26 +771,6 @@ public class HtmlRipper {
 
 
 		return view;
-	}
-
-	/**
-	 * Скрывает текст фоном цвета текста, если нажать на него, то фон станет прозрачным.
-	 */
-	private static class LitespoilerSpan extends ClickableSpan {
-		boolean hidden = true;
-
-		@SuppressWarnings("NullableProblems")
-		@Override public void updateDrawState(TextPaint ds) {
-			ds.bgColor = hidden ? ds.getColor() : Color.TRANSPARENT;
-		}
-
-		@Override public void onClick(View view) {
-			hidden = !hidden;
-			TextView text = (TextView) view;
-
-			// Инвалидэйтим вот так вот.
-			text.setText(text.getText());
-		}
 	}
 
 

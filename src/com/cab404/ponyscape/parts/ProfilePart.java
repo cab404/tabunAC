@@ -3,6 +3,7 @@ package com.cab404.ponyscape.parts;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,8 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.GotData;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.ViewSugar;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
+import com.cab404.ponyscape.utils.views.ViewSugar;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
 
@@ -31,6 +33,8 @@ public class ProfilePart extends Part {
 	TextView ratin;
 
 	private final Profile profile;
+	private HtmlRipper ripper;
+
 
 	public ProfilePart(Profile profile) {
 		this.profile = profile;
@@ -133,6 +137,10 @@ public class ProfilePart extends Part {
 		view = inflater.inflate(R.layout.part_user_info, viewGroup, false);
 		ViewSugar.bind(this, view);
 		Static.bus.register(this);
+
+		Log.v("Profile", profile.about);
+		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.data));
+		ripper.escape(profile.about);
 
 		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
 		((TextView) view.findViewById(R.id.name)).setText(profile.name);

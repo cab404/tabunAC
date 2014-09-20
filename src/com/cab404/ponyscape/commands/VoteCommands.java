@@ -8,8 +8,8 @@ import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.VoteRequest;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.GotData;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 
 /**
  * @author cab404
@@ -57,13 +57,13 @@ public class VoteCommands {
 	}
 
 	void vote(final Type type, final int id, final int vote) {
-		Web.checkNetworkConnection();
+		Simple.checkNetworkConnection();
 
 		final VoteRequest request = new VoteRequest(id, vote, type);
 		new Thread(new Runnable() {
 			@Override public void run() {
 				try {
-					request.exec(Static.user, Static.last_page);
+					request.exec(Static.user);
 
 					if (request.success()) {
 						Static.bus.send(new Commands.Success(request.msg));

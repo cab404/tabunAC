@@ -1,5 +1,6 @@
 package com.cab404.ponyscape.parts;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -25,7 +26,7 @@ import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
-import com.cab404.ponyscape.utils.views.animation.Anim;
+import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.sjbus.Bus;
 import org.json.simple.JSONObject;
 
@@ -150,11 +151,14 @@ public class CommentListPart extends Part {
 		return max;
 	}
 
-	private void select(int index, int from) {
-		if (from > index || index - from < 10 && Build.VERSION.SDK_INT >= 11)
+	public void select(int index, int from) {
+		if (Build.VERSION.SDK_INT < 11)
+			listView.setSelectionFromTop(index + 1, 10);
+		else if (from > index || index - from < 10)
 			listView.smoothScrollToPositionFromTop(index + 1, 10);
 		else
 			listView.setSelectionFromTop(index + 1, 10);
+
 	}
 
 	/**
@@ -212,7 +216,7 @@ public class CommentListPart extends Part {
 						new RefreshCommentsRequest(isLetter ? Type.TALK : Type.TOPIC, id, max_comment_id());
 				try {
 
-					request.exec(Static.user, Static.last_page);
+					request.exec(Static.user);
 
 					for (Comment comment : request.comments)
 						add(comment);
@@ -289,7 +293,7 @@ public class CommentListPart extends Part {
 					@Override public void run() {
 						String msg = isEditing ? "Не удалось отредактировать комментарий." : "Не удалось добавить комментарий.";
 						try {
-							boolean success = request.exec(Static.user, Static.last_page).success();
+							boolean success = request.exec(Static.user).success();
 							msg = request.msg;
 
 							if (!success)
@@ -318,6 +322,7 @@ public class CommentListPart extends Part {
 
 	}
 
+	@SuppressLint("NewApi")
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list_separate, viewGroup, false);
@@ -350,8 +355,8 @@ public class CommentListPart extends Part {
 		listView.addFooterView(footer);
 //		listView.setAdapter(adapter);
 
+		/* Fadein-аем */
 		if (Build.VERSION.SDK_INT >= 12) {
-			/* Fadein-аем */
 			view.setAlpha(0);
 			view.animate().alpha(1).setDuration(200);
 		}

@@ -13,8 +13,8 @@ import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.CommentListPart;
 import com.cab404.ponyscape.parts.ErrorPart;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -36,7 +36,7 @@ public class TalkCommands {
 
 	@Command(command = "load", params = Int.class)
 	public void post(final Integer id) {
-		Web.checkNetworkConnection();
+		Simple.checkNetworkConnection();
 
 		new Thread(new Runnable() {
 			@Override public void run() {

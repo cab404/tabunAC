@@ -14,8 +14,8 @@ import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.parts.*;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -26,7 +26,7 @@ public class PageCommands {
 
 	@Command(command = "load", params = Str.class)
 	public void load(final String str) {
-		Web.checkNetworkConnection();
+		Simple.checkNetworkConnection();
 
 		final StaticTextPart loading = new StaticTextPart();
 		final String address = str.startsWith("/") ? str : "/blog/" + str;

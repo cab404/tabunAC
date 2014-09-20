@@ -12,7 +12,7 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.ViewSugar;
+import com.cab404.ponyscape.utils.views.ViewSugar;
 
 /**
  * Краткий заголовок письма.

@@ -127,8 +127,10 @@
 			>
 		<LinearLayout android:orientation="vertical"
 		              android:layout_width="match_parent"
-		              android:layout_height="50dp"
+		              android:layout_height="wrap_content"
 		              android:background="@drawable/bg_part"
-		              android:layout_marginTop="4dp"/>
+		              android:layout_marginTop="4dp"
+		              android:padding="@dimen/internal_margins"
+		              android:id="@+id/data"/>
 	</LinearLayout>
 </LinearLayout>

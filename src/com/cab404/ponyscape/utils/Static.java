@@ -6,6 +6,7 @@ import com.cab404.jconsol.CommandManager;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.utils.images.Images;
+import com.cab404.ponyscape.utils.state.Settings;
 import com.cab404.sjbus.Bus;
 
 import java.util.ArrayList;

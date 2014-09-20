@@ -11,9 +11,11 @@ import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.events.Commands;
 import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.parts.*;
+import com.cab404.ponyscape.parts.CommentListPart;
+import com.cab404.ponyscape.parts.ErrorPart;
+import com.cab404.ponyscape.parts.StaticTextPart;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -24,7 +26,14 @@ public class PostCommands {
 
 	@Command(command = "load", params = Int.class)
 	public void post(final Integer id) {
-		Web.checkNetworkConnection();
+		post(id, -1);
+	}
+
+	@Command(command = "load", params = {Int.class, Int.class})
+	public void post(final Integer id, final Integer focusOn) {
+		Simple.checkNetworkConnection();
+
+//		new Notificator(Static.app_context).notifyNewComments("test", 12);
 
 		final StaticTextPart loading = new StaticTextPart();
 
@@ -77,6 +86,10 @@ public class PostCommands {
 					Static.bus.send(new Commands.Error("Ошибка при загрузке поста."));
 					Log.w("PageCommands", f);
 				}
+
+				if (focusOn != -1)
+					list.select(focusOn, 0);
+
 				Static.bus.unregister(page);
 				Static.last_page = page;
 
@@ -85,11 +98,5 @@ public class PostCommands {
 			}
 		}).start();
 	}
-
-	@Command(command = "create", params = {Int.class})
-	public void create() {
-
-	}
-
 
 }

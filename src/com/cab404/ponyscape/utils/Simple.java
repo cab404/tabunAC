@@ -1,6 +1,8 @@
 package com.cab404.ponyscape.utils;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Base64;
 import android.widget.Toast;
 import com.cab404.libtabun.data.Letter;
@@ -45,9 +47,20 @@ public class Simple {
 		try {
 			return Base64.encodeToString(MessageDigest.getInstance("MD5").digest(String.valueOf(str).getBytes(Charset.forName("UTF-8"))), Base64.URL_SAFE);
 		} catch (NoSuchAlgorithmException e) {
-			return "00000000000000000000000";
+			return "NO-MD-CAN-BE-CALCULATED";
 		}
+	}
+	public static void checkNetworkConnection() {
+		ConnectivityManager net =
+				(ConnectivityManager) Static.app_context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		for (NetworkInfo info : net.getAllNetworkInfo())
+			if (info.isAvailable() && info.isConnected())
+				return;
+
+		throw new NetworkNotFound();
 	}
 
 
+	public static class NetworkNotFound extends RuntimeException {}
 }

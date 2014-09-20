@@ -10,7 +10,7 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.events.Android;
 import com.cab404.ponyscape.bus.events.Parts;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.ViewSugar;
+import com.cab404.ponyscape.utils.views.ViewSugar;
 import com.cab404.sjbus.Bus;
 
 import java.util.Map;
