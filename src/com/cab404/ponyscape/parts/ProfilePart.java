@@ -101,7 +101,7 @@ public class ProfilePart extends Part {
 															),
 															0xff000000
 													),
-													3
+													2
 											),
 											bg_view.getWidth(),
 											bg_view.getHeight(),
@@ -156,13 +156,6 @@ public class ProfilePart extends Part {
 		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
 				Static.bus.send(new Commands.Run("votefor user " + profile.id + " -1"));
-			}
-		});
-
-		view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-				Static.img.download(profile.photo);
-				Static.img.download(profile.big_icon);
 			}
 		});
 

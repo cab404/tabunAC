@@ -33,7 +33,7 @@ public class BitmapMorph {
 				for (int rx = -level; rx <= level; rx++)
 					for (int ry = -level; ry <= level; ry++)
 						if (x + rx >= 0 && x + rx < w && y + ry >= 0 && y + ry < h) {
-							if (rx * rx + ry * ry <= q_level) {
+							if (rx + ry <= level || rx * rx + ry * ry <= q_level) {
 								count++;
 								int c = bitmap.getPixel(x + rx, y + ry);
 

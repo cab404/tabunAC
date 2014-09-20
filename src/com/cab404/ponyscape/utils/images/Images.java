@@ -82,11 +82,12 @@ public class Images {
 		List<File> files = new ArrayList<>(Arrays.asList(cacheDir.listFiles()));
 		Collections.sort(files, new Comparator<File>() {
 			@Override public int compare(File lhs, File rhs) {
-				return (int) (lhs.lastModified() - rhs.lastModified());
+				return (int) Math.signum(rhs.lastModified() - lhs.lastModified());
 			}
 		});
 		long limit = 0;
-		for (File file : cacheDir.listFiles()) {
+
+		for (File file : files) {
 			limit += file.length();
 			if (limit > file_cache) {
 				Calendar instance = Calendar.getInstance();
@@ -99,6 +100,7 @@ public class Images {
 					limit -= file.length();
 			}
 		}
+
 		Log.v("Images", "Очистка выполнена, в кэше оставлено " + limit + " байт картинок из " + file_cache + " разрешенных.");
 	}
 
