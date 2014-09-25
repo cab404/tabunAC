@@ -16,7 +16,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:id="@+id/switch_button">
+			android:id="@+id/switch_button"
+			android:visibility="invisible">
 		<ImageView
 				android:layout_width="32dp"
 				android:layout_height="32dp"
@@ -34,6 +35,13 @@
 	</LinearLayout>
 	<ImageView android:layout_width="32dp"
 	           android:layout_height="32dp"
+	           android:id="@+id/down"
+	           android:layout_gravity="center_vertical"
+	           android:src="@drawable/ic_down"
+	           android:layout_marginRight="8dp"
+	           android:padding="4dp"/>
+	<ImageView android:layout_width="32dp"
+	           android:layout_height="32dp"
 	           android:id="@+id/update"
 	           android:layout_gravity="center_vertical"
 	           android:src="@drawable/ic_update"
@@ -43,14 +51,7 @@
 	           android:layout_height="32dp"
 	           android:id="@+id/reply"
 	           android:layout_gravity="center_vertical"
-	           android:src="@drawable/ic_bar_pencil"
-	           android:layout_marginRight="8dp"
-	           android:padding="4dp"/>
-	<ImageView android:layout_width="32dp"
-	           android:layout_height="32dp"
-	           android:id="@+id/collapse_comments"
-	           android:layout_gravity="center_vertical"
-	           android:src="@drawable/ic_collapse"
+	           android:src="@drawable/ic_reply"
 	           android:layout_marginRight="8dp"
 	           android:padding="4dp"/>
 </LinearLayout>

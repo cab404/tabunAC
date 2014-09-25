@@ -70,6 +70,7 @@ public class EditorPart extends Part {
 
 			action.requestLayout();
 		}
+
 		if (plugins.length == 0) actions.setVisibility(View.GONE);
 
 		view.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
@@ -105,16 +106,23 @@ public class EditorPart extends Part {
 		protected abstract CharSequence getEnd();
 
 		@Override public void performAction(EditText text) {
-			if (!text.hasSelection()) return;
-
 			CharSequence start = getStart();
 			CharSequence end = getEnd();
-			int selectionEnd = text.getSelectionEnd();
-			int selectionStart = text.getSelectionStart();
+
+			int selectionStart;
+			int selectionEnd;
+			boolean sel = text.isSelected();
+
+			selectionEnd = text.getSelectionEnd();
+			selectionStart = text.getSelectionStart();
 
 			text.getText().insert(selectionEnd, end);
 			text.getText().insert(selectionStart, start);
-			text.setSelection(selectionStart, start.length() + end.length() + selectionEnd);
+
+			if (sel)
+				text.setSelection(selectionStart, start.length() + end.length() + selectionEnd);
+			else
+				text.setSelection(selectionStart + start.length());
 		}
 	}
 

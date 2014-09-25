@@ -2,7 +2,6 @@ package com.cab404.ponyscape.parts;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Blog;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
@@ -29,15 +28,10 @@ public class BlogPart extends Part {
 	public BlogPart(Blog blog) {this.blog = blog;}
 
 	@Bus.Handler
-	public void handleTitleImage(DataAcquired.Image.Loaded img) {
+	public void handleTitleImage(E.GotData.Image.Loaded img) {
 		if (img.src.equals(blog.icon)) {
-			int w = img.loaded.getWidth();
-			int h = img.loaded.getHeight();
 
-			long time_start = System.currentTimeMillis();
-			Log.v("TestBlur", "Starting blur on " + w + ":" + h + ", " + w * h + " pixels total.");
 			final Bitmap blurred = BitmapMorph.bevel(BitmapMorph.manualCopy(img.loaded), 8);
-			Log.v("TestBlur", "Finished blur on " + w + ":" + h + ", " + w * h + " pixels total in " + (System.currentTimeMillis() - time_start) + "ms");
 
 			Static.handler.post(new Runnable() {
 				public void run() {
@@ -53,7 +47,16 @@ public class BlogPart extends Part {
 
 		view = inflater.inflate(R.layout.part_blog, viewGroup, false);
 
+
 		((TextView) view.findViewById(R.id.title)).setText(SU.deEntity(blog.name));
+		if (blog.id != -1)
+			view.findViewById(R.id.create).setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					Static.bus.send(new E.Commands.Run("post write " + blog.id));
+				}
+			});
+		else
+			view.findViewById(R.id.create).setVisibility(View.GONE);
 
 		Static.img.download(blog.icon);
 

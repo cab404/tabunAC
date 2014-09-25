@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.cab404.ponyscape"
-          android:versionCode="1"
+          android:versionCode="2"
           android:versionName="@string/version">
 
-	<uses-sdk android:minSdkVersion="13"
+	<uses-sdk android:minSdkVersion="10"
 	          android:targetSdkVersion="19"/>
 
 	<uses-permission android:name="android.permission.INTERNET"/>
@@ -46,6 +46,7 @@
 		</activity>
 
 		<activity android:name="com.cab404.acli.PartActivity"
+		          android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
 		          android:theme="@style/Ponyscape.Dialog"
 		          android:label="@string/label_editor_activity"/>
 

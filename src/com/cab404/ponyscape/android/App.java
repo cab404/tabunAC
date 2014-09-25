@@ -7,9 +7,10 @@ import com.cab404.acli.PartActivity;
 import com.cab404.jconsol.CommandManager;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.commands.*;
-import com.cab404.ponyscape.utils.Settings;
+import com.cab404.ponyscape.utils.Pools;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.Images;
+import com.cab404.ponyscape.utils.state.Settings;
 import com.cab404.sjbus.Bus;
 
 import java.io.File;
@@ -36,6 +37,9 @@ public class App extends Application {
 		Static.handler = new Handler(getMainLooper());
 		Static.history = new ArrayList<>();
 		Static.cfg = Settings.load(this, "settings.bin");
+		Static.obscure = Settings.load(this, "obscure.cfg");
+		Static.pools = new Pools();
+
 
 		Static.img.reconfigure();
 		PartActivity.setup();
@@ -48,6 +52,7 @@ public class App extends Application {
 		Static.cm.register(MakeCommands.class);
 		Static.cm.register(UserCommands.class);
 		Static.cm.register(TalkCommands.class);
+		Static.cm.register(LikeCommands.class);
 
 	}
 

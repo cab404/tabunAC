@@ -99,7 +99,7 @@
 			<TextView
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:id="@+id/text"
+					android:id="@+id/title"
 					android:layout_gravity="left|top"
 					android:linksClickable="true"
 					android:text="Вы не должны этого видеть этот заголовок. И он очень, очень тленный."

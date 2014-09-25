@@ -9,10 +9,12 @@ import com.cab404.acli.Part;
 import com.cab404.libtabun.data.LetterLabel;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.Commands;
+import com.cab404.ponyscape.bus.AppContextExecutor;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.ViewSugar;
+import com.cab404.ponyscape.utils.views.ViewSugar;
+import com.cab404.sjbus.Bus;
 
 /**
  * Краткий заголовок письма.
@@ -21,6 +23,7 @@ import com.cab404.ponyscape.utils.ViewSugar;
  */
 public class LetterLabelPart extends Part {
 	private LetterLabel data;
+	private Context context;
 
 	public LetterLabelPart(LetterLabel label) {
 		this.data = label;
@@ -35,17 +38,14 @@ public class LetterLabelPart extends Part {
 	@ViewSugar.Bind(R.id.date)
 	private TextView date;
 
-	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
-		View view = inflater.inflate(R.layout.part_letter_label, viewGroup, false);
+	private boolean selected;
 
-		view.setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				Static.bus.send(new Commands.Run("mail load " + data.id));
-			}
-		});
+	private void select() {
+		selected = !selected;
+		view.getBackground().setAlpha(selected ? 150 : 255);
+	}
 
-		ViewSugar.bind(this, view);
-
+	private void updateNew() {
 		if (data.is_new)
 			view.setBackgroundColor(
 					context.getResources().getColor(R.color.bg_item_new)
@@ -54,11 +54,78 @@ public class LetterLabelPart extends Part {
 			view.setBackgroundColor(
 					context.getResources().getColor(R.color.bg_item)
 			);
+	}
 
-		label.setText(SU.drl(data.title));
+	@Bus.Handler
+	public void handleSelection(E.Letters.SelectAll e) {
+		selected = false;
+		select();
+	}
+
+	@Bus.Handler
+	public void hi(E.Letters.CallSelected e) {
+		if (selected)
+			e.ids.add(data.id);
+	}
+
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void handleDeletion(E.Letters.UpdateDeleted e) {
+		if (e.ids.contains(data.id))
+			delete();
+		else {
+			selected = true;
+			select();
+		}
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void handleRead(E.Letters.UpdateNew e) {
+		if (e.ids.contains(data.id)) {
+			data.is_new = false;
+			updateNew();
+		} else {
+			selected = true;
+			select();
+		}
+
+	}
+
+	View view;
+	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
+		Static.bus.register(this);
+		this.context = context;
+		view = inflater.inflate(R.layout.part_letter_label, viewGroup, false);
+
+		view.setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				E.Letters.CallSelected sel = new E.Letters.CallSelected();
+				Static.bus.send(sel);
+				if (sel.ids.isEmpty())
+					Static.bus.send(new E.Commands.Run("mail load " + data.id));
+				else
+					select();
+			}
+		});
+		view.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override public boolean onLongClick(View v) {
+				select();
+				return true;
+			}
+		});
+
+		ViewSugar.bind(this, view);
+		updateNew();
+
+		label.setText(SU.deEntity(data.title));
 		recipients.setText(Simple.buildRecipients(context, data));
 //		date.setText(DateUtils.convertToString(data.date, context));
 
 		return view;
+	}
+
+	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
+		super.onRemove(view, parent, context);
+		Static.bus.unregister(this);
 	}
 }

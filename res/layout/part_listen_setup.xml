@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@drawable/bg_part"
+              android:layout_margin="@dimen/external_margins"
+              android:padding="@dimen/internal_margins"
+		>
+
+	<TextView android:layout_width="wrap_content"
+	          android:layout_height="wrap_content"
+	          android:text="Добавить слушалку"
+	          android:layout_gravity="center_vertical"
+	          android:textSize="@dimen/title_text_size"
+	          android:textStyle="bold"
+	          android:drawableLeft="@drawable/ic_update"
+	          android:gravity="center_vertical"
+			/>
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Период обновления (секунд)"
+			android:layout_marginTop="20dp"/>
+	<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+		<SeekBar
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/update_period"
+				android:layout_weight="1"
+				android:indeterminate="false"/>
+		<TextView
+				android:layout_width="30dp"
+				android:layout_height="match_parent"
+				android:text="100"
+				android:id="@+id/update_period_label"
+				android:gravity="center_vertical|center_horizontal"
+				android:textSize="@dimen/small_text_size"/>
+	</LinearLayout>
+	<CheckBox
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Наблюдать только за ответами"
+			android:id="@+id/checkBox"
+			android:checked="true"
+			android:textSize="@dimen/primary_text_size"
+			android:textColor="@color/font_color"
+			android:layout_marginTop="20dp"/>
+	<Button
+			style="?android:attr/buttonStyleSmall"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@android:string/ok"
+			android:id="@+id/button2"
+			android:layout_gravity="right"/>
+</LinearLayout>

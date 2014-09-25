@@ -11,11 +11,10 @@ import com.cab404.libtabun.modules.TopicModule;
 import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.moonlight.framework.ModularBlockParser;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.*;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.Web;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -26,14 +25,14 @@ public class PageCommands {
 
 	@Command(command = "load", params = Str.class)
 	public void load(final String str) {
-		Web.checkNetworkConnection();
+		Simple.checkNetworkConnection();
 
 		final StaticTextPart loading = new StaticTextPart();
 		final String address = str.startsWith("/") ? str : "/blog/" + str;
 
-		Static.bus.send(new Parts.Clear());
-		Static.bus.send(new Parts.Add(loading));
-		loading.setText("Загружаю список...");
+		Static.bus.send(new E.Parts.Clear());
+		Static.bus.send(new E.Parts.Add(loading));
+		loading.setText("Загружаю страницу...");
 
 		Static.history.add("page load " + str);
 
@@ -52,41 +51,44 @@ public class PageCommands {
 						base.bind(new BlogModule(), BLOCK_BLOG_INFO);
 					}
 
+					private boolean letters = false;
 					@Override public void handle(final Object object, final int key) {
 						super.handle(object, key);
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
-								Static.bus.send(new Parts.Add(new TopicPart((Topic) object)));
+								Static.bus.send(new E.Parts.Add(new TopicPart((Topic) object)));
 								break;
 							case BLOCK_ERROR:
-								Static.bus.send(new Parts.Add(new ErrorPart((TabunError) object)));
+								Static.bus.send(new E.Parts.Add(new ErrorPart((TabunError) object)));
 								cancel();
 								break;
 							case BLOCK_PAGINATION:
-								Log.v("Page", "Paginator");
-								Static.bus.send(new Parts.Add(new PaginatorPart((Paginator) object)));
+								Static.bus.send(new E.Parts.Add(new PaginatorPart((Paginator) object)));
 								break;
 							case BLOCK_BLOG_INFO:
-								Static.bus.send(new Parts.Add(new BlogPart((Blog) object)));
+								Static.bus.send(new E.Parts.Add(new BlogPart((Blog) object)));
 								break;
 							case BLOCK_LETTER_LABEL:
-								Log.v("Page", "Label");
-								Static.bus.send(new Parts.Add(new LetterLabelPart((LetterLabel) object)));
+								if (!letters) {
+									letters = true;
+									Static.bus.send(new E.Parts.Add(new MailboxController()));
+								}
+								Static.bus.send(new E.Parts.Add(new LetterLabelPart((LetterLabel) object)));
 								break;
 						}
 					}
 
 					{Static.bus.register(this);}
 					@Bus.Handler
-					public void cancel(Commands.Abort abort) {
+					public void cancel(E.Commands.Abort abort) {
 						super.cancel();
-						Static.bus.send(new Parts.Remove(loading));
+						loading.delete();
 					}
 				};
 				try {
 					page.fetch(Static.user);
 				} catch (MoonlightFail f) {
-					Static.bus.send(new Commands.Error("Ошибка при загрузке страницы."));
+					Static.bus.send(new E.Commands.Error("Ошибка при загрузке страницы."));
 					Log.w("PageCommands", f);
 				}
 
@@ -95,9 +97,9 @@ public class PageCommands {
 
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
-						Static.bus.send(new Commands.Clear());
-						Static.bus.send(new Commands.Finished());
-						Static.bus.send(new Parts.Remove(loading));
+						Static.bus.send(new E.Commands.Clear());
+						Static.bus.send(new E.Commands.Finished());
+						loading.delete();
 					}
 				});
 			}

@@ -8,6 +8,7 @@
 		<shape>
 			<stroke android:color="@color/bg_item_shadow"
 			        android:width="4dp"/>
+			<solid android:color="#00000000"/>
 		</shape>
 	</item>
 

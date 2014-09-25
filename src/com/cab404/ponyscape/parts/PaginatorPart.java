@@ -12,7 +12,7 @@ import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Paginator;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.Commands;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class PaginatorPart extends Part {
 		else
 			view.findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					Static.bus.send(new Commands.Run("page load \"" + Uri.parse(paginator.prev_href).getPath() + "\""));
+					Static.bus.send(new E.Commands.Run("page load \"" + Uri.parse(paginator.prev_href).getPath() + "\""));
 				}
 			});
 
@@ -53,7 +53,7 @@ public class PaginatorPart extends Part {
 		else
 			view.findViewById(R.id.next).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					Static.bus.send(new Commands.Run("page load \"" + Uri.parse(paginator.next_hrev).getPath() + "\""));
+					Static.bus.send(new E.Commands.Run("page load \"" + Uri.parse(paginator.next_hrev).getPath() + "\""));
 				}
 			});
 
@@ -63,7 +63,7 @@ public class PaginatorPart extends Part {
 				int newPage = Integer.parseInt(v.getText().toString());
 				if (newPage > 0 && newPage <= paginator.maximum_page) {
 					List<String> segments = Uri.parse(paginator.next_hrev).getPathSegments();
-					Static.bus.send(new Commands.Run(
+					Static.bus.send(new E.Commands.Run(
 							"page load \"/"
 									+
 									SU.join(segments.subList(0, segments.size() - 1), "/") + "/page" + newPage + "\""));

@@ -1,15 +1,17 @@
 package com.cab404.ponyscape.parts;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Comment;
+import com.cab404.libtabun.data.Letter;
+import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.data.Type;
 import com.cab404.libtabun.requests.CommentAddRequest;
 import com.cab404.libtabun.requests.CommentEditRequest;
@@ -18,14 +20,11 @@ import com.cab404.libtabun.requests.RefreshCommentsRequest;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.Android;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataRequest;
-import com.cab404.ponyscape.bus.events.Parts;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
-import com.cab404.ponyscape.utils.views.animation.Anim;
 import com.cab404.sjbus.Bus;
 import org.json.simple.JSONObject;
 
@@ -35,11 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Когда с постами ещё можно обойтись LinearLayout, тут памяти просто не хватит. Так что адаптеры.
- *
  * @author cab404
  */
 public class CommentListPart extends Part {
+
 	/**
 	 * Список отступов комментариев.
 	 */
@@ -61,36 +59,16 @@ public class CommentListPart extends Part {
 	 */
 	private ViewGroup view;
 
-	/**
-	 * Не раскрыто ли дерево комментариев?
-	 */
-	private boolean topic_visible = true;
-
-	/**
-	 * Сохранённая высота блямбы раскрытия комментариев. Криво. Но работает. (Но криво)
-	 */
-	private int saved_height = 0;
-
-	/**
-	 * Связанный с нашим героем заголовок топика
-	 */
-	private Part part;
 	private final int id;
 	private final boolean isLetter;
-
-	/**
-	 * Блямба, на которую если нажать, то появятся комментарии.
-	 */
-	private View expand_view;
+	private Part topicPart;
 
 	/**
 	 * То, в чем лежат кнопки управления и пост.
 	 */
 	private View list_root;
 
-
-	public CommentListPart(Part part, int id, boolean isLetter) {
-		this.part = part;
+	public CommentListPart(int id, boolean isLetter) {
 		this.id = id;
 		this.isLetter = isLetter;
 		comments = new ArrayList<>();
@@ -98,18 +76,12 @@ public class CommentListPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onConfigChange(Android.RootSizeChanged e) {
-		if (!topic_visible) {
-			listView.invalidate();
-			DataRequest.ListSize size = new DataRequest.ListSize();
-			Static.bus.send(size);
-			list_root.getLayoutParams().height = expand_view.getLayoutParams().height = size.height;
-			view.requestLayout();
-		}
-
+	public void onConfigChange(E.Android.RootSizeChanged e) {
+		listView.invalidate();
+		view.requestLayout();
 	}
 
-	private int indexOf(int id) {
+	public int indexOf(int id) {
 
 		for (int i = 0; i < comments.size(); i++)
 			if (comments.get(i).id == id)
@@ -145,10 +117,28 @@ public class CommentListPart extends Part {
 		comments.add(comment);
 	}
 
+	public synchronized void add(Topic topic) {
+		View topic_view = ((TopicPart) (topicPart = new TopicPart(topic)))
+				.create(LayoutInflater.from(getContext()), listView, getContext());
+		// Отключаем переход по нажатию заголовка.
+		topic_view.findViewById(R.id.title).setOnClickListener(null);
+		listView.addHeaderView(topic_view);
+		listView.setAdapter(adapter);
+	}
+
+	public synchronized void add(Letter letter) {
+		View letter_view = ((LetterPart) (topicPart = new LetterPart(letter)))
+				.create(LayoutInflater.from(getContext()), listView, getContext());
+		// Отключаем переход по нажатию заголовка.
+		letter_view.findViewById(R.id.title).setOnClickListener(null);
+		listView.addHeaderView(letter_view);
+		listView.setAdapter(adapter);
+	}
+
 
 	public void update() {
 		if (listView != null)
-			((BaseAdapter) ((HeaderViewListAdapter) listView.getAdapter()).getWrappedAdapter()).notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		updateNew();
 	}
 
@@ -159,17 +149,35 @@ public class CommentListPart extends Part {
 		return max;
 	}
 
+	public void select(int index, int from) {
+		if (Build.VERSION.SDK_INT < 11)
+			listView.setSelectionFromTop(index + 1, 10);
+		else if (from > index || index - from < 10)
+			listView.smoothScrollToPositionFromTop(index + 1, 10);
+		else
+			listView.setSelectionFromTop(index + 1, 10);
+
+	}
+
+	/**
+	 * Переходит к следующему комментарию.
+	 */
+	private int last = 0;
 	private void move() {
 		update();
 		for (int i = 0; i < comments.size(); i++)
 			if (comments.get(i).is_new) {
 				comments.get(i).is_new = false;
-				listView.setSelectionFromTop(i, 10);
+				select(i, last);
+				last = i;
 				break;
 			}
 		updateNew();
 	}
 
+	/**
+	 * Обновляет список новых комментариев (не загружает их с сервера.)
+	 */
 	private void updateNew() {
 		int new_c = 0;
 		for (Comment comment : comments)
@@ -186,12 +194,18 @@ public class CommentListPart extends Part {
 		);
 	}
 
+	/**
+	 * Убирает все отметки новых комментариев.
+	 */
 	private void invalidateNew() {
 		for (Comment comment : comments)
 			comment.is_new = false;
 		update();
 	}
 
+	/**
+	 * Тянет новые комментарии с сервера
+	 */
 	public void refresh() {
 		new Thread("Update thread " + id) {
 			@Override public void run() {
@@ -200,7 +214,7 @@ public class CommentListPart extends Part {
 						new RefreshCommentsRequest(isLetter ? Type.TALK : Type.TOPIC, id, max_comment_id());
 				try {
 
-					request.exec(Static.user, Static.last_page);
+					request.exec(Static.user);
 
 					for (Comment comment : request.comments)
 						add(comment);
@@ -213,7 +227,15 @@ public class CommentListPart extends Part {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new Commands.Error("Не удалось обновить список комментариев."));
+					Static.bus.send(new E.Commands.Error("Не удалось обновить список комментариев."));
+				} finally {
+
+					Static.handler.post(new Runnable() {
+						@Override public void run() {
+							((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
+						}
+					});
+
 				}
 			}
 		}.start();
@@ -233,7 +255,7 @@ public class CommentListPart extends Part {
 				(comment == null ?
 						"Отвечаем в пост"
 						:
-						reply[((int) (Math.random() * reply.length))] + comment.author.login);
+						String.format(reply[((int) (Math.random() * reply.length))], comment.author.login));
 
 		EditorPart editorPart = new EditorPart(title, isEditing ? comment.text : "", new EditorPart.EditorActionHandler() {
 			@Override public boolean finished(final CharSequence text) {
@@ -269,20 +291,20 @@ public class CommentListPart extends Part {
 					@Override public void run() {
 						String msg = isEditing ? "Не удалось отредактировать комментарий." : "Не удалось добавить комментарий.";
 						try {
-							boolean success = request.exec(Static.user, Static.last_page).success();
+							boolean success = request.exec(Static.user).success();
 							msg = request.msg;
 
 							if (!success)
 								throw new MoonlightFail("breakout");
 							else {
-								Static.bus.send(new Commands.Success(msg));
+								Static.bus.send(new E.Commands.Success(msg));
 							}
 
 							refresh();
 
 						} catch (MoonlightFail f) {
-							Static.bus.send(new Commands.Error(msg));
-							Static.bus.send(new Parts.Run(new EditorPart(title, text, handler)));
+							Static.bus.send(new E.Commands.Error(msg));
+							Static.bus.send(new E.Parts.Run(new EditorPart(title, text, handler), true));
 						}
 					}
 				}).start();
@@ -294,100 +316,16 @@ public class CommentListPart extends Part {
 			}
 		});
 
-		Static.bus.send(new Parts.Run(editorPart));
+		Static.bus.send(new E.Parts.Run(editorPart, true));
 
 	}
 
-	private void hideTree() {
-		if (topic_visible) return;
-		topic_visible = true;
-
-						/* Включаем обратно скролл и комманд-бар*/
-		Static.bus.send(new Parts.Collapse());
-
-						/* Показываем вьюху раскрытия */
-		Anim.fadeIn(expand_view, 200);
-						/* Выносим прозрачность у дерева, чтобы потом убить его в ноль и менять высоту одного expand_view */
-		Anim.fadeOut(list_root, 100, new Runnable() {
-			@Override public void run() {
-				list_root.setVisibility(View.GONE);
-				expand_view.setVisibility(View.VISIBLE);
-				Anim.resize(
-						expand_view,
-						saved_height,
-						-1,
-						100,
-						new Runnable() {
-							@Override public void run() {
-								topic_visible = true;
-								Static.bus.send(new Parts.Show(part));
-							}
-						}
-				);
-
-			}
-		});
-
-	}
-
-	private void showTree() {
-		if (!topic_visible) return;
-		topic_visible = false;
-
-		DataRequest.ListSize height = new DataRequest.ListSize();
-		Static.bus.send(height);
-		final int heightPixels = height.height;
-
-		Static.bus.send(new Parts.Hide(part));
-		saved_height = expand_view.getHeight();
-		Static.bus.send(new Parts.Expand());
-
-
-		Anim.fadeOut(expand_view, 200);
-		Anim.resize(
-				expand_view,
-				heightPixels,
-				-1,
-				200,
-				new Runnable() {
-					@Override public void run() {
-						list_root.setVisibility(View.VISIBLE);
-						expand_view.setVisibility(View.GONE);
-
-						list_root.getLayoutParams().height = expand_view.getLayoutParams().height;
-						view.requestLayout();
-
-						Anim.fadeIn(list_root, 200, new Runnable() {
-							@Override public void run() {
-								Log.v("CommentListPart", "Expand finished.");
-							}
-						});
-					}
-				}
-		);
-	}
-
+	@SuppressLint("NewApi")
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
 
-		expand_view = view.findViewById(R.id.expand_comments);
-		list_root = view.findViewById(R.id.comment_list_root);
-
-		/* Раскрытие дерева комментариев */
-		expand_view.setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View onClick) {
-				showTree();
-			}
-		});
-
-		/* Скрытие дерева комментариев */
-		view.findViewById(R.id.collapse_comments).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View onClick) {
-				hideTree();
-			}
-		});
 		view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
 				comment(null, false);
@@ -400,10 +338,19 @@ public class CommentListPart extends Part {
 		});
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
+				((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.anim_luna); // показываем, что грузим комментарии
 				invalidateNew();
 				refresh();
 			}
 		});
+
+		view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				select(comments.size(), -500);
+			}
+		});
+
+		view.findViewById(R.id.bar).getBackground().setAlpha(150);
 
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
@@ -412,11 +359,13 @@ public class CommentListPart extends Part {
 
 		adapter = new CommentListAdapter(context);
 		listView.addFooterView(footer);
-		listView.setAdapter(adapter);
+//		listView.setAdapter(adapter);
 
 		/* Fadein-аем */
-		view.setAlpha(0);
-		view.animate().alpha(1).setDuration(200);
+		if (Build.VERSION.SDK_INT >= 12) {
+			view.setAlpha(0);
+			view.animate().alpha(1).setDuration(200);
+		}
 
 		return view;
 	}
@@ -426,10 +375,14 @@ public class CommentListPart extends Part {
 
 		Static.bus.unregister(this);
 
-		Static.bus.send(new Parts.Collapse());
+		Static.bus.send(new E.Parts.Collapse());
 
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
+		if (topicPart instanceof LetterPart)
+			((LetterPart) topicPart).onRemove(null, null, null);
+		if (topicPart instanceof TopicPart)
+			((TopicPart) topicPart).onRemove(null, null, null);
 	}
 
 	/**
@@ -510,9 +463,11 @@ public class CommentListPart extends Part {
 			};
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);
-			left_margin.setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View v) {
-					listView.smoothScrollToPositionFromTop(indexOf(comment.parent), 10);
+			left_margin.setOnClickListener(shiftInvoker);
+			left_margin.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override public boolean onLongClick(View v) {
+					select(indexOf(comment.parent), indexOf(comment.id));
+					return true;
 				}
 			});
 
@@ -534,11 +489,7 @@ public class CommentListPart extends Part {
 			view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
 
 			/* Заморочисто ставим фон правого марджина */
-			if (Build.VERSION.SDK_INT >= 16) {
-				left_margin.setBackground(level_indicator);
-			} else {
-				left_margin.setBackgroundDrawable(level_indicator);
-			}
+			left_margin.setBackgroundDrawable(level_indicator);
 
 			/* Ставим слушалки на кнопки */
 			view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
@@ -555,4 +506,5 @@ public class CommentListPart extends Part {
 			return view;
 		}
 	}
+
 }

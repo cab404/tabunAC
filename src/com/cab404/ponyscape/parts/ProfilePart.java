@@ -3,18 +3,22 @@ package com.cab404.ponyscape.parts;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.cab404.acli.FragmentedList;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Profile;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.AppContextExecutor;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.ViewSugar;
 import com.cab404.ponyscape.utils.images.BitmapMorph;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
+import com.cab404.ponyscape.utils.views.ViewSugar;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -29,6 +33,8 @@ public class ProfilePart extends Part {
 	TextView ratin;
 
 	private final Profile profile;
+	private HtmlRipper ripper;
+
 
 	public ProfilePart(Profile profile) {
 		this.profile = profile;
@@ -36,12 +42,11 @@ public class ProfilePart extends Part {
 
 
 	@Bus.Handler
-	public void handleImages(final DataAcquired.Image.Loaded image) {
+	public void handleImages(final E.GotData.Image.Loaded image) {
 
 		if (image.src.equals(profile.big_icon)) {
-			new Thread(new Runnable() {
+			Static.pools.img_oper.execute(new Runnable() {
 				@Override public void run() {
-					Bitmap loaded = image.loaded;
 					final ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
 
 					int bevel = getContext().getResources().getDimensionPixelSize(R.dimen.corner_cut);
@@ -49,11 +54,10 @@ public class ProfilePart extends Part {
 					final Bitmap bitmap = BitmapMorph.bevel(
 							BitmapMorph.background(
 									BitmapMorph.manualCopy(
-											Bitmap.createScaledBitmap(
-													image.loaded,
+											Static.img.scale(
+													image,
 													avatar.getWidth(),
-													avatar.getHeight(),
-													true
+													avatar.getHeight()
 											)
 									),
 									0x44ffffff),
@@ -67,12 +71,12 @@ public class ProfilePart extends Part {
 							}
 					);
 				}
-			}).start();
+			});
 		}
 
 
 		if (image.src.equals(profile.photo)) {
-			new Thread(new Runnable() {
+			Static.pools.img_oper.execute(new Runnable() {
 				@Override public void run() {
 					final ImageView bg_view = (ImageView) view.findViewById(R.id.background);
 					Bitmap bg;
@@ -86,20 +90,22 @@ public class ProfilePart extends Part {
 
 					bg =
 							BitmapMorph.bevel(
-									Bitmap.createScaledBitmap(
-											BitmapMorph.blur(
-													BitmapMorph.tint(
-															BitmapMorph.cut(
-																	bg,
-																	new Rect(0, y, width, y + height)
+									Static.img.scale(
+											new E.GotData.Image.Loaded(
+													BitmapMorph.blur(
+															BitmapMorph.tint(
+																	BitmapMorph.cut(
+																			bg,
+																			new Rect(0, y, width, y + height)
+																	),
+																	0xff000000
 															),
-															0xff000000
+															2
 													),
-													3
+													image.src + "#blur2"
 											),
 											bg_view.getWidth(),
-											bg_view.getHeight(),
-											true
+											bg_view.getHeight()
 									),
 									bevel);
 
@@ -113,10 +119,18 @@ public class ProfilePart extends Part {
 							}
 					);
 				}
-			}).start();
+			});
 
 		}
 
+	}
+
+	@Bus.Handler(executor = AppContextExecutor.class)
+	public void onVoted(E.GotData.Vote.User e) {
+		if (e.id == profile.id) {
+			profile.votes = e.votes;
+			((TextView) view.findViewById(R.id.rating)).setText(profile.votes + "");
+		}
 	}
 
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
@@ -124,19 +138,41 @@ public class ProfilePart extends Part {
 		ViewSugar.bind(this, view);
 		Static.bus.register(this);
 
-		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
+		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.data));
+		ripper.escape(profile.about);
+
 		((TextView) view.findViewById(R.id.name)).setText(profile.name);
+		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
+		((TextView) view.findViewById(R.id.rating)).setText(profile.votes + "");
+		((TextView) view.findViewById(R.id.strength)).setText(profile.strength + "");
 
-
-
-		view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-				Static.img.download(profile.photo);
-				Static.img.download(profile.big_icon);
+		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				Static.bus.send(new E.Commands.Run("votefor user " + profile.id + " 1"));
 			}
 		});
 
+		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				Static.bus.send(new E.Commands.Run("votefor user " + profile.id + " -1"));
+			}
+		});
+
+		if (Build.VERSION.SDK_INT >= 11)
+			view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+					Static.img.download(profile.photo);
+					Static.img.download(profile.big_icon);
+				}
+			});
+
 		return view;
+	}
+
+	@Override protected void onInsert(FragmentedList parent) {
+		super.onInsert(parent);
+//		Static.img.download(profile.photo);
+//		Static.img.download(profile.big_icon);
 	}
 
 	@Override protected void onRemove(View view, ViewGroup parent, Context context) {

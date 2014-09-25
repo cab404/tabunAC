@@ -4,9 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.util.SparseArray;
 import com.cab404.moonlight.util.SU;
-import com.cab404.ponyscape.bus.events.DataAcquired;
+import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.text.DateUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -14,9 +17,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
 import java.lang.ref.Reference;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.lang.ref.WeakReference;
+import java.util.*;
 
 /**
  * @author cab404
@@ -24,9 +26,11 @@ import java.util.Map;
 public class Images {
 	private HashSet<String> loading;
 	private Map<String, Reference<Bitmap>> cache;
+	private Map<String, SparseArray<Reference<Bitmap>>> scaled;
 	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
 	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
 	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
+	public static final String DOWNSCALE_IMAGES_CFG_ENTRY = "images.downscale";
 
 	private File cacheDir;
 	private long cut, file_cache;
@@ -42,26 +46,80 @@ public class Images {
 		this.cacheDir = cacheDir;
 
 		cache = new HashMap<>();
+		scaled = new HashMap<>();
 		loading = new HashSet<>();
 	}
 
 	public void reconfigure() {
 		load_blocked = Static.cfg.ensure(LOAD_BLOCK_CFG_ENTRY, false);
 		file_cache = Static.cfg.ensure(FILE_CACHE_LIMIT_CFG_ENTRY, 30L * 1024L * 1024L);
-		cut = Static.cfg.ensure(LIMIT_CFG_ENTRY, 3000000L);
+		cut = Static.cfg.ensure(LIMIT_CFG_ENTRY, 3L * 1024L * 1024L);
 
+		Static.cfg.ensure(DOWNSCALE_IMAGES_CFG_ENTRY, true);
+
+		clear();
 	}
 
-	public synchronized void download(final String src) {
+	public synchronized Bitmap scale(E.GotData.Image.Loaded loaded, int w, int h) {
+		if (scaled.containsKey(loaded.src))
+			scaled.put(loaded.src, new SparseArray<Reference<Bitmap>>());
+
+		SparseArray<Reference<Bitmap>> versions = scaled.get(loaded.src);
+		final int encoded_size = (w << 16) | h;
+
+		if (versions == null) {
+			versions = new SparseArray<>();
+			scaled.put(loaded.src, versions);
+		}
+		if (versions.get(encoded_size) != null)
+			return versions.get(encoded_size).get();
+
+		final Bitmap scaled = Bitmap.createScaledBitmap(loaded.loaded, w, h, true);
+		versions.put(encoded_size, new WeakReference<>(scaled));
+		return scaled;
+	}
+
+	public void clear() {
+		List<File> files = new ArrayList<>(Arrays.asList(cacheDir.listFiles()));
+		Collections.sort(files, new Comparator<File>() {
+			@Override public int compare(File lhs, File rhs) {
+				return (int) Math.signum(rhs.lastModified() - lhs.lastModified());
+			}
+		});
+		long limit = 0;
+
+		for (File file : files) {
+			limit += file.length();
+			if (limit > file_cache) {
+				Calendar instance = Calendar.getInstance();
+				instance.clear();
+				instance.setTimeInMillis(file.lastModified());
+				Log.v("Images", "Удаляю " + file.getName() + ", последнее изменение " + DateUtils.convertToString(instance, Static.app_context));
+				if (!file.delete())
+					Log.wtf("Images", "Не удалось удалить изображение из кэша!");
+				else
+					limit -= file.length();
+			}
+		}
+
+		Log.v("Images", "Очистка выполнена, в кэше оставлено " + limit + " байт картинок из " + file_cache + " разрешенных.");
+	}
+
+	public synchronized void download(String in) {
+		if (in.contains("poniez.net"))
+			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
+
+		final String src = in;
+
 		if (load_blocked) {
-			Static.bus.send(new DataAcquired.Image.Error(src));
+			Static.bus.send(new E.GotData.Image.Error(src));
 			return;
 		}
 
 		/* Смотрим в кэше. */
 		if (cache.containsKey(src) && cache.get(src).get() != null) {
 			Log.v("ImageLoader", "Got " + src + " from cache");
-			Static.bus.send(new DataAcquired.Image.Loaded(cache.get(src).get(), src));
+			Static.bus.send(new E.GotData.Image.Loaded(cache.get(src).get(), src));
 			return;
 		}
 
@@ -75,7 +133,7 @@ public class Images {
 			@Override public void run() {
 				try {
 
-					File file = new File(cacheDir, SU.rl(src));
+					File file = new File(cacheDir, Simple.md5(src));
 					BitmapFactory.Options opt = new BitmapFactory.Options();
 					opt.inPurgeable = true;
 
@@ -121,7 +179,6 @@ public class Images {
 						byte[] buf = new byte[16 * 1024]; // 16K should be enough for everything
 
 						int read;
-						int progress = 0;
 						while ((read = upstream.read(buf)) > 0) {
 							file_cache.write(buf, 0, read);
 						}
@@ -144,15 +201,15 @@ public class Images {
 						return;
 					}
 
-					Static.bus.send(new DataAcquired.Image.Loaded(bitmap, src));
+					Static.bus.send(new E.GotData.Image.Loaded(bitmap, src));
 
 
 //					handler.handleBitmap(src, bitmap);
 
 					// Используем крайние меры отлова бродячих ошибок.
 				} catch (Throwable e) {
-					Log.e("Images", "Не могу загрузить картинку из" + src, e);
-					Static.bus.send(new DataAcquired.Image.Error(src));
+					Log.e("Images", "Не могу загрузить картинку из " + src, e);
+					Static.bus.send(new E.GotData.Image.Error(src));
 				}
 				loading.remove(src);
 

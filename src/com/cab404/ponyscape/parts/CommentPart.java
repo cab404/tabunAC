@@ -7,15 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.cab404.acli.Part;
-import com.cab404.libtabun.data.Comment;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.DataAcquired;
-import com.cab404.ponyscape.utils.DateUtils;
-import com.cab404.ponyscape.utils.HtmlRipper;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.views.animation.Anim;
+import com.cab404.ponyscape.utils.animation.Anim;
+import com.cab404.ponyscape.utils.text.DateUtils;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -25,11 +23,11 @@ public class CommentPart extends Part {
 
 	private final boolean isLetter;
 	private CharSequence text = null;
-	public final Comment comment;
+	public final com.cab404.libtabun.data.Comment comment;
 	private HtmlRipper ripper;
 
 	View view;
-	public CommentPart(Comment comment, boolean isLetter) {
+	public CommentPart(com.cab404.libtabun.data.Comment comment, boolean isLetter) {
 		this.isLetter = isLetter;
 		Static.bus.register(this);
 		this.comment = comment;
@@ -43,6 +41,7 @@ public class CommentPart extends Part {
 
 	public void convert(final View view, Context context) {
 		this.view = view;
+
 		view.findViewById(R.id.footer).setVisibility(View.GONE);
 
 		if (ripper == null) {
@@ -61,35 +60,35 @@ public class CommentPart extends Part {
 		if (!isLetter) {
 			view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Static.bus.send(new Commands.Run("votefor comment " + comment.id + " +1"));
+					Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " +1"));
 				}
 			});
 
 			view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Static.bus.send(new Commands.Run("votefor comment " + comment.id + " -1"));
+					Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " -1"));
 				}
 			});
 
 		}
 
-		view.findViewById(R.id.favourite).setVisibility(View.GONE);
+		view.findViewById(R.id.favourite).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				if (comment.in_favs = !comment.in_favs) {
+					Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " +"));
+				} else {
+					Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " -"));
+				}
+			}
+		});
+
+//		view.findViewById(R.id.favourite).setVisibility(View.GONE);
 		if (isLetter) {
 			view.findViewById(R.id.plus).setVisibility(View.GONE);
 			view.findViewById(R.id.edit).setVisibility(View.GONE);
 			view.findViewById(R.id.minus).setVisibility(View.GONE);
 			view.findViewById(R.id.rating).setVisibility(View.GONE);
 		}
-
-//		view.findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
-//			@Override public void onClick(View v) {
-//				View foo = view.findViewById(R.id.footer);
-//				if (foo.getVisibility() == View.GONE)
-//					foo.setVisibility(View.VISIBLE);
-//				else
-//					foo.setVisibility(View.GONE);
-//			}
-//		});
 
 		if (comment.is_new)
 			view.findViewById(R.id.root)
@@ -103,6 +102,8 @@ public class CommentPart extends Part {
 					);
 
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
+
+
 	}
 
 	public void kill() {
@@ -112,7 +113,7 @@ public class CommentPart extends Part {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(DataAcquired.CommentVote vote) {
+	public void handleVoteChange(E.GotData.Vote.Comment vote) {
 		if (comment.id == vote.id) {
 			comment.votes = vote.votes;
 			final TextView rating = (TextView) view.findViewById(R.id.rating);

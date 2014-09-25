@@ -29,6 +29,7 @@
 		          android:id="@+id/date"
 		          android:textSize="@dimen/small_text_size"
 		          android:textColor="@color/bg_item_shadow"
-		          android:layout_gravity="right"/>
+		          android:layout_gravity="right"
+		          android:visibility="gone"/>
 	</LinearLayout>
 </RelativeLayout>

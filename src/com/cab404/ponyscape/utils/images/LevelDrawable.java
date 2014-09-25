@@ -70,6 +70,7 @@ public class LevelDrawable extends Drawable {
 			canvas.drawRect(i * section_size, 0, (i + 1) * section_size, height, level);
 
 		}
+
 	}
 
 	@Override public void setAlpha(int alpha) {

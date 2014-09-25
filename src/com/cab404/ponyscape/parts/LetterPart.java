@@ -9,11 +9,10 @@ import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Letter;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.events.Commands;
-import com.cab404.ponyscape.bus.events.Parts;
-import com.cab404.ponyscape.utils.HtmlRipper;
+import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
 
 /**
  * @author cab404
@@ -32,7 +31,7 @@ public class LetterPart extends Part {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
-		((TextView) view.findViewById(R.id.text))
+		((TextView) view.findViewById(R.id.title))
 				.setText(SU.deEntity(letter.title));
 
 		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
@@ -68,19 +67,19 @@ public class LetterPart extends Part {
 
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor post " + letter.id + " 1"));
+				Static.bus.send(new E.Commands.Run("votefor post " + letter.id + " 1"));
 			}
 		});
 
 		view.findViewById(R.id.zero).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor post " + letter.id + " 0"));
+				Static.bus.send(new E.Commands.Run("votefor post " + letter.id + " 0"));
 			}
 		});
 
 		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
-				Static.bus.send(new Commands.Run("votefor post " + letter.id + " -1"));
+				Static.bus.send(new E.Commands.Run("votefor post " + letter.id + " -1"));
 			}
 		});
 
@@ -92,7 +91,7 @@ public class LetterPart extends Part {
 					.append('\n')
 					.append(letter.comments)
 					.append(" ")
-					.append(context.getResources().getQuantityString(R.plurals.Mail_Label_Comments, letter.comments));
+					.append(context.getResources().getQuantityString(R.plurals.comments, letter.comments));
 			if (letter.comments_new != 0)
 				info
 						.append(", ")
@@ -104,6 +103,8 @@ public class LetterPart extends Part {
 
 		((TextView) view.findViewById(R.id.id)).setText(info);
 
+
+		view.findViewById(R.id.favourite).setVisibility(View.GONE);
 
 //		view.setAlpha(0);
 //		view.animate().alpha(1).setDuration(200);
@@ -122,11 +123,11 @@ public class LetterPart extends Part {
 	public void hide() {
 //		initial_height = view.getHeight();
 //		Anim.resize(view, 0, -1, 200, null);
-		Static.bus.send(new Parts.Hide(this));
+		Static.bus.send(new E.Parts.Hide(this));
 	}
 
 	public void show() {
-		Static.bus.send(new Parts.Show(this));
+		Static.bus.send(new E.Parts.Show(this));
 //		Anim.resize(view, initial_height, -1, 200, new Runnable() {
 //			@Override public void run() {
 //				view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
