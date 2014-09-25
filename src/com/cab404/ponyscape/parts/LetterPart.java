@@ -91,7 +91,7 @@ public class LetterPart extends Part {
 					.append('\n')
 					.append(letter.comments)
 					.append(" ")
-					.append(context.getResources().getQuantityString(R.plurals.Mail_Label_Comments, letter.comments));
+					.append(context.getResources().getQuantityString(R.plurals.comments, letter.comments));
 			if (letter.comments_new != 0)
 				info
 						.append(", ")
@@ -103,6 +103,8 @@ public class LetterPart extends Part {
 
 		((TextView) view.findViewById(R.id.id)).setText(info);
 
+
+		view.findViewById(R.id.favourite).setVisibility(View.GONE);
 
 //		view.setAlpha(0);
 //		view.animate().alpha(1).setDuration(200);

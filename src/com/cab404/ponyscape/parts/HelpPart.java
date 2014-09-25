@@ -1,36 +1,49 @@
 package com.cab404.ponyscape.parts;
 
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import com.cab404.acli.Part;
 import com.cab404.jconsol.CommandHolder;
-import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
 
 /**
- * Список команд, генерируется автоматически.
- *
  * @author cab404
  */
+public class HelpPart extends Part {
 
-public class HelpPart extends AbstractTextPart {
+	HtmlRipper ripper;
 
+	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
+		LinearLayout data = new LinearLayout(context);
+		data.setBackgroundResource(R.drawable.bg_part);
 
-	@Override protected CharSequence getText() {
+		int padding = context.getResources().getDimensionPixelOffset(R.dimen.internal_margins);
+		data.setPadding(padding, padding, padding, padding);
 
-		StringBuilder data = new StringBuilder();
+		StringBuilder commands = new StringBuilder();
 		for (CommandHolder h : Static.cm.registered()) {
-			data
+			commands
 					.append((h.prefix + " " + h.annnotation.command()).trim()).append(" ");
 			for (Class clazz : h.annnotation.params()) {
-				data.append(clazz.getSimpleName()).append(" ");
+				commands.append(clazz.getSimpleName()).append(" ");
 			}
-			data.append("\n");
+			commands.append("\n");
 		}
-		data.deleteCharAt(data.length() - 1);
-		return data;
+		commands.deleteCharAt(commands.length() - 1);
 
+		ripper = new HtmlRipper(data);
+		ripper.escape(context.getString(R.string.help) + "\n\n" + commands + "\n");
+
+		return data;
 	}
 
-	@Override public void onClick(View view) {
-		Static.bus.send(new E.Parts.Remove(this));
+	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
+		super.onRemove(view, parent, context);
+		ripper.destroy();
 	}
 }

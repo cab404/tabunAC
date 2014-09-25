@@ -37,6 +37,7 @@ public class App extends Application {
 		Static.handler = new Handler(getMainLooper());
 		Static.history = new ArrayList<>();
 		Static.cfg = Settings.load(this, "settings.bin");
+		Static.obscure = Settings.load(this, "obscure.cfg");
 		Static.pools = new Pools();
 
 
@@ -51,6 +52,7 @@ public class App extends Application {
 		Static.cm.register(MakeCommands.class);
 		Static.cm.register(UserCommands.class);
 		Static.cm.register(TalkCommands.class);
+		Static.cm.register(LikeCommands.class);
 
 	}
 

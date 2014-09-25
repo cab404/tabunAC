@@ -10,10 +10,10 @@ import com.cab404.acli.Part;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
-import com.cab404.ponyscape.utils.text.DateUtils;
-import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
+import com.cab404.ponyscape.utils.text.DateUtils;
+import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -72,7 +72,17 @@ public class CommentPart extends Part {
 
 		}
 
-		view.findViewById(R.id.favourite).setVisibility(View.GONE);
+		view.findViewById(R.id.favourite).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				if (comment.in_favs = !comment.in_favs) {
+					Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " +"));
+				} else {
+					Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " -"));
+				}
+			}
+		});
+
+//		view.findViewById(R.id.favourite).setVisibility(View.GONE);
 		if (isLetter) {
 			view.findViewById(R.id.plus).setVisibility(View.GONE);
 			view.findViewById(R.id.edit).setVisibility(View.GONE);

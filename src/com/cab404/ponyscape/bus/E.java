@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import com.cab404.acli.Part;
 
+import java.util.ArrayList;
+
 /**
  * E is for events!
  *
@@ -16,6 +18,8 @@ public class E {
 	 */
 	public static class Aliases {
 
+		private Aliases() {}
+
 		public static class Update { }
 
 	}
@@ -24,6 +28,7 @@ public class E {
 	 * @author cab404
 	 */
 	public static class Android {
+		private Android() {}
 
 		public static class RootSizeChanged { }
 
@@ -55,6 +60,7 @@ public class E {
 	 * @author cab404
 	 */
 	public static class Commands {
+		private Commands() {}
 
 		/**
 		 * Запускает команду, или добавляет её в очередь выполнения.
@@ -65,6 +71,11 @@ public class E {
 				this.command = command;
 			}
 		}
+
+		/**
+		 * Запускает крутилку
+		 */
+		public static class Loading { }
 
 		/**
 		 * Снимает блокировку ввода, добавляемую работающей командой.
@@ -107,6 +118,8 @@ public class E {
 	 * @author cab404
 	 */
 	public static class DataRequest {
+		private DataRequest() {}
+
 		public static class ListSize {
 			public int width, height;
 		}
@@ -116,11 +129,12 @@ public class E {
 	 * @author cab404
 	 */
 	public static class GotData {
+		private GotData() {}
 
 		public static class Vote {
 
 			public final int id, votes;
-			public Vote(int id, int votes) {
+			private Vote(int id, int votes) {
 				this.id = id;
 				this.votes = votes;
 			}
@@ -171,12 +185,24 @@ public class E {
 	 * @author cab404
 	 */
 	public static class Letters {
+		private Letters() {}
+
 
 		/**
 		 * Массовые действия над письмами ;D
 		 */
-		public enum MassEffect {
-			DELETE, READ, SELECT
+		public static class SelectAll { }
+
+		public static class CallSelected {
+			public ArrayList<Integer> ids = new ArrayList<>();
+		}
+
+		public static class UpdateNew {
+			public ArrayList<Integer> ids = new ArrayList<>();
+		}
+
+		public static class UpdateDeleted {
+			public ArrayList<Integer> ids = new ArrayList<>();
 		}
 
 	}
@@ -252,7 +278,8 @@ public class E {
 		public static class Run {
 			public final Part part;
 			public final boolean floating;
-			public Run(Part part, boolean floating) {this.part = part;
+			public Run(Part part, boolean floating) {
+				this.part = part;
 				this.floating = floating;
 			}
 		}

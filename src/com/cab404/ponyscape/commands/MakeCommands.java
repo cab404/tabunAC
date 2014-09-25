@@ -1,7 +1,5 @@
 package com.cab404.ponyscape.commands;
 
-import android.content.Intent;
-import com.cab404.acli.PartActivity;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
@@ -24,13 +22,8 @@ public class MakeCommands {
 		Static.bus.send(new E.Aliases.Update());
 		Static.bus.send(new E.Commands.Clear());
 		Static.bus.send(new E.Commands.Finished());
-
 	}
 
-	@SuppressWarnings("unchecked")
-	@Command(command = "editor")
-	public void editor() {
-		Static.bus.send(new E.Android.StartActivity(new Intent(Static.app_context, PartActivity.class)));
-	}
+
 
 }

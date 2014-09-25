@@ -16,7 +16,7 @@ import java.io.*;
  */
 public class Settings {
 
-	public final JSONObject data;
+	public JSONObject data;
 	private File file;
 
 	private Settings(JSONObject data, File file) {

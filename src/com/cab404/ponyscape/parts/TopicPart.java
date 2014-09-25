@@ -22,6 +22,7 @@ import com.cab404.sjbus.Bus;
 /**
  * @author cab404
  */
+
 public class TopicPart extends Part {
 
 	public final com.cab404.libtabun.data.Topic topic;
@@ -32,7 +33,7 @@ public class TopicPart extends Part {
 	}
 	private HtmlRipper ripper;
 
-	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
+	 @Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
@@ -69,6 +70,7 @@ public class TopicPart extends Part {
 						+ " в блоге '" + SU.deEntity(topic.blog.name)
 						+ "'" + ", " + DateUtils.convertToString(topic.date, context));
 
+
 		// Для бегущей строки.
 		view.findViewById(R.id.data)
 				.setSelected(true);
@@ -76,26 +78,45 @@ public class TopicPart extends Part {
 		((TextView) view.findViewById(R.id.rating))
 				.setText(topic.votes);
 
+		if (!"?".equals(topic.votes)) {
+			disableVotes();
+		}
+
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
 				Static.bus.send(new E.Commands.Run("votefor post " + topic.id + " 1"));
+				disableVotes();
 			}
 		});
+
 
 		view.findViewById(R.id.zero).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
 				Static.bus.send(new E.Commands.Run("votefor post " + topic.id + " 0"));
+				disableVotes();
 			}
 		});
 
 		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
 				Static.bus.send(new E.Commands.Run("votefor post " + topic.id + " -1"));
+				disableVotes();
 			}
 		});
 
+		view.findViewById(R.id.favourite).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				if (topic.in_favourites = !topic.in_favourites) {
+					Static.bus.send(new E.Commands.Run("fav post " + topic.id + " +"));
+				} else {
+					Static.bus.send(new E.Commands.Run("fav post " + topic.id + " -"));
+				}
+			}
+		});
+
+
 		((TextView) view.findViewById(R.id.tags))
-				.setText(SU.deEntity(SU.join(topic.tags, ", ")));
+				.setText(SU.deEntity(SU.join(topic.tags, ", ").toString()));
 
 		StringBuilder info = new StringBuilder("#" + topic.id);
 
@@ -104,7 +125,7 @@ public class TopicPart extends Part {
 					.append('\n')
 					.append(topic.comments)
 					.append(" ")
-					.append(context.getResources().getQuantityString(R.plurals.Mail_Label_Comments, topic.comments));
+					.append(context.getResources().getQuantityString(R.plurals.comments, topic.comments));
 			if (topic.comments_new != 0)
 				info
 						.append(", ")
@@ -121,6 +142,12 @@ public class TopicPart extends Part {
 //		view.animate().alpha(1).setDuration(200);
 
 		return view;
+	}
+
+	private void disableVotes() {
+		view.findViewById(R.id.minus).setVisibility(View.GONE);
+		view.findViewById(R.id.zero).setVisibility(View.GONE);
+		view.findViewById(R.id.plus).setVisibility(View.GONE);
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)

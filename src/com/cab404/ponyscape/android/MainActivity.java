@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -86,7 +87,7 @@ public class MainActivity extends AbstractActivity {
 		updateAliasList();
 
 		/* Пытаемся подгрузить юзверя из файла. */
-		Object o = Static.cfg.get("main.profile");
+		Object o = Static.obscure.get("main.profile");
 		if (o != null)
 			Static.user = TabunAccessProfile.parseString((String) o);
 
@@ -95,6 +96,9 @@ public class MainActivity extends AbstractActivity {
 
         /* Убираем меню ссылок */
 		hideAliases(0);
+
+		/* Делаем бар полупрозрачным */
+		line.getBackground().setAlpha(200);
 
 		if (Build.VERSION.SDK_INT >= 11)
 			findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -143,6 +147,9 @@ public class MainActivity extends AbstractActivity {
 						Static.handler.postDelayed(this, 200);
 					}
 				});
+
+		/* Пытаемся достать init-команду */
+		Static.bus.send(new E.Commands.Run(Static.cfg.ensure("main.init", "help")));
 
 	}
 
@@ -212,6 +219,8 @@ public class MainActivity extends AbstractActivity {
 		if (command_running) {
 			Static.bus.send(new E.Commands.Abort());
 			Static.bus.send(new E.Commands.Finished());
+		} else if (!TextUtils.isEmpty(line.getText())) {
+			line.setText("");
 		} else if (Static.history.size() > 1) {
 			Static.history.remove(Static.history.size() - 1);
 			Static.bus.send(new E.Commands.Run(Static.history.remove(Static.history.size() - 1)));
@@ -401,8 +410,10 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Переключает меню алиасов.
 	 */
-	public void toggleMenu(View view) {
-		if (aliases_menu_active)
+	public void onMenuButtonPressed(View view) {
+		if (!TextUtils.isEmpty(line.getText()) && !command_running)
+			execute();
+		else if (aliases_menu_active)
 			hideAliases(alias_menu_animation_duration);
 		else
 			showAliases(alias_menu_animation_duration);
@@ -412,6 +423,7 @@ public class MainActivity extends AbstractActivity {
 	 * Прячет круглую менюшку алиасов
 	 */
 	private void hideAliases(final int delay_per_item) {
+
 		if (!aliases_menu_active) return;
 
 		aliases_menu_active = false;
@@ -477,7 +489,7 @@ public class MainActivity extends AbstractActivity {
 	 */
 	private void showAliases(final int delay_per_item) {
 		line.setError(null);
-		if (aliases_menu_active) return;
+		if (aliases_menu_active | !bar_enabled | bar_processing | bar_locked_by_expansion) return;
 
 		aliases_menu_active = true;
 		updateInput();
@@ -624,6 +636,8 @@ public class MainActivity extends AbstractActivity {
 					command = "page load " + segments.get(1);
 				if ("profile".equals(segments.get(0)))
 					command = "user load " + segments.get(1);
+				if ("comments".equals(segments.get(0)))
+					command = "post by_comment " + segments.get(1);
 			}
 			if (segments.size() == 3) {
 				if ("blog".equals(segments.get(0)))

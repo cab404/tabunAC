@@ -32,7 +32,7 @@ public class PageCommands {
 
 		Static.bus.send(new E.Parts.Clear());
 		Static.bus.send(new E.Parts.Add(loading));
-		loading.setText("Загружаю список...");
+		loading.setText("Загружаю страницу...");
 
 		Static.history.add("page load " + str);
 
@@ -51,6 +51,7 @@ public class PageCommands {
 						base.bind(new BlogModule(), BLOCK_BLOG_INFO);
 					}
 
+					private boolean letters = false;
 					@Override public void handle(final Object object, final int key) {
 						super.handle(object, key);
 						switch (key) {
@@ -62,14 +63,16 @@ public class PageCommands {
 								cancel();
 								break;
 							case BLOCK_PAGINATION:
-								Log.v("Page", "Paginator");
 								Static.bus.send(new E.Parts.Add(new PaginatorPart((Paginator) object)));
 								break;
 							case BLOCK_BLOG_INFO:
 								Static.bus.send(new E.Parts.Add(new BlogPart((Blog) object)));
 								break;
 							case BLOCK_LETTER_LABEL:
-								Log.v("Page", "Label");
+								if (!letters) {
+									letters = true;
+									Static.bus.send(new E.Parts.Add(new MailboxController()));
+								}
 								Static.bus.send(new E.Parts.Add(new LetterLabelPart((LetterLabel) object)));
 								break;
 						}

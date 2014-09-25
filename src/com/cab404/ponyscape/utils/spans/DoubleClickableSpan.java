@@ -13,7 +13,7 @@ public abstract class DoubleClickableSpan extends ClickableSpan {
 	/**
 	 * Максимальная задержка двойного тапа.
 	 */
-	public int delay = 500;
+	public int delay = 1000;
 	private long last_click;
 
 	@Override public final void onClick(View widget) {

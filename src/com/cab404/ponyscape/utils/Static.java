@@ -22,6 +22,7 @@ public class Static {
 
 	public static CommandManager cm = null;
 	public static Settings cfg = null;
+	public static Settings obscure = null;
 	public static Bus bus = null;
 
 

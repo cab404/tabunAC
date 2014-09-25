@@ -67,7 +67,6 @@ public class BitmapMorph {
 
 		pixels = pixels > Math.min(w, h) / 2 ? Math.min(w, h) / 2 : pixels;
 
-		int pxpow = (int) Math.pow(pixels, 2);
 		int[][] sx_s = {{0, pixels, 1}, {w - pixels - 1, w - 1, 0}}, sy_s = {{0, pixels, 1}, {h - pixels - 1, h - 1, 0}};
 
 		for (int[] arr_d_x : sx_s)

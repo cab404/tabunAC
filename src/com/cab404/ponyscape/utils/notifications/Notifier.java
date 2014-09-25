@@ -1,5 +1,8 @@
 package com.cab404.ponyscape.utils.notifications;
 
+import android.app.Notification;
+import android.content.Context;
+
 import java.util.concurrent.Delayed;
 
 /**
@@ -7,7 +10,7 @@ import java.util.concurrent.Delayed;
  */
 public abstract class Notifier implements Delayed {
 
-	public abstract void check(Notificator notificator);
+	public abstract Notification check(Context context);
 
 	public abstract void dismissed();
 

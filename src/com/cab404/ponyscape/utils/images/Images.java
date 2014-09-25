@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.util.SparseArray;
+import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
@@ -104,7 +105,12 @@ public class Images {
 		Log.v("Images", "Очистка выполнена, в кэше оставлено " + limit + " байт картинок из " + file_cache + " разрешенных.");
 	}
 
-	public synchronized void download(final String src) {
+	public synchronized void download(String in) {
+		if (in.contains("poniez.net"))
+			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
+
+		final String src = in;
+
 		if (load_blocked) {
 			Static.bus.send(new E.GotData.Image.Error(src));
 			return;
@@ -173,7 +179,6 @@ public class Images {
 						byte[] buf = new byte[16 * 1024]; // 16K should be enough for everything
 
 						int read;
-						int progress = 0;
 						while ((read = upstream.read(buf)) > 0) {
 							file_cache.write(buf, 0, read);
 						}
@@ -203,7 +208,7 @@ public class Images {
 
 					// Используем крайние меры отлова бродячих ошибок.
 				} catch (Throwable e) {
-					Log.e("Images", "Не могу загрузить картинку из" + src, e);
+					Log.e("Images", "Не могу загрузить картинку из " + src, e);
 					Static.bus.send(new E.GotData.Image.Error(src));
 				}
 				loading.remove(src);

@@ -3,7 +3,7 @@ package com.cab404.ponyscape.parts;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.util.Log;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +47,6 @@ public class ProfilePart extends Part {
 		if (image.src.equals(profile.big_icon)) {
 			Static.pools.img_oper.execute(new Runnable() {
 				@Override public void run() {
-					Bitmap loaded = image.loaded;
 					final ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
 
 					int bevel = getContext().getResources().getDimensionPixelSize(R.dimen.corner_cut);
@@ -139,14 +138,13 @@ public class ProfilePart extends Part {
 		ViewSugar.bind(this, view);
 		Static.bus.register(this);
 
-		Log.v("Profile", profile.about);
 		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.data));
 		ripper.escape(profile.about);
 
-		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
 		((TextView) view.findViewById(R.id.name)).setText(profile.name);
-		((TextView) view.findViewById(R.id.strength)).setText(profile.strength + "");
+		((TextView) view.findViewById(R.id.nick)).setText(profile.login);
 		((TextView) view.findViewById(R.id.rating)).setText(profile.votes + "");
+		((TextView) view.findViewById(R.id.strength)).setText(profile.strength + "");
 
 		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
@@ -160,12 +158,13 @@ public class ProfilePart extends Part {
 			}
 		});
 
-		view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-				Static.img.download(profile.photo);
-				Static.img.download(profile.big_icon);
-			}
-		});
+		if (Build.VERSION.SDK_INT >= 11)
+			view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				@Override public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+					Static.img.download(profile.photo);
+					Static.img.download(profile.big_icon);
+				}
+			});
 
 		return view;
 	}

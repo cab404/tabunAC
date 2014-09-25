@@ -52,7 +52,7 @@
 		<item quantity="other">страниц..?</item>
 	</plurals>
 
-	<plurals name="Mail_Label_Comments">
+	<plurals name="comments">
 		<item quantity="zero">комментариев</item>
 		<item quantity="one">комментарий</item>
 		<item quantity="two">комментария</item>
@@ -70,35 +70,78 @@
 		<item quantity="other">новых</item>
 	</plurals>
 
-	<plurals name="Mail_Actions_Delete">
-		<item quantity="zero">Удалено $n писем.</item>
-		<item quantity="one">Удалено $n письмо.</item>
-		<item quantity="few">Удалено $n письма.</item>
-		<item quantity="many">Удалено $n писем.</item>
-		<item quantity="two">Удалено $n письма.</item>
-		<item quantity="other">Удалено $n писем.</item>
-	</plurals>
+	<string name="mail.recipients">, и ещё %d пони</string>
 
-	<plurals name="Mail_Actions_Read">
-		<item quantity="zero">$n писем отмечено как прочитанные.</item>
-		<item quantity="one">$n письмо отмечено как прочитанное.</item>
-		<item quantity="few">$n письма отмечены как прочитанные.</item>
-		<item quantity="many">$n писем отмечено как прочитанные.</item>
-		<item quantity="two">$n письма отмечено как прочитанные.</item>
-		<item quantity="other">$n писем отмечены как прочитанные.</item>
-	</plurals>
+	<string name="help">
+		Если у тебя установлен Tabun.Auth, то набери просто &lt;strong&gt;login&lt;/strong&gt;, если его нет, то &lt;strong&gt;login
+		логин пароль&lt;/strong&gt;.
+		Или установи - команда login отправит тебя на страничку Play Market-а.
+		\n
+		Загрузить письма — &lt;strong&gt;mail box&lt;/strong&gt;
+		\n
+		Загрузить главную страничку — &lt;strong&gt;page load /&lt;/strong&gt;, применимо к любым страничкам, на которых
+		есть посты, просто вбей адрес.
+		\n
+		Все адреса, у которых нет в начале слеша, дополняются /blog/ автоматически. Например, &lt;strong&gt;page load
+		ponyhawks&lt;/strong&gt; загрузит Хоуков.
+		\n
+		Есть простмотр профилей, хоть и неполный: &lt;strong&gt;user load SkorpionLetun&lt;/strong&gt;\n
+		\n
+		Круглая кнопка, которая по умолчанию пустует — меню сокращений. Можно привязать команды к ссылкам в нем.
+		\n
+		Набери &lt;strong&gt;aliases&lt;/strong&gt; и в появившемся окне ты можешь редактировать меню. Каждая ссылка
+		должна быть на новой строке и в формате &lt;strong&gt;название-&gt;команда&lt;/strong&gt;. Например:
+		\n
+		&lt;strong&gt;Вход-&amp;gt;login
+		\n
+		Хоуки-&amp;gt;page load ponyhawks
+		\n
+		Главная-&amp;gt;page load /&lt;/strong&gt;
+		\n
+		По команде &lt;strong&gt;configure&lt;/strong&gt; выводится конфигурация приложения. Там можно изметить размеры
+		кэша изображений, загружать ли картинки, что выполнять при запуске приложения и так далее.
+		\n
+		\n
+		Это меню показывается при каждом входе в приложение - отключить его можно, выставив параметр &lt;strong&gt;main.init&lt;/strong&gt;
+		в команду, которую ты хочешь на автомате запускать при включении приложения. Для изменения параметров используй
+		&lt;strong&gt;configure&lt;/strong&gt;.
+		\n
+		\n
+		Список всех существующих команд представлен ниже.
+		\n
+		Bool надо заменять булевым значением (Y/N, true/false, +/-)
+		\n
+		Int надо заменять целочисленными значениями.
+		\n
+		Str надо заменить строкой.
+		\n
+		\n
+	</string>
 
 	<string-array name="reply_to">
-		<item>"Ответ на комментарий некого "</item>
-		<item>"Ответ на комментарий некой "</item>
-		<item>"Ответ на комментарий мсье "</item>
-		<item>"Ответ на комментарий броняши "</item>
-		<item>"Ответ на комментарий лучшей пони - "</item>
-		<item>"Вы решили поддержать беседу с госпожой "</item>
-		<item>"Вы решили поддержать беседу с господином "</item>
-		<item>"Выше вершится таинство написания ответа на комментарий загадочного пони - "</item>
+		<item>"Ответ на комментарий некого %s."</item>
+		<item>"Ответ на комментарий некой %s."</item>
+		<item>"Ответ на комментарий мсье %s."</item>
+		<item>"Ответ на комментарий броняши %s."</item>
+		<item>"Ответ на комментарий лучшей пони - %s!"</item>
+		<item>"Вы решили поддержать беседу с госпожой %s."</item>
+		<item>"Вы решили поддержать беседу с господином %s."</item>
+		<item>"comment.reply(get_cache_for_login(\"%s\"));"</item>
+		<item>"Выше вершится таинство написания ответа на комментарий загадочного пони - %s."</item>
+		<item>"Кто вы, миссис %s?"</item>
+		<item>"Кто вы, мистер %s?"</item>
+		<item>"%s богоподобен, убейте его наконец!"</item>
+		<item>"Я видел будущее. %s в нём нет."</item>
+		<item>"Глаз %s - важный компонент при создании портала."</item>
+		<item>"%1$S! %1$S!! %1$S!!!11"</item>
+		<item>"Из %s вышел бы неплохой кексик."</item>
+		<item>"[[%1$s, %1$s],[%1$s, %1$s]]"</item>
+		<item>"log(%1$s^2) = log(%1$s) + log(%1$s)"</item>
+		<item>"AMAZING SUPER%S!"</item>
+		<item>"А отсюда %s выглядит как %%s."</item>
+		<item>"Комментарий для %s написать собираешься ты. К мудрости обратись если горит хвост твой."</item>
+		<item>"Восславим Солнце!"</item>
+		<item>"Восславим Луну!"</item>
 	</string-array>
-
-	<string name="mail.recipients">, и ещё %d пони</string>
 
 </resources>

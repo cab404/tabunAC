@@ -1,9 +1,11 @@
 package com.cab404.ponyscape.utils.text;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
@@ -27,6 +29,7 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.Images;
+import com.cab404.ponyscape.utils.spans.DoubleClickableSpan;
 import com.cab404.ponyscape.utils.spans.LitespoilerSpan;
 import com.cab404.sjbus.Bus;
 
@@ -400,7 +403,7 @@ public class HtmlRipper {
 							Bitmap bm = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
 							bm.eraseColor(Color.BLACK);
 
-							String src = tag.get("src");
+							final String src = tag.get("src");
 
 							final ImageSpan replacer = new ImageSpan(context, bm);
 
@@ -411,7 +414,15 @@ public class HtmlRipper {
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							builder.setSpan(
-									new URLSpan(tag.get("src")),
+									new DoubleClickableSpan() {
+										@Override public void onDoubleClick(View widget) {
+											Static.bus.send(
+													new E.Android.StartActivity(
+															new Intent(Intent.ACTION_VIEW, Uri.parse(src))
+													)
+											);
+										}
+									},
 									off + tag.start,
 									off + tag.start + "||image||".length(),
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -574,7 +585,7 @@ public class HtmlRipper {
 	 * Вставляет в группу новый набар контента. Удаляет предыдущий.
 	 */
 	@SuppressWarnings("deprecation")
-	private void escape(String text, ViewGroup group) {
+	private void escape(String text, final ViewGroup group) {
 		final Context context = group.getContext();
 		group.removeViews(0, group.getChildCount());
 		HTMLTree tree = new HTMLTree(text);
@@ -629,7 +640,7 @@ public class HtmlRipper {
 
 				onLayout.add(new Runnable() {
 					@Override public void run() {
-						iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
+						iframe.getLayoutParams().height = (int) (group.getWidth() * (2f / 3));
 						iframe.requestLayout();
 					}
 				});

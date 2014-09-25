@@ -3,9 +3,10 @@ package com.cab404.ponyscape.utils.notifications;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
-import com.cab404.ponyscape.R;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -14,6 +15,7 @@ import com.cab404.ponyscape.R;
 public class Notificator {
 	private final Handler handler;
 	private final Context context;
+	public final Map<String, Notifier> notifiers;
 	private int root;
 	private NotificationManager man;
 
@@ -22,27 +24,21 @@ public class Notificator {
 		this.context = context;
 		handler = new Handler(context.getMainLooper());
 		man = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notifiers = new ConcurrentHashMap<>();
 	}
 
 
-	public void notifyNewComments(String post, int num) {
+	public void notify(Notification notification) {
+		man.notify(0, notification);
+	}
 
-		if (Build.VERSION.SDK_INT >= 11) {
-			Notification notification = new Notification.Builder(context)
 
-					.setContentTitle("Новые ответы в отслеживаемом посте")
-					.setContentText("+" + num + " " + context.getResources().getQuantityString(R.plurals.new_comments, num))
-					.setTicker("Новые ответы в отслеживаемом посте")
-
-					.setAutoCancel(true)
-					.setNumber(num)
-					.setSmallIcon(R.drawable.ic_notification)
-					.build();
-
-			man.notify(0, notification);
+	private void step() {
+		for (Map.Entry<String, Notifier> e : notifiers.entrySet()) {
+			Notification check = e.getValue().check(context);
+			if (check != null)
+				man.notify(e.getKey().hashCode(), check);
 		}
 	}
-
-	public void postNotifier(Notifier notifier) {}
 
 }

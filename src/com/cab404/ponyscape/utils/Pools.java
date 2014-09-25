@@ -14,6 +14,8 @@ public class Pools {
 	 * Операции над картинками - скалирование, блюр, всё такое.
 	 */
 	public ThreadPoolExecutor
-			img_oper = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+			img_oper = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
+//			,http_oper = new ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+			;
 
 }

@@ -17,7 +17,9 @@ import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.state.AliasUtils;
-import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +34,7 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new E.Parts.Run((new HelpPart()), true));
+		Static.bus.send(new E.Parts.Add(new HelpPart()));
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}
@@ -48,12 +50,8 @@ public class CoreCommands {
 	@Command(command = "aliases")
 	public void aliases() {
 		final StringBuilder aliases = new StringBuilder();
-		JSONArray shortcuts = (JSONArray) Static.cfg.get("main.shortcuts");
 
-		if (shortcuts == null) shortcuts = new JSONArray();
-
-		for (Object string_actulally : shortcuts) {
-			final AliasUtils.Alias shortcut = new AliasUtils.Alias(string_actulally.toString());
+		for (AliasUtils.Alias shortcut : AliasUtils.getAliases()) {
 			aliases.append(shortcut.name).append("->").append(shortcut.command).append("\n");
 		}
 
@@ -90,6 +88,63 @@ public class CoreCommands {
 				return true;
 			}
 			@Override public void cancelled() {
+				Static.bus.send(new E.Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
+			}
+		}, new EditorPart.EditorPlugin[]{});
+
+		Static.bus.send(new E.Parts.Run(editorPart, true));
+
+	}
+
+	@Command(command = "configure")
+	public void configure() {
+		final StringBuilder config_serialized = new StringBuilder(Static.cfg.data.toJSONString());
+		int level = 0;
+		for (int i = 0; i < config_serialized.length(); i++) {
+			switch (config_serialized.charAt(i)) {
+				case '{':
+				case '[':
+					level++;
+					config_serialized.insert(i + 1, "\n" + SU.tabs(level));
+					break;
+				case '}':
+				case ']':
+					level--;
+					config_serialized.insert(i, "\n" + SU.tabs(level));
+					i += level + 1;
+					break;
+				case ',':
+					config_serialized.insert(i + 1, "\n" + SU.tabs(level));
+					break;
+			}
+		}
+//		int ind = 0;
+//		while ((ind = config_serialized.indexOf(",", ind + 1)) != -1) {
+//			config_serialized.insert(ind, '\n');
+//		}
+
+		EditorPart editorPart = new EditorPart("Редактируем настройки", config_serialized, new EditorPart.EditorActionHandler() {
+			@Override
+			public boolean finished(CharSequence text) {
+				int line_num = 0;
+				try {
+					JSONObject new_config = (JSONObject) new JSONParser().parse(text.toString());
+					Static.cfg.data = new_config;
+				} catch (ParseException e) {
+					Static.bus.send(new E.Commands.Error("Неправильный json ._."));
+					return false;
+				}
+
+				Static.bus.send(new E.Commands.Success("Настройки сохранены. Лучше перезапустить клиент."));
+				Static.cfg.save();
+				Static.bus.send(new E.Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
+				return true;
+			}
+			@Override public void cancelled() {
+				Static.bus.send(new E.Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
 
 			}
 		}, new EditorPart.EditorPlugin[]{});
@@ -116,15 +171,15 @@ public class CoreCommands {
 									if (resultCode == Activity.RESULT_OK) {
 										Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
 										Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
+										Static.obscure.put("main.profile", Static.user.serialize());
+										Static.obscure.save();
 										Static.bus.send(new E.Login.Success());
-										Static.bus.send(new E.Commands.Clear());
-										Static.bus.send(new E.Commands.Finished());
 									} else {
 										Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
 										Static.bus.send(new E.Login.Failure());
-										Static.bus.send(new E.Commands.Clear());
-										Static.bus.send(new E.Commands.Finished());
 									}
+									Static.bus.send(new E.Commands.Clear());
+									Static.bus.send(new E.Commands.Finished());
 								}
 								@Override public void error(Throwable e) {
 									Toast.makeText(Static.app_context, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
@@ -176,9 +231,9 @@ public class CoreCommands {
 					@Override public void run() {
 						if (success) {
 							Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
-							Static.cfg.put("main.profile", Static.user.serialize());
+							Static.obscure.put("main.profile", Static.user.serialize());
+							Static.obscure.save();
 							Static.bus.send(new E.Login.Success());
-							Static.cfg.save();
 							Static.bus.send(new E.Commands.Clear());
 						} else {
 							Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
@@ -191,5 +246,12 @@ public class CoreCommands {
 			}
 		}).start();
 	}
+
+	@Command(command = "mailbox")
+	public void mailbox_shortcut() {
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Run("mail box"));
+	}
+
 
 }

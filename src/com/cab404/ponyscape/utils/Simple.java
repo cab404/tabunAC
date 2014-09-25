@@ -38,7 +38,7 @@ public class Simple {
 							+ String.format(context.getString(R.string.mail_recipients), i)
 			);
 		} else
-			return (SU.join(letter.recipients, ", "));
+			return (SU.join(letter.recipients, ", ").toString());
 
 	}
 
@@ -50,6 +50,7 @@ public class Simple {
 			return "NO-MD-CAN-BE-CALCULATED";
 		}
 	}
+
 	public static void checkNetworkConnection() {
 		ConnectivityManager net =
 				(ConnectivityManager) Static.app_context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -62,5 +63,5 @@ public class Simple {
 	}
 
 
-	public static class NetworkNotFound extends RuntimeException {}
+	public static class NetworkNotFound extends RuntimeException { }
 }

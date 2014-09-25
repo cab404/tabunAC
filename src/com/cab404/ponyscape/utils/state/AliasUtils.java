@@ -15,7 +15,7 @@ public class AliasUtils {
 	public static List<Alias> getAliases() {
 		ArrayList<Alias> aliases = new ArrayList<>();
 
-		JSONArray shortcuts = (JSONArray) Static.cfg.get("main.shortcuts");
+		JSONArray shortcuts = (JSONArray) Static.obscure.get("main.shortcuts");
 		if (shortcuts == null)
 			shortcuts = new JSONArray();
 
@@ -23,7 +23,7 @@ public class AliasUtils {
 			aliases.add(new Alias(string_actulally.toString()));
 
 
-		Static.cfg.put("main.shortcuts", shortcuts);
+		Static.obscure.put("main.shortcuts", shortcuts);
 		Static.cfg.save();
 
 		return aliases;
@@ -38,7 +38,7 @@ public class AliasUtils {
 			shortcuts.add(alias.toString());
 
 
-		Static.cfg.put("main.shortcuts", shortcuts);
+		Static.obscure.put("main.shortcuts", shortcuts);
 		Static.cfg.save();
 	}
 

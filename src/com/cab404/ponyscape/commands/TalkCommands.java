@@ -8,13 +8,18 @@ import com.cab404.libtabun.data.Letter;
 import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.pages.LetterPage;
 import com.cab404.libtabun.pages.TabunPage;
+import com.cab404.libtabun.requests.LetterAddRequest;
+import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CommentListPart;
+import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
+
+import java.util.List;
 
 /**
  * @author cab404
@@ -50,7 +55,6 @@ public class TalkCommands {
 
 						switch (key) {
 							case BLOCK_LETTER_HEADER:
-								Log.v("Talk", "Header");
 								final Letter letter = (Letter) object;
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
@@ -59,7 +63,6 @@ public class TalkCommands {
 								});
 								break;
 							case BLOCK_COMMENT:
-								Log.v("Talk", "Comment");
 								Static.handler.post(new Runnable() {
 									@Override public void run() {
 										list.add((com.cab404.libtabun.data.Comment) object);
@@ -94,5 +97,69 @@ public class TalkCommands {
 			}
 		}).start();
 	}
+
+
+	@Command(command = "write")
+	public void write() {
+
+		EditorPart part = new EditorPart(
+				"Пишем пост",
+				"Заголовок\n=====\nАдресаты\n=====\nТекст",
+				new EditorPart.EditorActionHandler() {
+					@Override public boolean finished(final CharSequence text) {
+						List<String> split = SU.split(text.toString(), "\n=====");
+
+						if (split.size() == 3) {
+							final Letter letter = new Letter();
+							letter.title = split.get(0);
+							letter.text = split.get(2);
+							letter.recipients = SU.split(split.get(1), ",");
+							final EditorPart.EditorActionHandler self = this;
+
+							new Thread() {
+
+								@Override public void run() {
+									LetterAddRequest request = new LetterAddRequest(letter);
+									request.exec(Static.user);
+									if (letter.id != 0) {
+										Static.bus.send(new E.Commands.Success("Yay, письмо написано. ID:" + letter.id));
+										Static.bus.send(new E.Commands.Finished());
+										Static.bus.send(new E.Commands.Run("mail load " + letter.id));
+									} else {
+										Static.bus.send(new E.Commands.Success("Не удалось создать письмо :("));
+
+										Static.bus.send(
+												new E.Parts.Run(
+														new EditorPart(
+																"Пишем письмо",
+																text,
+																self
+														)
+														, true)
+										);
+									}
+
+									super.run();
+								}
+
+							}.start();
+
+							return true;
+						} else {
+							Static.bus.send(new E.Commands.Error("Не все части письма найдены: " +
+									"проверьте, разделены ли адресаты, текст и заголовок '====='"));
+							return false;
+						}
+
+					}
+
+					@Override public void cancelled() {
+						Static.bus.send(new E.Commands.Finished());
+					}
+				});
+
+		Static.bus.send(new E.Parts.Run(part, true));
+	}
+
 
 }

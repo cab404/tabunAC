@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.cab404.acli.Part;
+import com.cab404.ponyscape.R;
 
 /**
  * @author cab404
  */
-public class InitialPart extends Part {
+public class PartSetupNotifier extends Part {
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
-		return null;
+		View view = inflater.inflate(R.layout.part_listen_setup, viewGroup, false);
+		return view;
 	}
 }

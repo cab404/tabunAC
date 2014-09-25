@@ -30,10 +30,7 @@ public class BlogPart extends Part {
 	@Bus.Handler
 	public void handleTitleImage(E.GotData.Image.Loaded img) {
 		if (img.src.equals(blog.icon)) {
-			int w = img.loaded.getWidth();
-			int h = img.loaded.getHeight();
 
-			long time_start = System.currentTimeMillis();
 			final Bitmap blurred = BitmapMorph.bevel(BitmapMorph.manualCopy(img.loaded), 8);
 
 			Static.handler.post(new Runnable() {
@@ -52,11 +49,14 @@ public class BlogPart extends Part {
 
 
 		((TextView) view.findViewById(R.id.title)).setText(SU.deEntity(blog.name));
-		view.findViewById(R.id.create).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				Static.bus.send(new E.Commands.Run("post create " + blog.id));
-			}
-		});
+		if (blog.id != -1)
+			view.findViewById(R.id.create).setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					Static.bus.send(new E.Commands.Run("post write " + blog.id));
+				}
+			});
+		else
+			view.findViewById(R.id.create).setVisibility(View.GONE);
 
 		Static.img.download(blog.icon);
 

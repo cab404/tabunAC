@@ -81,7 +81,7 @@ public class CommentListPart extends Part {
 		view.requestLayout();
 	}
 
-	private int indexOf(int id) {
+	public int indexOf(int id) {
 
 		for (int i = 0; i < comments.size(); i++)
 			if (comments.get(i).id == id)
@@ -255,7 +255,7 @@ public class CommentListPart extends Part {
 				(comment == null ?
 						"Отвечаем в пост"
 						:
-						reply[((int) (Math.random() * reply.length))] + comment.author.login);
+						String.format(reply[((int) (Math.random() * reply.length))], comment.author.login));
 
 		EditorPart editorPart = new EditorPart(title, isEditing ? comment.text : "", new EditorPart.EditorActionHandler() {
 			@Override public boolean finished(final CharSequence text) {
@@ -323,7 +323,7 @@ public class CommentListPart extends Part {
 	@SuppressLint("NewApi")
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
-		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list_separate, viewGroup, false);
+		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
 
 		view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
@@ -343,6 +343,14 @@ public class CommentListPart extends Part {
 				refresh();
 			}
 		});
+
+		view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				select(comments.size(), -500);
+			}
+		});
+
+		view.findViewById(R.id.bar).getBackground().setAlpha(150);
 
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
