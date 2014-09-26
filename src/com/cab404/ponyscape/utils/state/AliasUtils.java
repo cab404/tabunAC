@@ -39,7 +39,7 @@ public class AliasUtils {
 
 
 		Static.obscure.put("main.shortcuts", shortcuts);
-		Static.cfg.save();
+		Static.obscure.save();
 	}
 
 	/**
