@@ -89,7 +89,8 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 	}
 
 	@Override protected void onDestroy() {
-		part.onRemove(root.getChildAt(0), root, this);
+		if (part != null && root != null)
+			part.onRemove(root.getChildAt(0), root, this);
 		super.onDestroy();
 	}
 

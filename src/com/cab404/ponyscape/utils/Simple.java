@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.cab404.libtabun.data.Letter;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.bus.E;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -60,6 +61,11 @@ public class Simple {
 				return;
 
 		throw new NetworkNotFound();
+	}
+
+	public static void redirect(String to) {
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Run(to));
 	}
 
 

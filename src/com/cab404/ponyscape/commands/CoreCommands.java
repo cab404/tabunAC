@@ -119,10 +119,6 @@ public class CoreCommands {
 					break;
 			}
 		}
-//		int ind = 0;
-//		while ((ind = config_serialized.indexOf(",", ind + 1)) != -1) {
-//			config_serialized.insert(ind, '\n');
-//		}
 
 		EditorPart editorPart = new EditorPart("Редактируем настройки", config_serialized, new EditorPart.EditorActionHandler() {
 			@Override
@@ -203,9 +199,7 @@ public class CoreCommands {
 
 	@Command(command = "search", params = Str.class)
 	public void search(final String term) {
-		Static.bus.send(new E.Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
-		Static.bus.send(new E.Commands.Finished());
-		Static.bus.send(new E.Commands.Clear());
+		Simple.redirect("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\"");
 	}
 
 
@@ -249,9 +243,7 @@ public class CoreCommands {
 
 	@Command(command = "mailbox")
 	public void mailbox_shortcut() {
-		Static.bus.send(new E.Commands.Finished());
-		Static.bus.send(new E.Commands.Run("mail box"));
+		Simple.redirect("mail box");
 	}
-
 
 }

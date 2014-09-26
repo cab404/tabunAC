@@ -53,6 +53,7 @@ public class App extends Application {
 		Static.cm.register(UserCommands.class);
 		Static.cm.register(TalkCommands.class);
 		Static.cm.register(LikeCommands.class);
+		Static.cm.register(LoadCommands.class);
 
 	}
 
