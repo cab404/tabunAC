@@ -232,7 +232,11 @@ public class CommentListPart extends Part {
 
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
-							((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.ic_update); // возвращаем стрелочку
+							// возвращаем стрелочку
+							Anim.swapIcon(
+									((ImageView) view.findViewById(R.id.update)),
+									getContext().getResources().getDrawable(R.drawable.ic_update)
+							);
 						}
 					});
 
@@ -338,11 +342,19 @@ public class CommentListPart extends Part {
 		});
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
-				((ImageView) view.findViewById(R.id.update)).setImageResource(R.drawable.anim_luna); // показываем, что грузим комментарии
+				// показываем, что грузим комментарии
+
+				Anim.swapIcon(
+						((ImageView) view.findViewById(R.id.update)),
+						getContext().getResources().getDrawable(R.drawable.anim_luna)
+				);
+
 				invalidateNew();
 				refresh();
 			}
 		});
+
+		listView.setFastScrollEnabled(Static.cfg.ensure("comments.fast_scroll", false));
 
 		view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
@@ -360,12 +372,12 @@ public class CommentListPart extends Part {
 		adapter = new CommentListAdapter(context);
 		listView.addFooterView(footer);
 //		listView.setAdapter(adapter);
-
-		/* Fadein-аем */
-		if (Build.VERSION.SDK_INT >= 12) {
-			view.setAlpha(0);
-			view.animate().alpha(1).setDuration(200);
-		}
+//
+//		/* Fadein-аем */
+//		if (Build.VERSION.SDK_INT >= 12) {
+//			view.setAlpha(0);
+//			view.animate().alpha(1).setDuration(200);
+//		}
 
 		return view;
 	}
@@ -424,10 +436,13 @@ public class CommentListPart extends Part {
 			}
 		}
 
+		double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
+
 		@SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {
 			final Comment comment = comments.get(i);
 			CommentPart part;
+
 
 			/* Проверяем кэш на наличие собранных вьюх */
 			if (!comment_cache.containsKey(comment)) {
@@ -461,6 +476,7 @@ public class CommentListPart extends Part {
 						setOffset(level);
 				}
 			};
+
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);
 			left_margin.setOnClickListener(shiftInvoker);
@@ -472,7 +488,7 @@ public class CommentListPart extends Part {
 			});
 
 			/* Достаём размер экрана */
-			int dWidth = context.getResources().getDisplayMetrics().widthPixels;
+			int dWidth = (int) (context.getResources().getDisplayMetrics().widthPixels * scaleComment);
 			int dHeight = context.getResources().getDisplayMetrics().heightPixels;
 
 			/* Проставляем отступы */

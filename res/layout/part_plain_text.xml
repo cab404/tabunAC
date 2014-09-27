@@ -19,4 +19,4 @@
 		android:background="@drawable/bg_part"
 		android:linksClickable="true"
 		android:text="Вы не должны этого видеть."
-		android:textColorLink="@color/bg_footer"/>
+		android:textColorLink="@color/bg_item_label"/>

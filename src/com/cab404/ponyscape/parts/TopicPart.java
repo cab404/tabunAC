@@ -1,7 +1,5 @@
 package com.cab404.ponyscape.parts;
 
-import android.animation.Animator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -33,7 +31,7 @@ public class TopicPart extends Part {
 	}
 	private HtmlRipper ripper;
 
-	 @Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
+	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
@@ -138,9 +136,10 @@ public class TopicPart extends Part {
 		((TextView) view.findViewById(R.id.id)).setText(info);
 
 
-//		view.setAlpha(0);
-//		view.animate().alpha(1).setDuration(200);
-
+		if (Build.VERSION.SDK_INT >= 12) {
+			view.setAlpha(0);
+			view.animate().alpha(1).setDuration(200);
+		}
 		return view;
 	}
 
@@ -157,15 +156,7 @@ public class TopicPart extends Part {
 			final TextView rating = ((TextView) view.findViewById(R.id.rating));
 
 			// Скрываем и показываем уже изменённый рейтинг.
-			if (Build.VERSION.SDK_INT >= 12)
-				rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
-					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1) @Override public void onAnimationEnd(Animator animation) {
-						((TextView) view.findViewById(R.id.rating)).setText(topic.votes);
-						rating.animate().scaleX(1).setDuration(100).setListener(null);
-					}
-				});
-			else
-				((TextView) view.findViewById(R.id.rating)).setText(topic.votes);
+			Anim.swapText(rating, topic.votes);
 
 		}
 	}

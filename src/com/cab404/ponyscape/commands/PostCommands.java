@@ -7,7 +7,6 @@ import com.cab404.jconsol.converters.Int;
 import com.cab404.libtabun.data.Blog;
 import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.data.Topic;
-import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.libtabun.requests.TopicAddRequest;
 import com.cab404.moonlight.framework.AccessProfile;
@@ -91,10 +90,9 @@ public class PostCommands {
 				final CommentListPart list = new CommentListPart(id, false);
 				Static.bus.send(new E.Parts.Run(list, false));
 
-				TabunPage page = new TopicPage(id) {
+				final TopicPage page = new TopicPage(id) {
 
 					@Override public void handle(final Object object, final int key) {
-						super.handle(object, key);
 						switch (key) {
 							case BLOCK_TOPIC_HEADER:
 								final Topic topic = (Topic) object;
@@ -106,12 +104,15 @@ public class PostCommands {
 								break;
 
 							case BLOCK_COMMENT:
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										list.add((com.cab404.libtabun.data.Comment) object);
-										list.update();
-									}
-								});
+								comments.add((com.cab404.libtabun.data.Comment) object);
+								if (comments.size() > 50)
+									Static.handler.post(new Runnable() {
+										@Override public void run() {
+											while (!comments.isEmpty())
+												list.add(comments.remove(0));
+											list.update();
+										}
+									});
 								break;
 
 							case BLOCK_ERROR:
@@ -119,6 +120,7 @@ public class PostCommands {
 								cancel();
 								break;
 						}
+
 					}
 
 					{Static.bus.register(this);}
@@ -130,6 +132,15 @@ public class PostCommands {
 
 				try {
 					page.fetch(Static.user);
+
+					Static.handler.post(new Runnable() {
+						@Override public void run() {
+							while (!page.comments.isEmpty())
+								list.add(page.comments.remove(0));
+							list.update();
+						}
+					});
+
 				} catch (MoonlightFail f) {
 					Static.bus.send(new E.Commands.Error("Ошибка при загрузке поста."));
 					Log.w("PageCommands", f);
@@ -178,7 +189,7 @@ public class PostCommands {
 									if (topic.id != 0) {
 										Static.bus.send(new E.Commands.Success("Yay, пост добавлен. ID:" + topic.id));
 										Static.bus.send(new E.Commands.Finished());
-										Static.bus.send(new E.Commands.Run("topic load " + topic.id));
+										Static.bus.send(new E.Commands.Run("post load " + topic.id));
 
 									} else {
 										Static.bus.send(new E.Commands.Success("Не удалось создать пост :("));
@@ -210,6 +221,7 @@ public class PostCommands {
 
 					@Override public void cancelled() {
 						Static.bus.send(new E.Commands.Finished());
+						Static.bus.send(new E.Commands.Clear());
 					}
 				});
 

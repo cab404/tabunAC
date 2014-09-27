@@ -2,31 +2,30 @@
 <resources>
 
 
-	<color name="bg_main">#ff363b6c</color>
+	<color name="font_color_command_line">#ffadbec1</color>
+	<color name="bg_main">#ff727272</color>
 	<color name="bg_tint">#aa000000</color>
 
 	<color name="bg_item">#ffffffff</color>
-	<color name="bg_item_shadow">#ff535353</color>
-	<color name="bg_item_new">#ffb5ffaa</color>
+	<color name="bg_item_shadow">#ffa3a3a3</color>
+	<color name="bg_item_new">#ffdfeef3</color>
 
-	<color name="bg_footer">#ff7ca7fa</color>
-	<color name="bg_footer_shadow">#ff45575d</color>
+	<color name="bg_item_label">#ff45575d</color>
 
 	<color name="bg_image">#ffffffff</color>
 
-	<color name="bg_shortcuts">#ff29caac</color>
+	<color name="bg_shortcuts">#ff525252</color>
+	<color name="font_color_shortcuts">#ffd6d6d6</color>
 
-	<color name="font_color_red">#ffca0033</color>
-	<color name="font_color_green">#ff00ab4b</color>
-	<color name="font_color_blue">#ff0086b6</color>
-
-	<color name="font_color">#ff161616</color>
+	<color name="font_color">#ff5c5c5c</color>
 	<color name="font_color_link">#ff194b46</color>
-	<color name="font_color_command_line">#ffadbec1</color>
-	<color name="font_color_shortcuts">#ffadfcf3</color>
+	<color name="font_color_red">#ffca0033</color>
+	<color name="font_color_blue">#ff0086b6</color>
+	<color name="font_color_green">#ff00ab4b</color>
 
-	<color name="comment_ladder_gradient_start">@color/bg_main</color>
-	<color name="comment_ladder_gradient_end">#F00</color>
+
+	<color name="comment_ladder_gradient_start">#ffd9d9d9</color>
+	<color name="comment_ladder_gradient_end">#ff4c4c4c</color>
 
 	<color name="spoiler_bg">#985f5d60</color>
 

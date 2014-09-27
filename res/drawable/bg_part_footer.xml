@@ -17,7 +17,7 @@
 	<item
 			android:top="-40dp">
 		<shape>
-			<solid android:color="@color/bg_footer"/>
+			<solid android:color="@color/bg_item_label"/>
 			<corners android:radius="@dimen/corner_cut"/>
 		</shape>
 	</item>

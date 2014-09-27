@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
 		android:layout_width="match_parent"
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:orientation="vertical"
@@ -10,87 +10,12 @@
 		android:layout_marginLeft="@dimen/external_margins"
 		android:layout_marginRight="@dimen/external_margins"
 
-		>
+		android:background="@color/bg_item">
 
 	<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/head"
-			android:background="@drawable/bg_part_footer"
-			android:paddingTop="30dp"
-			android:layout_marginTop="-30dp">
-		<TextView
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="вы, не, должны, видеть, эти, теги"
-				android:id="@+id/tags"
-				android:paddingLeft="8dp"
-				android:paddingTop="4dp"
-				android:paddingBottom="4dp"
-				android:textSize="@dimen/small_text_size"
-				android:gravity="right"
-				android:paddingRight="8dp"
-				/>
-		<LinearLayout
-				android:orientation="horizontal"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:gravity="right"
-				android:paddingTop="2dp"
-				android:paddingBottom="2dp"
-				>
-
-			<TextView android:layout_width="wrap_content"
-			          android:layout_height="wrap_content"
-			          android:text="#13444"
-			          android:id="@+id/id"
-			          android:singleLine="false"
-			          android:layout_weight="1"
-			          android:paddingLeft="8dp"
-			          android:layout_gravity="center_vertical"/>
-
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/plus"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_bar_plus"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/zero"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_bar_zero"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/minus"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_bar_minus"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-
-			<ImageView android:layout_width="32dp"
-			           android:layout_height="32dp"
-			           android:id="@+id/favourite"
-			           android:layout_gravity="center_vertical"
-			           android:src="@drawable/ic_bar_fav"
-			           android:layout_marginRight="8dp"
-			           android:padding="4dp"/>
-
-		</LinearLayout>
-	</LinearLayout>
-	<LinearLayout
-			android:orientation="vertical"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-
-			android:background="@drawable/bg_part"
-			android:id="@+id/head">
+			android:layout_height="wrap_content">
 		<LinearLayout
 				android:orientation="horizontal"
 				android:layout_width="fill_parent"
@@ -105,7 +30,8 @@
 					android:text="Вы не должны этого видеть этот заголовок. И он очень, очень тленный."
 					android:textSize="@dimen/title_text_size"
 					android:padding="8dp"
-					android:layout_weight="1"/>
+					android:layout_weight="1"
+					android:textColor="@color/bg_item_label"/>
 
 			<TextView android:layout_width="wrap_content"
 			          android:layout_height="match_parent"
@@ -118,7 +44,8 @@
 			          android:gravity="center_vertical"
 			          android:singleLine="true"
 			          android:paddingLeft="8dp"
-			          android:paddingRight="8dp"/>
+			          android:paddingRight="8dp"
+			          android:textColor="@color/bg_item_label"/>
 
 		</LinearLayout>
 		<TextView
@@ -133,7 +60,7 @@
 				android:paddingRight="8dp"
 				android:marqueeRepeatLimit="marquee_forever"
 				android:ellipsize="end"
-				/>
+				android:textColor="@color/bg_item_label"/>
 		<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="fill_parent"
@@ -144,5 +71,84 @@
 				>
 		</LinearLayout>
 	</LinearLayout>
+	<View android:layout_width="match_parent"
+	      android:layout_height="1dp"
+	      android:background="@color/bg_item_shadow"
+	      android:layout_marginLeft="@dimen/internal_margins"
+	      android:layout_marginRight="@dimen/internal_margins"
+	      android:layout_marginTop="@dimen/internal_margins"/>
+	<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingTop="@dimen/internal_margins"
+			>
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="вы, не, должны, видеть, эти, теги"
+				android:id="@+id/tags"
+				android:paddingLeft="8dp"
+				android:textSize="@dimen/small_text_size"
+				android:paddingRight="8dp"
+				android:textColor="@color/bg_item_shadow"/>
+		<LinearLayout
+				android:orientation="horizontal"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:gravity="right"
+				android:paddingBottom="2dp"
+				>
 
-</RelativeLayout>
+			<TextView android:layout_width="0dp"
+			          android:layout_height="wrap_content"
+			          android:text="#13444"
+			          android:id="@+id/id"
+			          android:singleLine="false"
+			          android:layout_weight="1"
+			          android:paddingLeft="8dp"
+			          android:gravity="bottom"
+			          android:textColor="@color/bg_item_shadow"
+			          android:paddingBottom="4dp"
+			          android:layout_gravity="center_vertical"
+			          android:paddingTop="4dp"/>
+
+			<ImageView android:layout_width="32dp"
+			           android:layout_height="30dp"
+			           android:id="@+id/favourite"
+			           android:layout_gravity="center_vertical|bottom"
+			           android:src="@drawable/ic_bar_fav"
+			           android:layout_marginRight="16dp"
+			           android:padding="4dp"
+			           android:tint="@color/bg_item_shadow"/>
+			<ImageView android:layout_width="32dp"
+			           android:layout_height="30dp"
+			           android:id="@+id/plus"
+			           android:layout_gravity="center_vertical|bottom"
+			           android:src="@drawable/ic_bar_plus"
+			           android:layout_marginRight="2dp"
+			           android:padding="4dp"
+			           android:tint="@color/bg_item_shadow"/>
+
+			<ImageView android:layout_width="32dp"
+			           android:layout_height="30dp"
+			           android:id="@+id/zero"
+			           android:layout_gravity="center_vertical|bottom"
+			           android:src="@drawable/ic_bar_zero"
+			           android:layout_marginRight="2dp"
+			           android:padding="4dp"
+			           android:tint="@color/bg_item_shadow"/>
+
+			<ImageView android:layout_width="32dp"
+			           android:layout_height="30dp"
+			           android:id="@+id/minus"
+			           android:layout_gravity="center_vertical|bottom"
+			           android:src="@drawable/ic_bar_minus"
+			           android:layout_marginRight="8dp"
+			           android:padding="4dp"
+			           android:tint="@color/bg_item_shadow"/>
+
+		</LinearLayout>
+	</LinearLayout>
+
+</LinearLayout>

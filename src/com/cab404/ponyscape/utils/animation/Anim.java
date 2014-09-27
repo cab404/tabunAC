@@ -2,8 +2,11 @@ package com.cab404.ponyscape.utils.animation;
 
 import android.animation.Animator;
 import android.annotation.TargetApi;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.cab404.ponyscape.utils.Static;
 
 /**
@@ -33,6 +36,32 @@ public class Anim {
 		else {
 			view.setVisibility(View.INVISIBLE);
 			onFinish.run();
+		}
+	}
+
+	public static void swapIcon(final ImageView where, final Drawable to) {
+		if (Build.VERSION.SDK_INT >= 12) {
+			where.animate().scaleX(0.1f).scaleY(0.1f).rotation(181).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
+				@Override public void onAnimationEnd(Animator animation) {
+					where.setImageDrawable(to);
+					where.animate().scaleX(1).scaleY(1).rotation(0).setDuration(100).setListener(null);
+				}
+			});
+		} else {
+			where.setImageDrawable(to);
+		}
+	}
+
+	public static void swapText(final TextView where, final CharSequence to) {
+		if (Build.VERSION.SDK_INT >= 12) {
+			where.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
+				@Override public void onAnimationEnd(Animator animation) {
+					where.setText(to);
+					where.animate().scaleX(1).setDuration(100).setListener(null);
+				}
+			});
+		} else {
+			where.setText(to);
 		}
 	}
 

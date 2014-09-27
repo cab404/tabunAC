@@ -40,7 +40,7 @@ public class EditorPart extends Part {
 				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<s>", "</s>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_quote, "<blockquote>", "</blockquote>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_code, "<pre>", "</pre>"),
-//				new SimpleEditorPlugin(R.drawable.ic_editor_image, "<img src=\"", "<\"/>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_link, "<a href=\"\">", "</a>"),
 		};
 	}
 

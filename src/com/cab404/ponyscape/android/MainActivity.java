@@ -70,7 +70,7 @@ public class MainActivity extends AbstractActivity {
 		setContentView(R.layout.activity_main);
 
 		/* Кэшируем константы*/
-		alias_menu_animation_duration = getResources().getInteger(R.integer.alias_menu_animation_duration);
+		alias_menu_animation_duration = Static.cfg.ensure("main.anim_delay", 50);
 
         /* Привязываем локальные переменные */
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));

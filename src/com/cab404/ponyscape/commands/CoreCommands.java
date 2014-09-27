@@ -246,4 +246,9 @@ public class CoreCommands {
 		Simple.redirect("mail box");
 	}
 
+	@Command(command = "autoconf")
+	public void autoconf() {
+
+	}
+
 }

@@ -1,14 +1,16 @@
 package com.cab404.ponyscape.parts;
 
-import android.animation.Animator;
 import android.content.Context;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.cab404.acli.Part;
+import com.cab404.libtabun.data.Comment;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
@@ -41,8 +43,7 @@ public class CommentPart extends Part {
 
 	public void convert(final View view, Context context) {
 		this.view = view;
-
-		view.findViewById(R.id.footer).setVisibility(View.GONE);
+		view.setTag(comment);
 
 		if (ripper == null) {
 			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
@@ -51,12 +52,27 @@ public class CommentPart extends Part {
 			ripper.changeLayout((ViewGroup) view.findViewById(R.id.content));
 		}
 
-		((TextView) view.findViewById(R.id.data))
-				.setText(comment.author.login + ", " + DateUtils.convertToString(comment.date, context));
+		Static.img.download(comment.author.small_icon);
+
+		/* Собираем и раскрашиваем дату и ник*/
+		SpannableStringBuilder date =
+				new SpannableStringBuilder(comment.author.login + " " + DateUtils.convertToString(comment.date, context));
+		date.setSpan(
+				new ForegroundColorSpan(context.getResources().getColor(R.color.bg_item_shadow)),
+				comment.author.login.length(),
+				date.length(),
+				0
+		);
+
+		((TextView) view.findViewById(R.id.data)).setText(date);
+
+
+		/* Выставляем рейтинг*/
 		((TextView) view.findViewById(R.id.rating))
 				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
 
 
+		/* Если это письмо, то отключаем рейтинг и редактирование.*/
 		if (!isLetter) {
 			view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
@@ -112,18 +128,37 @@ public class CommentPart extends Part {
 		ripper = null;
 	}
 
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(E.GotData.Vote.Comment vote) {
+	@Bus.Handler
+	public void handleVoteChange(final E.GotData.Vote.Comment vote) {
 		if (comment.id == vote.id) {
-			comment.votes = vote.votes;
-			final TextView rating = (TextView) view.findViewById(R.id.rating);
+			Static.handler.post(
+					new Runnable() {
+						@Override public void run() {
+							comment.votes = vote.votes;
+							final TextView rating = (TextView) view.findViewById(R.id.rating);
+							Anim.swapText(rating, (comment.votes > 0 ? "+" : "") + comment.votes);
+						}
+					}
+			);
+		}
+	}
 
-			rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
-				@Override public void onAnimationEnd(Animator animation) {
-					rating.setText((comment.votes > 0 ? "+" : "") + comment.votes);
-					rating.animate().scaleX(1).setDuration(100).setListener(null);
+
+	@Bus.Handler
+	public void handleImage(final E.GotData.Image.Loaded img) {
+		if (((Comment) view.getTag()).author.small_icon.equals(img.src)) {
+			Static.handler.post(new Runnable() {
+				@Override public void run() {
+					ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
+					avatar.setImageBitmap(img.loaded);
 				}
 			});
+
+
+//					Anim.swapIcon(
+//							((ImageView) view.findViewById(R.id.icon)),
+//							new BitmapDrawable(Static.app_context.getResources(), img.loaded)
+//					);
 		}
 	}
 

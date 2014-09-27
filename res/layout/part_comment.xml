@@ -27,26 +27,36 @@
 			              android:layout_width="match_parent"
 			              android:layout_height="wrap_content"
 			              android:gravity="center_vertical"
+
+			              android:paddingTop="@dimen/internal_margins"
+			              android:paddingLeft="@dimen/internal_margins"
+			              android:paddingBottom="@dimen/internal_margins"
 					>
+				<ImageView
+						android:layout_width="@dimen/primary_text_size"
+						android:layout_height="@dimen/primary_text_size"
+						android:id="@+id/avatar"
+						android:layout_gravity="center_vertical"
+						android:src="@color/bg_item_shadow"
+						android:layout_marginRight="4dp"/>
 				<TextView
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:text="cab404, в 20:49"
 						android:id="@+id/data"
 
-						android:paddingTop="@dimen/internal_margins"
-						android:paddingLeft="@dimen/internal_margins"
-						android:paddingBottom="@dimen/internal_margins"
 
 						android:singleLine="false"
-						android:layout_weight="1"/>
+						android:layout_weight="1"
+						android:textColor="@color/bg_item_label"/>
 				<ImageView android:layout_width="16dp"
 				           android:layout_height="16dp"
 				           android:id="@+id/plus"
 				           android:soundEffectsEnabled="false"
 				           android:src="@drawable/ic_bar_plus"
 				           android:layout_weight="0.0"
-				           android:layout_marginRight="4dp"/>
+				           android:layout_marginRight="4dp"
+				           android:tint="@color/bg_item_shadow"/>
 				<TextView android:layout_width="wrap_content"
 				          android:layout_height="wrap_content"
 				          android:id="@+id/rating"
@@ -60,7 +70,7 @@
 
 				          android:textStyle="bold"
 				          android:singleLine="true"
-						/>
+				          android:textColor="@color/bg_item_shadow"/>
 				<ImageView android:layout_width="16dp"
 				           android:layout_height="16dp"
 				           android:id="@+id/minus"
@@ -68,17 +78,8 @@
 				           android:src="@drawable/ic_bar_minus"
 				           android:layout_marginRight="16dp"
 				           android:layout_weight="0.0"
+				           android:tint="@color/bg_item_shadow"
 				           android:layout_marginLeft="4dp"/>
-			</LinearLayout>
-			<LinearLayout android:orientation="horizontal"
-			              android:layout_width="match_parent"
-			              android:id="@+id/footer"
-			              android:layout_height="wrap_content"
-			              android:background="@color/bg_item_shadow"
-			              android:gravity="right"
-			              android:visibility="visible"
-			              android:paddingRight="30dp">
-
 			</LinearLayout>
 		</RelativeLayout>
 		<LinearLayout
@@ -102,7 +103,8 @@
 			          android:layout_weight="1"
 			          android:paddingLeft="8dp"
 			          android:text="#12"
-			          android:layout_gravity="center_vertical"/>
+			          android:layout_gravity="center_vertical"
+			          android:textColor="@color/bg_item_shadow"/>
 			<ImageView android:layout_width="28dp"
 			           android:layout_height="28dp"
 			           android:id="@+id/favourite"
@@ -111,7 +113,8 @@
 			           android:src="@drawable/ic_bar_fav"
 			           android:layout_marginRight="16dp"
 			           android:layout_weight="0.0"
-			           android:paddingBottom="2dp"/>
+			           android:paddingBottom="2dp"
+			           android:tint="@color/bg_item_shadow"/>
 			<ImageView android:layout_width="28dp"
 			           android:layout_height="28dp"
 			           android:id="@+id/edit"
@@ -120,7 +123,8 @@
 			           android:src="@drawable/ic_bar_pencil"
 			           android:layout_marginRight="8dp"
 			           android:layout_weight="0.0"
-			           android:paddingBottom="2dp"/>
+			           android:paddingBottom="2dp"
+			           android:tint="@color/bg_item_shadow"/>
 			<ImageView android:layout_width="28dp"
 			           android:layout_height="28dp"
 			           android:id="@+id/reply"
@@ -128,7 +132,8 @@
 			           android:src="@drawable/ic_reply"
 			           android:layout_marginRight="8dp"
 			           android:layout_gravity="right"
-			           android:paddingBottom="2dp"/>
+			           android:paddingBottom="2dp"
+			           android:tint="@color/bg_item_shadow"/>
 		</LinearLayout>
 	</LinearLayout>
 	<View android:layout_width="0dp"
