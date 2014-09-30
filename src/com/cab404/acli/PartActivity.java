@@ -42,7 +42,7 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 		public void handleRun(E.Parts.Run run) {
 			int id = (int) (Math.random() * Integer.MAX_VALUE);
 
-			Intent intent = new Intent(Static.app_context, PartActivity.class);
+			Intent intent = new Intent(Static.ctx, PartActivity.class);
 			intent.putExtra("part_data_id", id);
 			intent.putExtra("floating", run.floating);
 

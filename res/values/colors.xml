@@ -9,6 +9,7 @@
 	<color name="bg_item">#ffffffff</color>
 	<color name="bg_item_shadow">#ffa3a3a3</color>
 	<color name="bg_item_new">#ffdfeef3</color>
+	<color name="bg_item_fav">#ffd1d33d</color>
 
 	<color name="bg_item_label">#ff45575d</color>
 

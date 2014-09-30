@@ -1,7 +1,6 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
-import com.cab404.ponyscape.utils.images.BitmapMorph;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -28,19 +26,16 @@ public class BlogPart extends Part {
 	public BlogPart(Blog blog) {this.blog = blog;}
 
 	@Bus.Handler
-	public void handleTitleImage(E.GotData.Image.Loaded img) {
+	public void handleTitleImage(final E.GotData.Image.Loaded img) {
 		if (img.src.equals(blog.icon)) {
-
-			final Bitmap blurred = BitmapMorph.bevel(BitmapMorph.manualCopy(img.loaded), 8);
-
 			Static.handler.post(new Runnable() {
 				public void run() {
-					((ImageView) view.findViewById(R.id.icon)).setImageBitmap(blurred);
+					((ImageView) view.findViewById(R.id.icon)).setImageBitmap(img.loaded);
 				}
 			});
-
 		}
 	}
+
 	View view;
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
 		Static.bus.register(this);

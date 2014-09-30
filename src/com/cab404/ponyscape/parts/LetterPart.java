@@ -1,9 +1,12 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.Letter;
@@ -12,7 +15,10 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.animation.Anim;
+import com.cab404.ponyscape.utils.state.ArchiveUtils;
 import com.cab404.ponyscape.utils.text.HtmlRipper;
+import com.cab404.sjbus.Bus;
 
 /**
  * @author cab404
@@ -27,34 +33,90 @@ public class LetterPart extends Part {
 	}
 	private HtmlRipper ripper;
 
+
+	private String link = "";
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
-		((TextView) view.findViewById(R.id.title))
-				.setText(SU.deEntity(letter.title));
+		/* Загрузка аватарки. Складываем ссылку в тег картинки. */
+		{
+			ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
+			letter.starter.fillImages();
+			avatar.setTag(letter.starter.small_icon);
+			avatar.setImageDrawable(new ColorDrawable(Static.ctx.getResources().getColor(R.color.bg_item_shadow)));
 
-		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
-		ripper.escape(letter.text);
-		view.findViewById(R.id.content).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-			int last_width = 0;
-			@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
+			Static.img.download(letter.starter.small_icon);
+		}
+		/* Заголовок */
+		{
+			((TextView) view.findViewById(R.id.title))
+					.setText(SU.deEntity(letter.title));
+			view.findViewById(R.id.title)
+					.setOnClickListener(new View.OnClickListener() {
+						@Override public void onClick(View unused) {
+							Static.bus.send(new E.Commands.Run(link));
+						}
+					});
+		}
+
+		/* Текст. */
+		{
+
+			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
+			ripper.escape(letter.text);
+			if (Build.VERSION.SDK_INT >= 11)
+				view.findViewById(R.id.content).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+					int last_width = 0;
+					@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
 				/*
 				 * Запускаем обновление раскладки только при изменении ширины.
 				 * Если убрать, то WebView заспамит в лог кучу ошибок: так он кидает только одну :D
 				 */
-				if (last_width != view.getWidth()) {
-					last_width = view.getWidth();
-					ripper.layout();
-				}
-			}
-		});
+						if (last_width != view.getWidth()) {
+							last_width = view.getWidth();
+							ripper.layout();
+						}
+					}
+				});
+		}
 
-		view.findViewById(R.id.tags).setVisibility(View.GONE);
-		view.findViewById(R.id.plus).setVisibility(View.GONE);
-		view.findViewById(R.id.zero).setVisibility(View.GONE);
-		view.findViewById(R.id.minus).setVisibility(View.GONE);
-		view.findViewById(R.id.rating).setVisibility(View.GONE);
+
+		/* Скрываем ненужное */
+		{
+			view.findViewById(R.id.tags).setVisibility(View.GONE);
+			view.findViewById(R.id.plus).setVisibility(View.GONE);
+			view.findViewById(R.id.zero).setVisibility(View.GONE);
+			view.findViewById(R.id.minus).setVisibility(View.GONE);
+			view.findViewById(R.id.rating).setVisibility(View.GONE);
+			view.findViewById(R.id.favourite).setVisibility(View.GONE);
+		}
+
+		/* Архивирование */
+		{
+			final ImageView save_button = (ImageView) view.findViewById(R.id.save);
+			save_button.setColorFilter(context.getResources().getColor(
+					ArchiveUtils.isLetterInArchive(letter.id) ?
+							R.color.font_color_green
+							:
+							R.color.bg_item_shadow
+			));
+
+			save_button.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					if (ArchiveUtils.isLetterInArchive(letter.id)) {
+						Static.bus.send(new E.Commands.Run("saved delete_letter " + letter.id));
+					} else {
+						Static.bus.send(new E.Commands.Run("save letter " + letter.id));
+					}
+				}
+			});
+		}
 
 		((TextView) view.findViewById(R.id.data))
 				.setText(Simple.buildRecipients(context, letter));
@@ -62,27 +124,6 @@ public class LetterPart extends Part {
 		// Для бегущей строки.
 		view.findViewById(R.id.data)
 				.setSelected(true);
-
-		view.findViewById(R.id.rating).setVisibility(View.GONE);
-
-		view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
-				Static.bus.send(new E.Commands.Run("votefor post " + letter.id + " 1"));
-			}
-		});
-
-		view.findViewById(R.id.zero).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
-				Static.bus.send(new E.Commands.Run("votefor post " + letter.id + " 0"));
-			}
-		});
-
-		view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
-				Static.bus.send(new E.Commands.Run("votefor post " + letter.id + " -1"));
-			}
-		});
-
 
 		StringBuilder info = new StringBuilder("#" + letter.id);
 
@@ -104,12 +145,39 @@ public class LetterPart extends Part {
 		((TextView) view.findViewById(R.id.id)).setText(info);
 
 
-		view.findViewById(R.id.favourite).setVisibility(View.GONE);
-
 //		view.setAlpha(0);
 //		view.animate().alpha(1).setDuration(200);
 
 		return view;
+	}
+
+
+	@Bus.Handler
+	public void handleImage(final E.GotData.Image.Loaded img) {
+		if (letter.starter.small_icon.equals(img.src)) {
+			Static.handler.post(new Runnable() {
+				@Override public void run() {
+					ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
+					avatar.setImageBitmap(img.loaded);
+				}
+			});
+		}
+	}
+
+	@Bus.Handler
+	public void archiveHandler(final E.GotData.Arch.Letter e) {
+		if (letter.id == e.id)
+			Static.handler.post(new Runnable() {
+				@Override public void run() {
+					Anim.recolorIcon((ImageView) view.findViewById(R.id.save),
+							Static.ctx.getResources().getColor(
+									e.added ?
+											R.color.font_color_green
+											:
+											R.color.bg_item_shadow
+							));
+				}
+			});
 	}
 
 	@Override protected void onRemove(View view, ViewGroup parent, Context context) {

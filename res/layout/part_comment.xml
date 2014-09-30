@@ -48,7 +48,7 @@
 
 						android:singleLine="false"
 						android:layout_weight="1"
-						android:textColor="@color/bg_item_label"/>
+						android:textColor="@color/bg_item_shadow"/>
 				<ImageView android:layout_width="16dp"
 				           android:layout_height="16dp"
 				           android:id="@+id/plus"

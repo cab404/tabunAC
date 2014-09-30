@@ -19,8 +19,8 @@
 			android:gravity="center_vertical"
 			android:padding="@dimen/internal_margins">
 		<ImageView
-				android:layout_width="20dp"
-				android:layout_height="20dp"
+				android:layout_width="30dp"
+				android:layout_height="30dp"
 				android:id="@+id/icon"/>
 		<TextView
 				android:layout_width="0dp"
@@ -31,11 +31,12 @@
 				android:textSize="@dimen/title_text_size"
 				android:textStyle="bold"
 				android:layout_weight="1"
-				/>
+				android:textColor="@color/bg_item_label"/>
 		<ImageView
-				android:layout_width="20dp"
-				android:layout_height="20dp"
+				android:layout_width="25dp"
+				android:layout_height="25dp"
 				android:id="@+id/create"
-				android:src="@drawable/ic_bar_pencil"/>
+				android:src="@drawable/ic_bar_pencil"
+				android:tint="@color/bg_item_label"/>
 	</LinearLayout>
 </LinearLayout>

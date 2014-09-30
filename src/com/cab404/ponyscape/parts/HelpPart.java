@@ -20,7 +20,7 @@ public class HelpPart extends Part {
 
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, Context context) {
 		LinearLayout data = new LinearLayout(context);
-		data.setBackgroundResource(R.drawable.bg_part);
+		data.setBackgroundColor(Static.ctx.getResources().getColor(R.color.bg_item));
 
 		int padding = context.getResources().getDimensionPixelOffset(R.dimen.internal_margins);
 		data.setPadding(padding, padding, padding, padding);

@@ -33,7 +33,21 @@ public class LikeCommands {
 	}
 
 
-	void fav(final Type type, final int id, boolean add) {
+	void send(Type type, int id, boolean added) {
+		switch (type) {
+			case COMMENT:
+				Static.bus.send(new E.GotData.Fav.Comment(id, added));
+				break;
+			case TOPIC:
+				Static.bus.send(new E.GotData.Fav.Topic(id, added));
+				break;
+			case TALK:
+				Static.bus.send(new E.GotData.Fav.Letter(id, added));
+				break;
+		}
+	}
+
+	void fav(final Type type, final int id, final boolean add) {
 		Simple.checkNetworkConnection();
 
 		final FavRequest request = new FavRequest(type, id, add);
@@ -44,6 +58,7 @@ public class LikeCommands {
 
 					if (request.success()) {
 						Static.bus.send(new E.Commands.Success(request.msg));
+						send(type, id, add);
 					} else
 						Static.bus.send(new E.Commands.Error(request.msg));
 

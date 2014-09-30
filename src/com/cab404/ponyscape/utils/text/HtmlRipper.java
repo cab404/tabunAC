@@ -582,11 +582,13 @@ public class HtmlRipper {
 	}
 
 	/**
-	 * Вставляет в группу новый набар контента. Удаляет предыдущий.
+	 * Вставляет в группу новый набор контента. Удаляет предыдущий.
 	 */
 	@SuppressWarnings("deprecation")
 	private void escape(String text, final ViewGroup group) {
 		final Context context = group.getContext();
+		final boolean loadVideos = Static.cfg.ensure("text.videos", true);
+
 		group.removeViews(0, group.getChildCount());
 		HTMLTree tree = new HTMLTree(text);
 
@@ -620,35 +622,42 @@ public class HtmlRipper {
 				TextView pre_text = form(tree.html.subSequence(start_index, tag.start).toString(), context);
 				group.addView(pre_text);
 
-				final WebView iframe = new WebView(context);
-				String src = tag.get("src");
+				final String src = tag.get("src");
+				if (loadVideos) {
 
-				//noinspection Annotator
-				iframe.getSettings().setJavaScriptEnabled(true);
-				iframe.setBackgroundColor(Color.TRANSPARENT);
-				iframe.getSettings().setPluginState(WebSettings.PluginState.ON);
-				iframe.loadUrl(src);
-				iframe.setWebChromeClient(new WebChromeClient());
+					final WebView iframe = new WebView(context);
 
-				group.addView(iframe);
+					//noinspection Annotator
+					iframe.getSettings().setJavaScriptEnabled(true);
+					iframe.setBackgroundColor(Color.TRANSPARENT);
+					iframe.getSettings().setPluginState(WebSettings.PluginState.ON);
+					iframe.loadUrl(src);
+					iframe.setWebChromeClient(new WebChromeClient());
 
-				onDestroy.add(new Runnable() {
-					@Override public void run() {
-						iframe.destroy();
-					}
-				});
+					group.addView(iframe);
 
-				onLayout.add(new Runnable() {
-					@Override public void run() {
-						iframe.getLayoutParams().height = (int) (group.getWidth() * (2f / 3));
-						iframe.requestLayout();
-					}
-				});
+					onDestroy.add(new Runnable() {
+						@Override public void run() {
+							iframe.destroy();
+						}
+					});
 
-				iframe.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-				iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
+					onLayout.add(new Runnable() {
+						@Override public void run() {
+							iframe.getLayoutParams().height = (int) (group.getWidth() * (2f / 3));
+							iframe.requestLayout();
+						}
+					});
 
-				iframe.requestLayout();
+					iframe.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+					iframe.getLayoutParams().height = (int) (context.getResources().getDisplayMetrics().widthPixels * (2f / 3));
+
+					iframe.requestLayout();
+
+				} else {
+					/* Возможен injection, надо проверить. */
+					group.addView(form("<a href=\"" + src + "\">&lt;iframe " + src + " &gt;</a>", context));
+				}
 
 				// Закрываем и двигаем индекс.
 				Tag closing = tree.get(tree.getClosingTag(tag));

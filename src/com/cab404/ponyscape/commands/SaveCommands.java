@@ -4,6 +4,7 @@ import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Int;
 import com.cab404.libtabun.data.Comment;
+import com.cab404.libtabun.pages.LetterPage;
 import com.cab404.libtabun.pages.TopicPage;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
@@ -28,7 +29,7 @@ public class SaveCommands {
 					TopicPage page = new TopicPage(id);
 					page.fetch(Static.user);
 
-					File directory = new File(Static.app_context.getFilesDir(), "saved_posts");
+					File directory = new File(Static.ctx.getFilesDir(), "saved_posts");
 					if (!directory.exists() && !directory.mkdirs()) throw new RuntimeException();
 					File save = new File(directory, id + ".json.gz");
 
@@ -36,6 +37,11 @@ public class SaveCommands {
 					JSONArray comments = new JSONArray();
 
 					data.put("comments", comments);
+					if (page.header == null) {
+						Static.bus.send(new E.Commands.Error("Не удалось сохранить пост - для нас его нет."));
+						Static.bus.send(new E.Commands.Finished());
+						return;
+					}
 					data.put("header", page.header.toJSON());
 					for (Comment c : page.comments)
 						comments.add(c.toJSON());
@@ -44,6 +50,8 @@ public class SaveCommands {
 					data.writeJSONString(writer);
 					writer.close();
 
+					Static.bus.send(new E.GotData.Arch.Topic(id, true));
+					Static.bus.send(new E.Commands.Success("Пост сохранён."));
 					Static.bus.send(new E.Commands.Finished());
 					Static.bus.send(new E.Commands.Clear());
 
@@ -62,10 +70,10 @@ public class SaveCommands {
 			@SuppressWarnings("unchecked") @Override public void run() {
 				try {
 
-					TopicPage page = new TopicPage(id);
+					LetterPage page = new LetterPage(id);
 					page.fetch(Static.user);
 
-					File directory = new File(Static.app_context.getFilesDir(), "saved_letters");
+					File directory = new File(Static.ctx.getFilesDir(), "saved_letters");
 					if (!directory.exists() && !directory.mkdirs()) throw new RuntimeException();
 					File save = new File(directory, id + ".json.gz");
 
@@ -73,6 +81,11 @@ public class SaveCommands {
 					JSONArray comments = new JSONArray();
 
 					data.put("comments", comments);
+					if (page.header == null) {
+						Static.bus.send(new E.Commands.Error("Не удалось сохранить письмо, в нашем измерении его не существует."));
+						Static.bus.send(new E.Commands.Finished());
+						return;
+					}
 					data.put("header", page.header.toJSON());
 					for (Comment c : page.comments)
 						comments.add(c.toJSON());
@@ -81,6 +94,8 @@ public class SaveCommands {
 					data.writeJSONString(writer);
 					writer.close();
 
+					Static.bus.send(new E.GotData.Arch.Letter(id, true));
+					Static.bus.send(new E.Commands.Success("Письмо сохранёно."));
 					Static.bus.send(new E.Commands.Finished());
 					Static.bus.send(new E.Commands.Clear());
 

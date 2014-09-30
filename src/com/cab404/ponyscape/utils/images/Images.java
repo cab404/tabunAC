@@ -36,6 +36,13 @@ public class Images {
 	private long cut, file_cache;
 	private boolean load_blocked;
 
+
+	private final boolean log = false;
+	private void log(String string) {
+		if (log)
+			log(string);
+	}
+
 	public static class CorruptedImageException extends RuntimeException {
 		public CorruptedImageException(String detailMessage) {
 			super(detailMessage);
@@ -94,7 +101,7 @@ public class Images {
 				Calendar instance = Calendar.getInstance();
 				instance.clear();
 				instance.setTimeInMillis(file.lastModified());
-				Log.v("Images", "Удаляю " + file.getName() + ", последнее изменение " + DateUtils.convertToString(instance, Static.app_context));
+				log("Удаляю " + file.getName() + ", последнее изменение " + DateUtils.convertToString(instance, Static.ctx));
 				if (!file.delete())
 					Log.wtf("Images", "Не удалось удалить изображение из кэша!");
 				else
@@ -102,7 +109,7 @@ public class Images {
 			}
 		}
 
-		Log.v("Images", "Очистка выполнена, в кэше оставлено " + limit + " байт картинок из " + file_cache + " разрешенных.");
+		Log.v("ImagesLoader", "Очистка выполнена, в кэше оставлено " + limit + " байт картинок из " + file_cache + " разрешенных.");
 	}
 
 	public synchronized void download(String in) {
@@ -118,14 +125,14 @@ public class Images {
 
 		/* Смотрим в кэше. */
 		if (cache.containsKey(src) && cache.get(src).get() != null) {
-			Log.v("ImageLoader", "Got " + src + " from cache");
+			log("Got " + src + " from cache");
 			Static.bus.send(new E.GotData.Image.Loaded(cache.get(src).get(), src));
 			return;
 		}
 
 		/* Нету в кэше, смотрим в загружаемых.*/
 		if (loading.contains(src)) return;
-		Log.v("ImageLoader", "For " + src + " was no loaders invoked.");
+		log("For " + src + " was no loaders invoked.");
 
 		/* Нету в загружаемых, добавляем и загружаем. */
 		loading.add(src);
@@ -138,7 +145,7 @@ public class Images {
 					opt.inPurgeable = true;
 
 					if (!file.exists()) {
-						Log.v("ImageLoader", "Loading " + src);
+						log("Loading " + src);
 						/// Connecting.
 
 						HttpUriRequest get = new HttpGet(src);
@@ -149,7 +156,7 @@ public class Images {
 //							length = Integer.parseInt(response.getFirstHeader("Content-Length").getValue());
 
 
-						Log.v("ImageLoader", "Got response for " + src);
+						log("Got response for " + src);
 
 
 						BufferedInputStream upstream = new BufferedInputStream(response.getEntity().getContent());
@@ -159,7 +166,7 @@ public class Images {
 						opt.inJustDecodeBounds = true;
 						BitmapFactory.decodeStream(upstream, null, opt);
 
-						Log.v("ImageLoader", "Loaded bounds for " + src + ", " + opt.outMimeType);
+						log("Loaded bounds for " + src + ", " + opt.outMimeType);
 
 
 					/* Тут броадкастить данные картинки (?)*/
@@ -186,7 +193,7 @@ public class Images {
 						file_cache.close();
 						upstream.close();
 					} else
-						Log.v("ImageLoader", "Getting " + src + " from file cache");
+						log("Getting " + src + " from file cache");
 
 
 					// Reading saved image from file
@@ -197,7 +204,7 @@ public class Images {
 					/// Putting into file cache.
 					if (bitmap == null) {
 						if (!file.delete()) throw new RuntimeException("CANNOT REMOVE CACHE ENTRY " + file);
-						Log.v("ImageLoader", "Bitmap from " + src + " is null. Cancelling.");
+						log("Bitmap from " + src + " is null. Cancelling.");
 						return;
 					}
 

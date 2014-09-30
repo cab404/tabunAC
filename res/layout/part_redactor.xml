@@ -17,31 +17,33 @@
 	<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
+			android:layout_height="wrap_content"
 			android:background="@drawable/bg_part"
-			android:padding="@dimen/internal_margins">
+			android:padding="@dimen/internal_margins"
+			>
 		<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:padding="8dp"
 				android:text="Заголовок, который ты не должен видеть."
 				android:id="@+id/title"
-				android:textStyle="bold"/>
+				android:textStyle="bold"
+				/>
 		<EditText android:layout_width="match_parent"
 		          android:layout_height="wrap_content"
 
 		          android:id="@+id/editor"
 
-		          android:minHeight="100dp"
-
 		          android:hint="Текст"
 
 		          android:textSize="14sp"
 		          android:gravity="left|top"
-				/>
+		          android:scrollbars="vertical"
+		          android:maxLines="15"
+		          android:minLines="3"/>
 		<HorizontalScrollView
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:layout_height="32dp"
 				>
 			<LinearLayout
 					android:orientation="horizontal"
@@ -55,22 +57,25 @@
 	<LinearLayout
 			android:orientation="horizontal"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_height="48dp"
 			android:padding="4dp"
 			android:background="@drawable/bg_part_secondary"
 			android:gravity="right"
 			android:layout_gravity="right"
-			android:layout_marginTop="5dp">
+			android:layout_marginTop="5dp"
+			>
 		<Button
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@android:string/cancel"
-				android:id="@+id/cancel"/>
+				android:id="@+id/cancel"
+				android:textSize="@dimen/primary_text_size"/>
 		<Button
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@android:string/ok"
-				android:id="@+id/ok"/>
+				android:id="@+id/ok"
+				android:textSize="@dimen/primary_text_size"/>
 	</LinearLayout>
 
 </LinearLayout>

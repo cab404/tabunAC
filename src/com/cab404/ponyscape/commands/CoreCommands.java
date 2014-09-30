@@ -165,20 +165,20 @@ public class CoreCommands {
 							new E.Android.StartActivityForResult.ResultHandler() {
 								@Override public void handle(int resultCode, Intent data) {
 									if (resultCode == Activity.RESULT_OK) {
-										Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
+										Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
 										Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
 										Static.obscure.put("main.profile", Static.user.serialize());
 										Static.obscure.save();
 										Static.bus.send(new E.Login.Success());
 									} else {
-										Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
+										Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
 										Static.bus.send(new E.Login.Failure());
 									}
 									Static.bus.send(new E.Commands.Clear());
 									Static.bus.send(new E.Commands.Finished());
 								}
 								@Override public void error(Throwable e) {
-									Toast.makeText(Static.app_context, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
+									Toast.makeText(Static.ctx, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
 									Intent download = new Intent(
 											Intent.ACTION_VIEW,
 											Uri.parse("market://details?id=everypony.tabun.auth")
@@ -224,13 +224,13 @@ public class CoreCommands {
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
 						if (success) {
-							Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
+							Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
 							Static.obscure.put("main.profile", Static.user.serialize());
 							Static.obscure.save();
 							Static.bus.send(new E.Login.Success());
 							Static.bus.send(new E.Commands.Clear());
 						} else {
-							Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
+							Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
 							Static.bus.send(new E.Login.Failure());
 						}
 						Static.bus.send(new E.Commands.Finished());

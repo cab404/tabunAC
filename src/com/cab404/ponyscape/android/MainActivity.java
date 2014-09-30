@@ -23,6 +23,7 @@ import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.jconsol.NonEnclosedParesisException;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.moonlight.util.RU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
@@ -33,6 +34,8 @@ import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.ponyscape.utils.state.AliasUtils;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpHead;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -188,20 +191,19 @@ public class MainActivity extends AbstractActivity {
 
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
-				line.setError("Команда не найдена");
-
+				Static.bus.send(new E.Commands.Error("Команда не найдена"));
 				Static.bus.send(new E.Commands.Finished());
 
 			} catch (Simple.NetworkNotFound nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
-				line.setError("Нет подключения к Сети");
+				Static.bus.send(new E.Commands.Error("Нет подключения к Сети"));
 
 				Static.bus.send(new E.Commands.Finished());
 			} catch (NonEnclosedParesisException nf) {
-				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
-				line.setError("Незакрытые кавычки.");
-				Static.bus.send(new E.Commands.Finished());
 
+				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
+				Static.bus.send(new E.Commands.Error("Незакрытые кавычки."));
+				Static.bus.send(new E.Commands.Finished());
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
@@ -219,7 +221,9 @@ public class MainActivity extends AbstractActivity {
 		if (command_running) {
 			Static.bus.send(new E.Commands.Abort());
 			Static.bus.send(new E.Commands.Finished());
-		} else if (!TextUtils.isEmpty(line.getText())) {
+		} else if (aliases_menu_active)
+			hideAliases(alias_menu_animation_duration);
+		else if (!TextUtils.isEmpty(line.getText())) {
 			line.setText("");
 		} else if (Static.history.size() > 1) {
 			Static.history.remove(Static.history.size() - 1);
@@ -618,8 +622,11 @@ public class MainActivity extends AbstractActivity {
 		line.setEnabled(!command_running && bar_enabled && !aliases_menu_active);
 	}
 
+	/**
+	 * Тут происходит весь резолвинг адресов.
+	 */
 	@Override
-	protected void onNewIntent(Intent intent) {
+	protected void onNewIntent(final Intent intent) {
 		super.onNewIntent(intent);
 
 		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
@@ -628,20 +635,61 @@ public class MainActivity extends AbstractActivity {
 			Log.v("Main", "Получили новый Intent по адресу " + data);
 			List<String> segments = data.getPathSegments();
 			String command = null;
+
+			/* Корневой адрес */
 			if (segments.size() == 0)
 				command = "page load /";
 
 			if (segments.size() == 2) {
+
+				/* Обработка постов */
 				if ("blog".equals(segments.get(0)))
 					command = "page load " + segments.get(1);
+
+				/* Обработка профилей */
 				if ("profile".equals(segments.get(0)))
 					command = "user load " + segments.get(1);
+
+				/* Обработка ссылок на комментарии  */
 				if ("comments".equals(segments.get(0)))
 					command = "post by_comment " + segments.get(1);
+
 			}
 			if (segments.size() == 3) {
-				if ("blog".equals(segments.get(0)))
-					command = "post load " + segments.get(2).replace(".html", "");
+				if ("blog".equals(segments.get(0))) {
+
+					/* Обработка приглашений в блоги */
+					if (segments.get(2).equals("accept"))
+						new Thread() {
+							@Override public void run() {
+								Simple.checkNetworkConnection();
+								HttpHead accept = new HttpHead(intent.getData().toString());
+								HttpResponse response = RU.exec(accept, Static.user);
+								if (response.getStatusLine().getStatusCode() / 100 < 4)
+									Static.bus.send(new E.Commands.Success("Приглашение принято."));
+								else
+									Static.bus.send(new E.Commands.Error("Ошибка при принятии приглашения : "
+											+ response.getStatusLine().getStatusCode()));
+							}
+						}.start();
+					else if (segments.get(2).equals("reject"))
+						new Thread() {
+							@Override public void run() {
+								Simple.checkNetworkConnection();
+								HttpHead accept = new HttpHead(intent.getData().toString());
+								HttpResponse response = RU.exec(accept, Static.user);
+								if (response.getStatusLine().getStatusCode() / 100 < 4)
+									Static.bus.send(new E.Commands.Success("Приглашение отвергнуто."));
+								else
+									Static.bus.send(new E.Commands.Error("Ошибка при отказе от приглашения : "
+											+ response.getStatusLine().getStatusCode()));
+							}
+						}.start();
+					else
+
+					/* Обработка постов */
+						command = "post load " + segments.get(2).replace(".html", "");
+				}
 			}
 
 			if (command != null)

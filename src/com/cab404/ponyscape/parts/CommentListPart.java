@@ -117,11 +117,22 @@ public class CommentListPart extends Part {
 		comments.add(comment);
 	}
 
+	/**
+	 * Возвращает высоту бара.
+	 */
+	private int getBarHeight() {
+		return view.findViewById(R.id.bar).getHeight();
+	}
+
 	public synchronized void add(Topic topic) {
 		View topic_view = ((TopicPart) (topicPart = new TopicPart(topic)))
 				.create(LayoutInflater.from(getContext()), listView, getContext());
-		// Отключаем переход по нажатию заголовка.
-		topic_view.findViewById(R.id.title).setOnClickListener(null);
+		((TopicPart) topicPart).setLink("");
+
+		// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
+		((LinearLayout.LayoutParams) ((LinearLayout) topic_view)
+				.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+
 		listView.addHeaderView(topic_view);
 		listView.setAdapter(adapter);
 	}
@@ -129,8 +140,11 @@ public class CommentListPart extends Part {
 	public synchronized void add(Letter letter) {
 		View letter_view = ((LetterPart) (topicPart = new LetterPart(letter)))
 				.create(LayoutInflater.from(getContext()), listView, getContext());
-		// Отключаем переход по нажатию заголовка.
-		letter_view.findViewById(R.id.title).setOnClickListener(null);
+
+		// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
+		((LinearLayout.LayoutParams) ((LinearLayout) letter_view)
+				.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+
 		listView.addHeaderView(letter_view);
 		listView.setAdapter(adapter);
 	}
@@ -151,11 +165,11 @@ public class CommentListPart extends Part {
 
 	public void select(int index, int from) {
 		if (Build.VERSION.SDK_INT < 11)
-			listView.setSelectionFromTop(index + 1, 10);
-		else if (from > index || index - from < 10)
-			listView.smoothScrollToPositionFromTop(index + 1, 10);
+			listView.setSelectionFromTop(index + 1, getBarHeight());
+		else if (index - from > -30 && index - from < 10)
+			listView.smoothScrollToPositionFromTop(index + 1, getBarHeight());
 		else
-			listView.setSelectionFromTop(index + 1, 10);
+			listView.setSelectionFromTop(index + 1, getBarHeight());
 
 	}
 

@@ -18,7 +18,8 @@
 	         android:layout_height="wrap_content"
 	         layout="@layout/part_comment_list_bar"
 	         android:id="@+id/bar"
-	         android:layout_alignParentBottom="true"
+	         android:layout_alignParentBottom="false"
 	         android:layout_alignParentLeft="true"
-	         android:layout_alignParentStart="true"/>
+	         android:layout_alignParentStart="true"
+	         android:layout_alignParentTop="true"/>
 </RelativeLayout>

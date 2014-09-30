@@ -5,6 +5,7 @@ import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Int;
 import com.cab404.libtabun.data.Blog;
+import com.cab404.libtabun.data.Comment;
 import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.data.Topic;
 import com.cab404.libtabun.pages.TopicPage;
@@ -24,6 +25,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -105,14 +107,17 @@ public class PostCommands {
 
 							case BLOCK_COMMENT:
 								comments.add((com.cab404.libtabun.data.Comment) object);
-								if (comments.size() > 50)
+								if (comments.size() > 50) {
+									final List<Comment> dump = comments;
+									comments = new LinkedList<>();
 									Static.handler.post(new Runnable() {
 										@Override public void run() {
-											while (!comments.isEmpty())
-												list.add(comments.remove(0));
+											while (!dump.isEmpty())
+												list.add(dump.remove(0));
 											list.update();
 										}
 									});
+								}
 								break;
 
 							case BLOCK_ERROR:
@@ -129,6 +134,7 @@ public class PostCommands {
 						super.cancel();
 					}
 				};
+
 
 				try {
 					page.fetch(Static.user);

@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 public class Simple {
 
 	public static void msg(CharSequence text) {
-		Toast.makeText(Static.app_context, text, Toast.LENGTH_SHORT).show();
+		Toast.makeText(Static.ctx, text, Toast.LENGTH_SHORT).show();
 	}
 
 	public static String parse(String url) {
@@ -54,7 +54,7 @@ public class Simple {
 
 	public static void checkNetworkConnection() {
 		ConnectivityManager net =
-				(ConnectivityManager) Static.app_context.getSystemService(Context.CONNECTIVITY_SERVICE);
+				(ConnectivityManager) Static.ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		for (NetworkInfo info : net.getAllNetworkInfo())
 			if (info.isAvailable() && info.isConnected())
