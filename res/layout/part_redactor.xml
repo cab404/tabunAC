@@ -28,7 +28,7 @@
 				android:text="Заголовок, который ты не должен видеть."
 				android:id="@+id/title"
 				android:textStyle="bold"
-				/>
+				android:textColor="@color/bg_item_label"/>
 		<EditText android:layout_width="match_parent"
 		          android:layout_height="wrap_content"
 

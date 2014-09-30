@@ -44,7 +44,7 @@ public class App extends Application {
 		Static.img.reconfigure();
 		PartActivity.setup();
 
-        /* Регестрируем обработчики команд */
+	    /* Регестрируем обработчики команд */
 		Static.cm.register(CoreCommands.class);
 		Static.cm.register(PostCommands.class);
 		Static.cm.register(PageCommands.class);

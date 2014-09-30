@@ -9,7 +9,7 @@
 		\n
 		А, и Apache HTTP Library, тоже няши, да.
 		\n
-		За финансовую помощь спасибо GarrySeward, andreymal, 404, Albibarbatus и кому-то с WMID 294710348886!
+		За финансовую помощь спасибо GarrySeward, andreymal, 404, Albibarbatus, Krys и кому-то с WMID 294710348886!
 		\n
 		Спасибо s3rious за консультацию по UI!
 		\n
@@ -59,6 +59,16 @@
 		<item quantity="few">комментария</item>
 		<item quantity="many">комментариев</item>
 		<item quantity="other">комментариев</item>
+	</plurals>
+
+
+	<plurals name="letters">
+		<item quantity="zero">писем</item>
+		<item quantity="one">письмо</item>
+		<item quantity="two">письма</item>
+		<item quantity="few">письма</item>
+		<item quantity="many">писем</item>
+		<item quantity="other">писем</item>
 	</plurals>
 
 	<plurals name="new_comments">

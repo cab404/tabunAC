@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
 	<color name="font_color_command_line">#ffadbec1</color>
 	<color name="bg_main">#ff727272</color>
 	<color name="bg_tint">#aa000000</color>
-
 	<color name="bg_item">#ffffffff</color>
 	<color name="bg_item_shadow">#ffa3a3a3</color>
 	<color name="bg_item_new">#ffdfeef3</color>
 	<color name="bg_item_fav">#ffd1d33d</color>
 
 	<color name="bg_item_label">#ff45575d</color>
-
-	<color name="bg_image">#ffffffff</color>
 
 	<color name="bg_shortcuts">#ff525252</color>
 	<color name="font_color_shortcuts">#ffd6d6d6</color>
@@ -34,7 +30,6 @@
 	<color name="cut_bg">#85476068</color>
 
 	<color name="code_bg">#ff454545</color>
-	<color name="code_color">#A9B7C6</color>
-
+	<color name="code_color">#A9B7C6ff</color>
 
 </resources>

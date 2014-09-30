@@ -6,6 +6,7 @@ import com.cab404.jconsol.converters.Int;
 import com.cab404.libtabun.data.Comment;
 import com.cab404.libtabun.pages.LetterPage;
 import com.cab404.libtabun.pages.TopicPage;
+import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import org.json.simple.JSONArray;
@@ -27,7 +28,11 @@ public class SaveCommands {
 				try {
 
 					TopicPage page = new TopicPage(id);
-					page.fetch(Static.user);
+					try {
+						page.fetch(Static.user);
+					} catch (MoonlightFail f) {
+
+					}
 
 					File directory = new File(Static.ctx.getFilesDir(), "saved_posts");
 					if (!directory.exists() && !directory.mkdirs()) throw new RuntimeException();

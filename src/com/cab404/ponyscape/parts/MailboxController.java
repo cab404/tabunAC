@@ -29,29 +29,42 @@ public class MailboxController extends Part {
 			@Override public void onClick(View v) {
 				final E.Letters.CallSelected selected = new E.Letters.CallSelected();
 				Static.bus.send(selected);
-
+				if (selected.ids.size() == 0) return;
 				final LetterListRequest req = new LetterListRequest(
 						LetterListRequest.Action.DELETE,
 						selected.ids.toArray(new Integer[selected.ids.size()])
 				);
+				Static.bus.send(new E.Parts.Run(new ConfirmPart(
+						"Вы уверены, что хотите отправить на луну " +
+								selected.ids.size() + " " +
+								Static.ctx.getResources().getQuantityString(R.plurals.letters, selected.ids.size()) + "?",
+						new ConfirmPart.ResultHandler() {
+							@Override public void resolved(boolean ok) {
+								if (ok)
+									new Thread() {
+										@Override public void run() {
+											try {
+												req.exec(Static.user);
+												E.Letters.UpdateDeleted deleted = new E.Letters.UpdateDeleted();
+												deleted.ids = selected.ids;
 
-				new Thread() {
-					@Override public void run() {
-						try {
-							req.exec(Static.user);
-							E.Letters.UpdateDeleted deleted = new E.Letters.UpdateDeleted();
-							deleted.ids = selected.ids;
+												Static.bus.send(new E.Commands.Success(
+														selected.ids.size() + " " +
+																Static.ctx.getResources().getQuantityString(R.plurals.letters, selected.ids.size())
+																+ " уже на луне."));
+												Static.bus.send(deleted);
 
-							Static.bus.send(new E.Commands.Success(req.msg));
-							Static.bus.send(deleted);
+											} catch (MoonlightFail f) {
+												Log.w("MSG", f);
+												Static.bus.send(new E.Commands.Error("Не удалось удалить письма."));
+											}
 
-						} catch (MoonlightFail f) {
-							Log.w("MSG", f);
-							Static.bus.send(new E.Commands.Error("Не удалось удалить письма."));
+										}
+									}.start();
+							}
 						}
 
-					}
-				}.start();
+				), true));
 			}
 		});
 
@@ -60,6 +73,7 @@ public class MailboxController extends Part {
 			@Override public void onClick(View v) {
 				final E.Letters.CallSelected selected = new E.Letters.CallSelected();
 				Static.bus.send(selected);
+				if (selected.ids.size() == 0) return;
 
 				final LetterListRequest req = new LetterListRequest(
 						LetterListRequest.Action.READ,
@@ -73,7 +87,7 @@ public class MailboxController extends Part {
 							E.Letters.UpdateNew deleted = new E.Letters.UpdateNew();
 							deleted.ids = selected.ids;
 
-							Static.bus.send(new E.Commands.Success(req.msg));
+							Static.bus.send(new E.Commands.Success("Отмечено."));
 							Static.bus.send(deleted);
 
 						} catch (MoonlightFail f) {
