@@ -139,7 +139,7 @@ public class ProfilePart extends Part {
 		Static.bus.register(this);
 
 		ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.data));
-		ripper.escape(profile.about);
+		ripper.escape(profile.about == null ? "Пока ничего не известно..." : profile.about);
 
 		((TextView) view.findViewById(R.id.name)).setText(profile.name);
 		((TextView) view.findViewById(R.id.nick)).setText(profile.login);

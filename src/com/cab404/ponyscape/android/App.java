@@ -33,7 +33,7 @@ public class App extends Application {
 		Static.cm = new CommandManager();
 		Static.user = new TabunAccessProfile();
 		Static.img = new Images(this, image_storage);
-		Static.app_context = getApplicationContext();
+		Static.ctx = getApplicationContext();
 		Static.handler = new Handler(getMainLooper());
 		Static.history = new ArrayList<>();
 		Static.cfg = Settings.load(this, "settings.bin");
@@ -53,7 +53,9 @@ public class App extends Application {
 		Static.cm.register(UserCommands.class);
 		Static.cm.register(TalkCommands.class);
 		Static.cm.register(LikeCommands.class);
-
+		Static.cm.register(LoadCommands.class);
+		Static.cm.register(SaveCommands.class);
+		Static.cm.register(ArchCommands.class);
 	}
 
 }

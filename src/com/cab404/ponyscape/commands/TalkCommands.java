@@ -4,10 +4,10 @@ import android.util.Log;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Int;
+import com.cab404.libtabun.data.Comment;
 import com.cab404.libtabun.data.Letter;
 import com.cab404.libtabun.data.TabunError;
 import com.cab404.libtabun.pages.LetterPage;
-import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.requests.LetterAddRequest;
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
@@ -19,6 +19,7 @@ import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public class TalkCommands {
 				final CommentListPart list = new CommentListPart(id, true);
 				Static.bus.send(new E.Parts.Run(list, false));
 
-				TabunPage page = new LetterPage(id) {
+				final LetterPage page = new LetterPage(id) {
 
 					@Override public void handle(final Object object, final int key) {
 						super.handle(object, key);
@@ -63,12 +64,18 @@ public class TalkCommands {
 								});
 								break;
 							case BLOCK_COMMENT:
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										list.add((com.cab404.libtabun.data.Comment) object);
-										list.update();
-									}
-								});
+								comments.add((com.cab404.libtabun.data.Comment) object);
+								if (comments.size() > 50) {
+									final List<Comment> dump = comments;
+									comments = new LinkedList<>();
+									Static.handler.post(new Runnable() {
+										@Override public void run() {
+											while (!dump.isEmpty())
+												list.add(dump.remove(0));
+											list.update();
+										}
+									});
+								}
 								break;
 							case BLOCK_ERROR:
 								Static.bus.send(new E.Parts.Run(new ErrorPart((TabunError) object), true));
@@ -85,6 +92,15 @@ public class TalkCommands {
 				};
 				try {
 					page.fetch(Static.user);
+
+					Static.handler.post(new Runnable() {
+						@Override public void run() {
+							while (!page.comments.isEmpty())
+								list.add(page.comments.remove(0));
+							list.update();
+						}
+					});
+
 				} catch (MoonlightFail f) {
 					Static.bus.send(new E.Commands.Error("Ошибка при загрузке письма."));
 					Log.w("PageCommands", f);

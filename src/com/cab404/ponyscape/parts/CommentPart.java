@@ -1,14 +1,18 @@
 package com.cab404.ponyscape.parts;
 
-import android.animation.Animator;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.cab404.acli.Part;
+import com.cab404.libtabun.data.Comment;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
@@ -23,11 +27,11 @@ public class CommentPart extends Part {
 
 	private final boolean isLetter;
 	private CharSequence text = null;
-	public final com.cab404.libtabun.data.Comment comment;
+	public final Comment comment;
 	private HtmlRipper ripper;
 
 	View view;
-	public CommentPart(com.cab404.libtabun.data.Comment comment, boolean isLetter) {
+	public CommentPart(Comment comment, boolean isLetter) {
 		this.isLetter = isLetter;
 		Static.bus.register(this);
 		this.comment = comment;
@@ -42,65 +46,131 @@ public class CommentPart extends Part {
 	public void convert(final View view, Context context) {
 		this.view = view;
 
-		view.findViewById(R.id.footer).setVisibility(View.GONE);
-
-		if (ripper == null) {
-			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
-			ripper.escape(comment.text);
-		} else {
-			ripper.changeLayout((ViewGroup) view.findViewById(R.id.content));
-		}
-
-		((TextView) view.findViewById(R.id.data))
-				.setText(comment.author.login + ", " + DateUtils.convertToString(comment.date, context));
-		((TextView) view.findViewById(R.id.rating))
-				.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
-
-
-		if (!isLetter) {
-			view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View view) {
-					Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " +1"));
-				}
-			});
-
-			view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View view) {
-					Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " -1"));
-				}
-			});
-
-		}
-
-		view.findViewById(R.id.favourite).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				if (comment.in_favs = !comment.in_favs) {
-					Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " +"));
-				} else {
-					Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " -"));
-				}
+		/* Выставляем текст */
+		{
+			if (ripper == null) {
+				ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
+				ripper.escape(comment.text);
+			} else {
+				ripper.changeLayout((ViewGroup) view.findViewById(R.id.content));
 			}
-		});
 
-//		view.findViewById(R.id.favourite).setVisibility(View.GONE);
-		if (isLetter) {
-			view.findViewById(R.id.plus).setVisibility(View.GONE);
-			view.findViewById(R.id.edit).setVisibility(View.GONE);
-			view.findViewById(R.id.minus).setVisibility(View.GONE);
-			view.findViewById(R.id.rating).setVisibility(View.GONE);
 		}
 
-		if (comment.is_new)
-			view.findViewById(R.id.root)
-					.setBackgroundColor(
-							context.getResources().getColor(R.color.bg_item_new)
-					);
-		else
-			view.findViewById(R.id.root)
-					.setBackgroundColor(
-							context.getResources().getColor(R.color.bg_item)
+		/* Загрузка аватарки. Складываем ссылку в тег картинки. */
+		{
+			ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
+			avatar.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					Static.bus.send(new E.Commands.Run("user load " + comment.author.login));
+				}
+			});
+			if (!comment.author.small_icon.equals(avatar.getTag())) {
+				avatar.setTag(comment.author.small_icon);
+				avatar.setImageDrawable(new ColorDrawable(Static.ctx.getResources().getColor(R.color.bg_item_shadow)));
+				Static.img.download(comment.author.small_icon);
+			}
+
+		}
+
+		/* Собираем и раскрашиваем дату и ник */
+		{
+			Spannable date =
+					new SpannableStringBuilder("" +
+							comment.author.login
+							+ " "
+							+ DateUtils.convertToString(comment.date, context)
 					);
 
+			date.setSpan(
+					new ForegroundColorSpan(context.getResources().getColor(R.color.bg_item_label)),
+					0,
+					comment.author.login.length(),
+					0
+			);
+
+			((TextView) view.findViewById(R.id.data)).setText(date);
+
+		}
+
+
+		/* Выставляем рейтинг */
+		{
+			((TextView) view.findViewById(R.id.rating))
+					.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
+		}
+
+		/* Если это письмо, то отключаем рейтинг и редактирование. */
+		{
+			if (!isLetter) {
+				view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
+					@Override public void onClick(View view) {
+						Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " +1"));
+					}
+				});
+
+				view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
+					@Override public void onClick(View view) {
+						Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " -1"));
+					}
+				});
+
+			}
+		}
+
+		/* Избранное */
+		{
+			ImageView fav = (ImageView) view.findViewById(R.id.favourite);
+			fav.setTag(comment.id);
+
+			fav.setColorFilter(
+					Static.ctx.getResources().getColor
+							(
+									comment.in_favs ?
+											R.color.bg_item_fav
+											:
+											R.color.bg_item_shadow
+							)
+			);
+
+			fav.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					if (comment.in_favs) {
+						Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " -"));
+					} else {
+						Static.bus.send(new E.Commands.Run("fav comment " + comment.id + " +"));
+					}
+				}
+			});
+		}
+
+		/* Если письмо, то отключаем ненужное. */
+		{
+			if (isLetter) {
+				view.findViewById(R.id.plus).setVisibility(View.GONE);
+				view.findViewById(R.id.edit).setVisibility(View.GONE);
+				view.findViewById(R.id.minus).setVisibility(View.GONE);
+				view.findViewById(R.id.rating).setVisibility(View.GONE);
+				view.findViewById(R.id.favourite).setVisibility(View.GONE);
+			}
+
+		}
+
+		/* Устанавливаем боевую расскраску, если коммент новый */
+		{
+			if (comment.is_new)
+				view.findViewById(R.id.root)
+						.setBackgroundColor(
+								context.getResources().getColor(R.color.bg_item_new)
+						);
+			else
+				view.findViewById(R.id.root)
+						.setBackgroundColor(
+								context.getResources().getColor(R.color.bg_item)
+						);
+		}
+
+		/* Вишенка на торте */
 		((TextView) view.findViewById(R.id.id)).setText("#" + comment.id);
 
 
@@ -112,16 +182,52 @@ public class CommentPart extends Part {
 		ripper = null;
 	}
 
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void handleVoteChange(E.GotData.Vote.Comment vote) {
+	@Bus.Handler
+	public void handleVoteChange(final E.GotData.Vote.Comment vote) {
 		if (comment.id == vote.id) {
-			comment.votes = vote.votes;
-			final TextView rating = (TextView) view.findViewById(R.id.rating);
+			Static.handler.post(
+					new Runnable() {
+						@Override public void run() {
+							comment.votes = vote.votes;
+							final TextView rating = (TextView) view.findViewById(R.id.rating);
+							Anim.swapText(rating, (comment.votes > 0 ? "+" : "") + comment.votes);
+						}
+					}
+			);
+		}
+	}
 
-			rating.animate().scaleX(0).setDuration(100).setListener(new Anim.AnimatorListenerImpl() {
-				@Override public void onAnimationEnd(Animator animation) {
-					rating.setText((comment.votes > 0 ? "+" : "") + comment.votes);
-					rating.animate().scaleX(1).setDuration(100).setListener(null);
+	@Bus.Handler
+	public void handleFavChange(final E.GotData.Fav.Comment fav) {
+		if (view.findViewById(R.id.favourite).getTag().equals(fav.id)) {
+			Static.handler.post(
+					new Runnable() {
+						@Override public void run() {
+							comment.in_favs = fav.added;
+							Anim.recolorIcon(
+									(ImageView) view.findViewById(R.id.favourite),
+									Static.ctx.getResources().getColor
+											(
+													comment.in_favs ?
+															R.color.bg_item_fav
+															:
+															R.color.bg_item_shadow
+											));
+						}
+					}
+			);
+		}
+	}
+
+	@Bus.Handler
+	public void handleAvatar(final E.GotData.Image.Loaded img) {
+		if (img.src.equals(view.findViewById(R.id.avatar).getTag())) {
+//			view.findViewById(R.id.avatar).setTag(null);
+			Static.handler.post(new Runnable() {
+				@Override public void run() {
+					ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
+//					Anim.swapIcon(avatar, new BitmapDrawable(Static.ctx.getResources(), img.loaded));
+					avatar.setImageBitmap(img.loaded);
 				}
 			});
 		}

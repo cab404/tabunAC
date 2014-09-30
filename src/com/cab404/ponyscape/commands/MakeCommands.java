@@ -18,12 +18,11 @@ public class MakeCommands {
 	@Command(command = "alias", params = {Str.class, Str.class})
 	public void shortcut(String name, String command) {
 		AliasUtils.Alias shortcut = new AliasUtils.Alias(name, command);
-		((JSONArray) Static.cfg.get("main.shortcuts")).add(shortcut.toString());
+		Static.cfg.ensure("main.shortcuts", new JSONArray()).add(shortcut.toString());
 		Static.bus.send(new E.Aliases.Update());
 		Static.bus.send(new E.Commands.Clear());
 		Static.bus.send(new E.Commands.Finished());
 	}
-
 
 
 }

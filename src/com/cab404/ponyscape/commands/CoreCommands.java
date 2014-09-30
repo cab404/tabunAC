@@ -119,10 +119,6 @@ public class CoreCommands {
 					break;
 			}
 		}
-//		int ind = 0;
-//		while ((ind = config_serialized.indexOf(",", ind + 1)) != -1) {
-//			config_serialized.insert(ind, '\n');
-//		}
 
 		EditorPart editorPart = new EditorPart("Редактируем настройки", config_serialized, new EditorPart.EditorActionHandler() {
 			@Override
@@ -169,20 +165,20 @@ public class CoreCommands {
 							new E.Android.StartActivityForResult.ResultHandler() {
 								@Override public void handle(int resultCode, Intent data) {
 									if (resultCode == Activity.RESULT_OK) {
-										Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
+										Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
 										Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
 										Static.obscure.put("main.profile", Static.user.serialize());
 										Static.obscure.save();
 										Static.bus.send(new E.Login.Success());
 									} else {
-										Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
+										Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
 										Static.bus.send(new E.Login.Failure());
 									}
 									Static.bus.send(new E.Commands.Clear());
 									Static.bus.send(new E.Commands.Finished());
 								}
 								@Override public void error(Throwable e) {
-									Toast.makeText(Static.app_context, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
+									Toast.makeText(Static.ctx, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
 									Intent download = new Intent(
 											Intent.ACTION_VIEW,
 											Uri.parse("market://details?id=everypony.tabun.auth")
@@ -203,9 +199,7 @@ public class CoreCommands {
 
 	@Command(command = "search", params = Str.class)
 	public void search(final String term) {
-		Static.bus.send(new E.Commands.Run("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\""));
-		Static.bus.send(new E.Commands.Finished());
-		Static.bus.send(new E.Commands.Clear());
+		Simple.redirect("page load \"/search/topics/?q=" + SU.rl(term.replace("\"", "\\\"")) + "\"");
 	}
 
 
@@ -230,13 +224,13 @@ public class CoreCommands {
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
 						if (success) {
-							Toast.makeText(Static.app_context, "Вошли", Toast.LENGTH_SHORT).show();
+							Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
 							Static.obscure.put("main.profile", Static.user.serialize());
 							Static.obscure.save();
 							Static.bus.send(new E.Login.Success());
 							Static.bus.send(new E.Commands.Clear());
 						} else {
-							Toast.makeText(Static.app_context, "Не вошли", Toast.LENGTH_SHORT).show();
+							Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
 							Static.bus.send(new E.Login.Failure());
 						}
 						Static.bus.send(new E.Commands.Finished());
@@ -249,9 +243,12 @@ public class CoreCommands {
 
 	@Command(command = "mailbox")
 	public void mailbox_shortcut() {
-		Static.bus.send(new E.Commands.Finished());
-		Static.bus.send(new E.Commands.Run("mail box"));
+		Simple.redirect("mail box");
 	}
 
+	@Command(command = "autoconf")
+	public void autoconf() {
+
+	}
 
 }

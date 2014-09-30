@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.cab404.libtabun.data.Letter;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.bus.E;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -19,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 public class Simple {
 
 	public static void msg(CharSequence text) {
-		Toast.makeText(Static.app_context, text, Toast.LENGTH_SHORT).show();
+		Toast.makeText(Static.ctx, text, Toast.LENGTH_SHORT).show();
 	}
 
 	public static String parse(String url) {
@@ -53,13 +54,18 @@ public class Simple {
 
 	public static void checkNetworkConnection() {
 		ConnectivityManager net =
-				(ConnectivityManager) Static.app_context.getSystemService(Context.CONNECTIVITY_SERVICE);
+				(ConnectivityManager) Static.ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		for (NetworkInfo info : net.getAllNetworkInfo())
 			if (info.isAvailable() && info.isConnected())
 				return;
 
 		throw new NetworkNotFound();
+	}
+
+	public static void redirect(String to) {
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Run(to));
 	}
 
 

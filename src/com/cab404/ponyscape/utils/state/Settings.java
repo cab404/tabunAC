@@ -29,6 +29,9 @@ public class Settings {
 	}
 
 	@SuppressWarnings("unchecked")
+	/**
+	 *  Если есть, то достаёт, если нет, то возвращает, что дают, и кладёт это в значение.
+	 */
 	public <T> T ensure(String key, T def_value) {
 		Object curr = Static.cfg.get(key);
 

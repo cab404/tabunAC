@@ -18,21 +18,57 @@ import java.util.ArrayList;
  */
 public class Static {
 
+	/**
+	 * То, что хранит, когда мы забываем.
+	 */
 	public static ArrayList<String> history = null;
 
+	/**
+	 * То, что работает, пока мы пишем.
+	 */
 	public static CommandManager cm = null;
+
+	/**
+	 * Явное.
+	 */
 	public static Settings cfg = null;
+
+	/**
+	 * То, что скрыто от глаз
+	 */
 	public static Settings obscure = null;
+
+	/**
+	 * То, что нас объединяет.
+	 */
 	public static Bus bus = null;
 
-
+	/**
+	 * Юзер.
+	 */
 	public static TabunAccessProfile user = null;
+
+	/**
+	 * Последняя загруженная страница
+	 */
 	public static TabunPage last_page = null;
 
-	public static Context app_context = null;
+	/**
+	 * Контекст приложения
+	 */
+	public static Context ctx = null;
+	/**
+	 * Handler цикла прорисовки
+	 */
 	public static Handler handler = null;
+	/**
+	 * Всякие тематические ThreadPool-ы
+	 */
 	public static Pools pools = null;
 
+	/**
+	 * Загрузщик картинок
+	 */
 	public static Images img = null;
 
 }

@@ -21,6 +21,8 @@ public class EditorPart extends Part {
 	private final CharSequence initial;
 	private EditorActionHandler handler;
 	private EditorPlugin[] plugins;
+	public boolean isSingleLine = false;
+
 
 	public EditorPart(CharSequence title, CharSequence initial, EditorActionHandler handler, EditorPlugin[] plugins) {
 		this.title = title;
@@ -39,6 +41,8 @@ public class EditorPart extends Part {
 				new SimpleEditorPlugin(R.drawable.ic_editor_underlined, "<u>", "</u>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<s>", "</s>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_quote, "<blockquote>", "</blockquote>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_code, "<pre>", "</pre>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_link, "<a href=\"\">", "</a>"),
 		};
 	}
 
@@ -49,6 +53,9 @@ public class EditorPart extends Part {
 
 		final EditText editor = (EditText) view.findViewById(R.id.editor);
 		editor.setText(initial);
+
+		/** НЕ МЕНЯТЬ. Эта функция при вызове с false выставит maxLines в over9000 */
+		if (isSingleLine) editor.setSingleLine(true);
 
 
 		LinearLayout actions = (LinearLayout) view.findViewById(R.id.editor_actions);

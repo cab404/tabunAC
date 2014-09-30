@@ -18,12 +18,12 @@ public class ErrorPart extends AbstractTextPart {
 	@Override protected CharSequence getText() {
 		switch (error) {
 			case ACCESS_DENIED:
-				return Static.app_context.getResources().getText(R.string.err403);
+				return Static.ctx.getResources().getText(R.string.err403);
 			case NOT_FOUND:
-				return Static.app_context.getResources().getText(R.string.err404);
+				return Static.ctx.getResources().getText(R.string.err404);
 			case UNKNOWN:
 			default:
-				return Static.app_context.getResources().getText(R.string.errUNKNOWN);
+				return Static.ctx.getResources().getText(R.string.errUNKNOWN);
 		}
 	}
 }

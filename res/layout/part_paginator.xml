@@ -12,26 +12,33 @@
               android:layout_marginLeft="@dimen/external_margins"
               android:layout_marginRight="@dimen/external_margins"
 
-              android:background="@drawable/bg_part"
+              android:background="@color/bg_item"
               android:padding="8dp">
 	<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="Сейчас мы на странице 2"
-			android:id="@+id/current"/>
+			android:id="@+id/current"
+			android:textSize="@dimen/primary_text_size"
+			android:textColor="@color/bg_item_label"/>
 	<LinearLayout
 			android:orientation="horizontal"
 			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
+			android:layout_height="wrap_content"
 			android:gravity="center">
+		<ImageView android:layout_width="@dimen/title_text_size"
+		           android:layout_height="@dimen/title_text_size"
+		           android:id="@+id/imageView2"
+		           android:src="@drawable/ic_bar_left"
+		           android:tint="@color/bg_item_label"/>
 		<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="Стр. 1"
 				android:id="@+id/back"
-				android:drawableLeft="@drawable/ic_bar_left"
 				android:gravity="center_vertical|left"
-				/>
+				android:textSize="@dimen/primary_text_size"
+				android:textColor="@color/bg_item_label"/>
 		<EditText
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -40,16 +47,27 @@
 				android:layout_margin="4dp"
 				android:gravity="center"
 				android:layout_weight="1"
-				android:inputType="number"/>
+				android:inputType="number"
+				android:textSize="@dimen/primary_text_size"
+				android:textColor="@color/bg_item_label"/>
 		<TextView android:layout_width="wrap_content"
 		          android:layout_height="wrap_content"
 		          android:text="Стр. 3"
 		          android:id="@+id/next"
 		          android:gravity="center_vertical|right"
-		          android:drawableRight="@drawable/ic_bar_right"/>
+		          android:textSize="@dimen/primary_text_size"
+		          android:textColor="@color/bg_item_label"/>
+		<ImageView
+				android:layout_width="@dimen/title_text_size"
+				android:layout_height="@dimen/title_text_size"
+				android:id="@+id/imageView"
+				android:src="@drawable/ic_bar_right"
+				android:tint="@color/bg_item_label"/>
 	</LinearLayout>
 	<TextView android:layout_width="wrap_content"
 	          android:layout_height="wrap_content"
 	          android:text="Всего тут 231 страница"
-	          android:id="@+id/count"/>
+	          android:id="@+id/count"
+	          android:textSize="@dimen/primary_text_size"
+	          android:textColor="@color/bg_item_label"/>
 </LinearLayout>

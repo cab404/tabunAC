@@ -161,6 +161,47 @@ public class E {
 
 		}
 
+		public static class Fav {
+
+			public final int id;
+			public final boolean added;
+			private Fav(int id, boolean added) {
+				this.id = id;
+				this.added = added;
+			}
+
+			public static class Topic extends Fav {
+				public Topic(int id, boolean added) {super(id, added);}
+			}
+
+			public static class Comment extends Fav {
+				public Comment(int id, boolean added) {super(id, added);}
+			}
+
+			public static class Letter extends Fav {
+				public Letter(int id, boolean added) {super(id, added);}
+			}
+
+		}
+
+		public static class Arch {
+
+			public final int id;
+			public final boolean added;
+			private Arch(int id, boolean added) {
+				this.id = id;
+				this.added = added;
+			}
+
+			public static class Topic extends Arch {
+				public Topic(int id, boolean added) {super(id, added);}
+			}
+
+			public static class Letter extends Arch {
+				public Letter(int id, boolean added) {super(id, added);}
+			}
+
+		}
 
 		public static class Image {
 
