@@ -5,7 +5,6 @@
 
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-
 		android:background="@color/bg_main"
 		>
 	<com.cab404.ponyscape.utils.views.FollowableScrollView

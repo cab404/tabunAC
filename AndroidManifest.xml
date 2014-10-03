@@ -16,7 +16,9 @@
 			android:label="@string/app_name"
 			android:allowBackup="true"
 			android:largeHeap="true"
-			android:name=".android.App">
+			android:name=".android.App"
+			android:theme="@style/Ponyscape"
+			>
 
 		<activity android:name=".android.MainActivity"
 		          android:launchMode="singleTask"

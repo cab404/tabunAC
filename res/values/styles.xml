@@ -13,6 +13,8 @@
 		<item name="android:textColorHint">@color/font_color</item>
 		<item name="android:textColorLink">@color/font_color_link</item>
 
+		<item name="bg_main">@color/bg_main</item>
+
 	</style>
 
 	<style name="Ponyscape.Dialog">

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<!-- Сделано  для GarrySeward -->
+
 	<color name="font_color_command_line">#ffadbec1</color>
 	<color name="bg_main">#ff1f1f1f</color>
 	<color name="bg_tint">#aa000000</color>

@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -151,7 +152,9 @@ public class EditorPart extends Part {
 			return end;
 		}
 		@Override public Drawable getDrawable(Context context) {
-			return context.getResources().getDrawable(drawable);
+			Drawable icon = context.getResources().getDrawable(drawable);
+			icon.setColorFilter(context.getResources().getColor(R.color.bg_item_label), PorterDuff.Mode.SRC_ATOP);
+			return icon;
 		}
 	}
 

@@ -34,7 +34,7 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 	@Override public Part partAt(int index) {return part;}
 	@Override public int indexOf(Part part) {return 0;}
 	@Override public int size() {return 1;}
-	@Override public Context getContext() {return this;}
+	@Override public Context getContext() {return Static.theme.getContext(this);}
 
 
 	private static class PartLaunchHandler {
@@ -84,13 +84,13 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 
 		part.onInsert(this);
 
-		root.addView(part.create(getLayoutInflater(), root, this));
+		root.addView(part.create(getLayoutInflater(), root, getContext()));
 
 	}
 
 	@Override protected void onDestroy() {
 		if (part != null && root != null)
-			part.onRemove(root.getChildAt(0), root, this);
+			part.onRemove(root.getChildAt(0), root, getContext());
 		super.onDestroy();
 	}
 

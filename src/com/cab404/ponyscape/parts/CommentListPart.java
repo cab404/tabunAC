@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -450,13 +451,36 @@ public class CommentListPart extends Part {
 			}
 		}
 
+
+		/**
+		 * Передвигает дерево по максимальному комменту.
+		 */
+		private void autoshift() {
+			int max = 0;
+			for (int i = 0; i < listView.getCount(); i++) {
+				View child = listView.getChildAt(i);
+				if (child == null) continue;
+				Object tag = child.getTag(R.id.id);
+
+				if (tag == null)
+					continue;
+				else
+					max = Math.max((Integer) tag, max);
+
+			}
+
+			max = max - 3 > 0 ? max - 3 : 0;
+			Log.v("Level", "" + max);
+			setOffset(max);
+		}
+
 		double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
+		boolean autoshift = Static.cfg.ensure("comments.autoshift", true);
 
 		@SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {
 			final Comment comment = comments.get(i);
 			CommentPart part;
-
 
 			/* Проверяем кэш на наличие собранных вьюх */
 			if (!comment_cache.containsKey(comment)) {
@@ -471,6 +495,8 @@ public class CommentListPart extends Part {
 				view = part.create(LayoutInflater.from(viewGroup.getContext()), viewGroup, viewGroup.getContext());
 			else
 				part.convert(view, viewGroup.getContext());
+
+			view.setTag(R.id.id, levels.get(comment.id));
 
 			/* Начинаем колбаситься */
 			LinearLayout.LayoutParams rootLayoutParams = (LinearLayout.LayoutParams) view.findViewById(R.id.root).getLayoutParams();
@@ -490,6 +516,11 @@ public class CommentListPart extends Part {
 						setOffset(level);
 				}
 			};
+
+			/**
+			 *  Сдвигаем всё нафиг.
+			 */
+			if (autoshift) autoshift();
 
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);
