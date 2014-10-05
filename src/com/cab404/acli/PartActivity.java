@@ -60,12 +60,13 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
 		if (getIntent().getBooleanExtra("floating", false))
 			setTheme(R.style.Ponyscape_Dialog);
 		else
 			setTheme(R.style.Ponyscape);
+
+		super.onCreate(savedInstanceState);
+
 
 		setContentView(R.layout.activity_part);
 

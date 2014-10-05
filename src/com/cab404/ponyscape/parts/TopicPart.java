@@ -239,8 +239,8 @@ public class TopicPart extends Part {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void handleVoteChange(E.GotData.Vote.Topic vote) {
-		disableVotes();
 		if (vote.id == topic.id) {
+			disableVotes();
 			topic.votes = (vote.votes > 0 ? "+" : "") + vote.votes;
 			final TextView rating = ((TextView) view.findViewById(R.id.rating));
 

@@ -400,12 +400,9 @@ public class HtmlRipper {
 
 							builder.insert(off + tag.start, "||image||");
 
-							Bitmap bm = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-							bm.eraseColor(Color.BLACK);
-
 							final String src = tag.get("src");
 
-							final ImageSpan replacer = new ImageSpan(context, bm);
+							final ImageSpan replacer = new ImageSpan(context, R.drawable.ic_image_loading);
 
 							builder.setSpan(
 									replacer,
@@ -529,9 +526,6 @@ public class HtmlRipper {
 
 			@Bus.Handler(executor = AppContextExecutor.class)
 			public void error(E.GotData.Image.Error err) {
-				Bitmap replace = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-				replace.eraseColor(Color.RED);
-
 				for (ImageSpan span : targets.getValues(err.src)) {
 					int start = builder.getSpanStart(span);
 					int end = builder.getSpanEnd(span);
@@ -542,7 +536,7 @@ public class HtmlRipper {
 
 					builder.removeSpan(span);
 					builder.setSpan(
-							new ImageSpan(context, replace),
+							new ImageSpan(context, R.drawable.ic_image_error),
 							start,
 							end,
 							Spanned.SPAN_INCLUSIVE_EXCLUSIVE

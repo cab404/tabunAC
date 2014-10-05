@@ -35,9 +35,9 @@ import com.cab404.sjbus.Bus;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AbstractActivity {
 
@@ -48,7 +48,7 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Запущеные для результата задания. Точнее, слушалки этих самых результатов.
 	 */
-	private Map<Integer, E.Android.StartActivityForResult.ResultHandler> running = new HashMap<>();
+	private Map<Integer, E.Android.StartActivityForResult.ResultHandler> running = new ConcurrentHashMap<>();
 	/**
 	 * Менеджер всея листа.
 	 */
@@ -207,8 +207,7 @@ public class MainActivity extends AbstractActivity {
 
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		Log.v("Main", "Got  activity result!");
+		Log.v("Main", "Получили результат " + requestCode + ": " + data);
 		running.remove(requestCode).handle(resultCode, data);
 	}
 
@@ -383,9 +382,10 @@ public class MainActivity extends AbstractActivity {
 
 	@Bus.Handler
 	public synchronized void startActivityFromEvent(E.Android.StartActivityForResult e) {
-		int request_key = (int) ((Math.random() - 0.5) * 2 * Integer.MAX_VALUE);
+		int request_key = (int) (Math.random() * Integer.MAX_VALUE);
 		running.put(request_key, e.handler);
 		try {
+			Log.v("Main", "Запускаю активити по " + e.intent + " с кодом запуска " + request_key);
 			startActivityForResult(e.intent, request_key);
 		} catch (Throwable t) {
 			e.handler.error(t);
@@ -471,7 +471,6 @@ public class MainActivity extends AbstractActivity {
 
 		} else {
 			Anim.fadeOut(findViewById(R.id.fade_bg));
-			Anim.fadeOut(findViewById(R.id.command_bg));
 			Anim.fadeOut(findViewById(R.id.commands_root));
 			Anim.fadeOut(findViewById(R.id.menu_scroll_pane));
 		}
@@ -559,7 +558,6 @@ public class MainActivity extends AbstractActivity {
 		} else {
 
 			Anim.fadeIn(findViewById(R.id.fade_bg));
-			Anim.fadeIn(findViewById(R.id.command_bg));
 			Anim.fadeIn(findViewById(R.id.commands_root));
 			Anim.fadeIn(findViewById(R.id.menu_scroll_pane));
 

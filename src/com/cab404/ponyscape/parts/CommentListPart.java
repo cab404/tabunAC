@@ -469,9 +469,7 @@ public class CommentListPart extends Part {
 				if (child == null) continue;
 				Object tag = child.getTag(R.id.id);
 
-				if (tag == null)
-					continue;
-				else
+				if (tag != null)
 					max = Math.max((Integer) tag, max);
 
 			}
