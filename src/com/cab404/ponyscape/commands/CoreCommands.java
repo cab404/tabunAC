@@ -233,13 +233,13 @@ public class CoreCommands {
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
 						if (success) {
-							Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
+							Static.bus.send(new E.Commands.Success("Вошли"));
 							Static.obscure.put("main.profile", Static.user.serialize());
 							Static.obscure.save();
 							Static.bus.send(new E.Login.Success());
 							Static.bus.send(new E.Commands.Clear());
 						} else {
-							Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
+							Static.bus.send(new E.Commands.Error("Не вошли"));
 							Static.bus.send(new E.Login.Failure());
 						}
 						Static.bus.send(new E.Commands.Finished());

@@ -1,40 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<color name="font_color_command_line">#ff293033</color>
-	<color name="bg_main">#ff7ac0d9</color>
+	<!-- Сделано  для GarrySeward -->
+
+	<color name="font_color_command_line">#ffadbec1</color>
+	<color name="bg_main">#ff1f1f1f</color>
 	<color name="bg_tint">#aa000000</color>
+	<color name="bg_item">#ff1b1a1b</color>
+	<color name="bg_item_shadow">#ff444444</color>
+	<color name="bg_item_new">#ff21002c</color>
+	<color name="bg_item_fav">#ff98972e</color>
+	<color name="bg_item_selected">#ff302f30</color>
 
-	<color name="bg_item">#ffffffff</color>
-	<color name="bg_item_shadow">#ff8aadab</color>
-	<color name="bg_item_new">#ffdfeef3</color>
-	<color name="bg_item_fav">#fff3da3a</color>
-	<color name="bg_item_selected">#ffacc1c5</color>
+	<color name="bg_item_label">#ff8b8b8b</color>
 
-	<color name="bg_item_label">#ff3d6163</color>
+	<color name="bg_shortcuts">#ff1f3669</color>
+	<color name="font_color_shortcuts">#ffa1a4ac</color>
 
-	<color name="bg_image">#ffffffff</color>
-
-	<color name="bg_shortcuts">#ff315250</color>
-	<color name="font_color_shortcuts">#ffe7e7e7</color>
-
-	<color name="font_color">#ff5c5c5c</color>
-	<color name="font_color_link">#ff19464b</color>
-	<color name="font_color_red">#ffca0033</color>
-	<color name="font_color_blue">#ff0086b6</color>
-	<color name="font_color_green">#ff00ab4b</color>
+	<color name="font_color">#ffa1a1a1</color>
+	<color name="font_color_link">#ff319185</color>
+	<color name="font_color_red">#ffd30035</color>
+	<color name="font_color_blue">#ff009ad1</color>
+	<color name="font_color_green">#ff00c155</color>
 
 
-	<color name="comment_ladder_gradient_start">#ffb9d9d2</color>
-	<color name="comment_ladder_gradient_end">#ff3e414c</color>
+	<color name="comment_ladder_gradient_start">#ff101010</color>
+	<color name="comment_ladder_gradient_end">#ff9b9a9a</color>
 
-	<color name="spoiler_bg">#98716f72</color>
+	<color name="spoiler_bg">#877b787b</color>
 
-	<color name="cut_border">#ff628288</color>
-	<color name="cut_bg">#85476068</color>
+	<color name="cut_border">#ff5a7c7f</color>
+	<color name="cut_bg">#855c5c5c</color>
 
-	<color name="code_bg">#ff3b3b3b</color>
-	<color name="code_color">#A9B7C6</color>
-
+	<color name="code_bg">#454545</color>
+	<color name="code_color">#a97680a3</color>
 
 </resources>

@@ -112,7 +112,7 @@ public class HelpPart extends Part {
 				);
 
 				final ConfirmPart login_type = new ConfirmPart(
-						"Будем логиниться через Tabun.Auth? В принципе, он безопаснее (но иногда лагает), но как хочешь.",
+						"Будем логиниться через Tabun.Auth? В принципе он безопаснее, но как хочешь.",
 						new ConfirmPart.ResultHandler() {
 							@Override public void resolved(boolean ok) {
 								if (ok) {
