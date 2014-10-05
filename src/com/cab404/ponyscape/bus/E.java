@@ -24,6 +24,11 @@ public class E {
 
 	}
 
+	public static class Status {
+		final String status;
+		public Status(String status) {this.status = status;}
+	}
+
 	/**
 	 * @author cab404
 	 */

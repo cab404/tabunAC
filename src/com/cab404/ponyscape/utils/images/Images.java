@@ -68,6 +68,9 @@ public class Images {
 	}
 
 	public synchronized Bitmap scale(E.GotData.Image.Loaded loaded, int w, int h) {
+		/* NOPENOPENOPENOPENOPENOPE */
+		if (w == 0 || h == 0) return loaded.loaded;
+
 		if (scaled.containsKey(loaded.src))
 			scaled.put(loaded.src, new SparseArray<Reference<Bitmap>>());
 
@@ -80,7 +83,6 @@ public class Images {
 		}
 		if (versions.get(encoded_size) != null)
 			return versions.get(encoded_size).get();
-
 		final Bitmap scaled = Bitmap.createScaledBitmap(loaded.loaded, w, h, true);
 		versions.put(encoded_size, new WeakReference<>(scaled));
 		return scaled;

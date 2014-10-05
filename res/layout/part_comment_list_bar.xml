@@ -36,6 +36,14 @@
 	</LinearLayout>
 	<ImageView android:layout_width="32dp"
 	           android:layout_height="32dp"
+	           android:id="@+id/up"
+	           android:layout_gravity="center_vertical"
+	           android:src="@drawable/ic_up"
+	           android:layout_marginRight="16dp"
+	           android:padding="4dp"
+	           android:tint="@color/bg_item"/>
+	<ImageView android:layout_width="32dp"
+	           android:layout_height="32dp"
 	           android:id="@+id/down"
 	           android:layout_gravity="center_vertical"
 	           android:src="@drawable/ic_down"

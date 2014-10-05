@@ -62,7 +62,7 @@ public class CommentPart extends Part {
 			ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
 			avatar.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					Static.bus.send(new E.Commands.Run("user load " + comment.author.login));
+					Static.bus.send(new E.Commands.Run("user load \"" + comment.author.login + "\""));
 				}
 			});
 			if (!comment.author.small_icon.equals(avatar.getTag())) {

@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -23,7 +22,6 @@ import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.jconsol.NonEnclosedParesisException;
 import com.cab404.libtabun.util.TabunAccessProfile;
-import com.cab404.moonlight.util.RU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
@@ -34,8 +32,6 @@ import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.ponyscape.utils.state.AliasUtils;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpHead;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -72,7 +68,7 @@ public class MainActivity extends AbstractActivity {
 		setContentView(R.layout.activity_main);
 
 		/* Кэшируем константы*/
-		alias_menu_animation_duration = Static.cfg.ensure("main.anim_delay", 50);
+		alias_menu_animation_duration = Static.cfg.ensure("main.anim_delay", 20);
 
         /* Привязываем локальные переменные */
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));
@@ -434,6 +430,7 @@ public class MainActivity extends AbstractActivity {
 
 
 		if (Build.VERSION.SDK_INT >= 12) {
+			bar_processing = true;
 
 			final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
 
@@ -468,6 +465,7 @@ public class MainActivity extends AbstractActivity {
 						@Override public void onAnimationEnd(Animator animator) {
 							findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
 							findViewById(R.id.fade_bg).setVisibility(View.GONE);
+							bar_processing = false;
 						}
 					});
 
@@ -495,9 +493,11 @@ public class MainActivity extends AbstractActivity {
 		if (aliases_menu_active | !bar_enabled | bar_processing | bar_locked_by_expansion) return;
 
 		aliases_menu_active = true;
+
 		updateInput();
 
 		if (Build.VERSION.SDK_INT >= 12) {
+			bar_processing = true;
 
 			final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
 			final View button = findViewById(R.id.command_bg);
@@ -548,6 +548,9 @@ public class MainActivity extends AbstractActivity {
 					.setListener(new Anim.AnimatorListenerImpl() {
 						@Override public void onAnimationStart(Animator animator) {
 							findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);
+						}
+						@Override public void onAnimationEnd(Animator animation) {
+							bar_processing = false;
 						}
 					});
 
@@ -622,83 +625,6 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	/**
-	 * Тут происходит весь резолвинг адресов.
-	 */
-	@Override
-	protected void onNewIntent(final Intent intent) {
-		super.onNewIntent(intent);
-
-		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-
-			Uri data = intent.getData();
-			Log.v("Main", "Получили новый Intent по адресу " + data);
-			List<String> segments = data.getPathSegments();
-			String command = null;
-
-			/* Корневой адрес */
-			if (segments.size() == 0)
-				command = "page load /";
-
-			if (segments.size() == 2) {
-
-				/* Обработка постов */
-				if ("blog".equals(segments.get(0)))
-					command = "page load " + segments.get(1);
-
-				/* Обработка профилей */
-				if ("profile".equals(segments.get(0)))
-					command = "user load " + segments.get(1);
-
-				/* Обработка ссылок на комментарии  */
-				if ("comments".equals(segments.get(0)))
-					command = "post by_comment " + segments.get(1);
-
-			}
-			if (segments.size() == 3) {
-				if ("blog".equals(segments.get(0))) {
-
-					/* Обработка приглашений в блоги */
-					if (segments.get(2).equals("accept"))
-						new Thread() {
-							@Override public void run() {
-								Simple.checkNetworkConnection();
-								HttpHead accept = new HttpHead(intent.getData().toString());
-								HttpResponse response = RU.exec(accept, Static.user);
-								if (response.getStatusLine().getStatusCode() / 100 < 4)
-									Static.bus.send(new E.Commands.Success("Приглашение принято."));
-								else
-									Static.bus.send(new E.Commands.Error("Ошибка при принятии приглашения : "
-											+ response.getStatusLine().getStatusCode()));
-							}
-						}.start();
-					else if (segments.get(2).equals("reject"))
-						new Thread() {
-							@Override public void run() {
-								Simple.checkNetworkConnection();
-								HttpHead accept = new HttpHead(intent.getData().toString());
-								HttpResponse response = RU.exec(accept, Static.user);
-								if (response.getStatusLine().getStatusCode() / 100 < 4)
-									Static.bus.send(new E.Commands.Success("Приглашение отвергнуто."));
-								else
-									Static.bus.send(new E.Commands.Error("Ошибка при отказе от приглашения : "
-											+ response.getStatusLine().getStatusCode()));
-							}
-						}.start();
-					else
-
-					/* Обработка постов */
-						command = "post load " + segments.get(2).replace(".html", "");
-				}
-			}
-
-			if (command != null)
-				Static.bus.send(new E.Commands.Run(command));
-
-		} else
-			super.onNewIntent(intent);
-	}
-
-	/**
 	 * Обновляет список алиасов из глобальных настроек
 	 */
 	protected void updateAliasList() {
@@ -712,7 +638,8 @@ public class MainActivity extends AbstractActivity {
 
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View view) {
-					Static.bus.send(new E.Commands.Run(alias.command));
+					if (aliases_menu_active)
+						Static.bus.send(new E.Commands.Run(alias.command));
 					closeAliases(view);
 				}
 			});

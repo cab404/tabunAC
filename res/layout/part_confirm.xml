@@ -33,13 +33,13 @@
 		<Button
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@android:string/ok"
+				android:text="Угум"
 				android:id="@+id/ok"
 				android:textSize="@dimen/primary_text_size"/>
 		<Button
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@android:string/cancel"
+				android:text="Нит"
 				android:id="@+id/cancel"
 				android:textSize="@dimen/primary_text_size"/>
 	</LinearLayout>

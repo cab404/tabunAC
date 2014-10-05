@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
@@ -376,8 +376,17 @@ public class CommentListPart extends Part {
 				select(comments.size(), -500);
 			}
 		});
+		view.findViewById(R.id.up).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				select(0, 5000);
+			}
+		});
 
 		view.findViewById(R.id.bar).getBackground().setAlpha(150);
+		/* Ставим для того, чтобы бар не пропускал на нижние вьюхи нажатия.*/
+		view.findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {}
+		});
 
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
@@ -417,7 +426,6 @@ public class CommentListPart extends Part {
 	 */
 	private class CommentListAdapter extends BaseAdapter {
 
-		private final int comment_ladder;
 		private final Context context;
 
 		private HashMap<Comment, CommentPart> comment_cache;
@@ -428,7 +436,6 @@ public class CommentListPart extends Part {
 			this.context = context;
 			comment_cache = new HashMap<>();
 			level_indicator = new LevelDrawable(context.getResources(), 0);
-			comment_ladder = context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
 		}
 
 		@Override public int getCount() {
@@ -469,13 +476,19 @@ public class CommentListPart extends Part {
 
 			}
 
-			max = max - 3 > 0 ? max - 3 : 0;
-			Log.v("Level", "" + max);
+			max = max - autoshift_offset > 0 ? max - autoshift_offset : 0;
 			setOffset(max);
 		}
 
 		double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
 		boolean autoshift = Static.cfg.ensure("comments.autoshift", true);
+		int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 5);
+
+		int comment_ladder =
+				(int) (
+						Static.ctx.getResources().getDisplayMetrics().density
+								* Static.cfg.ensure("comments.ladder", 25)
+				);
 
 		@SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {

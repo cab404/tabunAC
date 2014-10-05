@@ -1,8 +1,6 @@
-package com.cab404.ponyscape.parts;
+package com.cab404.ponyscape.parts.editor;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.cab404.acli.Part;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
+import com.cab404.ponyscape.parts.editor.plugins.ParameteredWrapPlugin;
+import com.cab404.ponyscape.parts.editor.plugins.SimpleEditorPlugin;
 
 /**
  * @author cab404
@@ -43,9 +44,33 @@ public class EditorPart extends Part {
 				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<s>", "</s>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_quote, "<blockquote>", "</blockquote>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_code, "<pre>", "</pre>"),
-				new SimpleEditorPlugin(R.drawable.ic_editor_link, "<a href=\"\">", "</a>"),
+				new ParameteredWrapPlugin(R.drawable.ic_editor_link, "<a href=\"%s\">", "</a>", "Введите адрес ссылки."),
+
+				new ParameteredWrapPlugin(
+						R.drawable.ic_editor_spoiler,
+						"<span class=\"spoiler\"><span class=\"spoiler-title\" onclick=\"return true;\">%s</span><span class=\"spoiler-body\">",
+						"</span></span>",
+						"Введите название спойлера"
+				),
+
+				new ParameteredWrapPlugin(
+						R.drawable.ic_editor_image,
+						"<img src=\"%s\"/>",
+						"",
+						"Введите адрес изображения"
+				),
 		};
 	}
+
+	boolean already_cancelled = false;
+	private void cancel() {
+		if (!already_cancelled) {
+			already_cancelled = true;
+			handler.cancelled();
+		}
+
+	}
+
 
 	@Override protected View create(LayoutInflater inflater, ViewGroup viewGroup, final Context context) {
 		View view = inflater.inflate(R.layout.part_redactor, viewGroup, false);
@@ -83,14 +108,16 @@ public class EditorPart extends Part {
 
 		view.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
-				if (handler.finished(editor.getText()))
+				if (handler.finished(editor.getText())) {
+					already_cancelled = true;
 					delete();
+				}
 			}
 		});
 
 		view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
-				handler.cancelled();
+				cancel();
 				delete();
 			}
 		});
@@ -99,64 +126,17 @@ public class EditorPart extends Part {
 		return view;
 	}
 
+	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
+		super.onRemove(view, parent, context);
+		cancel();
+	}
+
 	public static interface EditorActionHandler {
 		public boolean finished(CharSequence text);
 		public void cancelled();
 	}
 
-	public static interface EditorPlugin {
-		public Drawable getDrawable(Context context);
-		public void performAction(EditText text);
+	@Override public void delete() {
+		super.delete();
 	}
-
-	public static abstract class WrapEditorPlugin implements EditorPlugin {
-		protected abstract CharSequence getStart();
-		protected abstract CharSequence getEnd();
-
-		@Override public void performAction(EditText text) {
-			CharSequence start = getStart();
-			CharSequence end = getEnd();
-
-			int selectionStart;
-			int selectionEnd;
-			boolean sel = text.isSelected();
-
-			selectionEnd = text.getSelectionEnd();
-			selectionStart = text.getSelectionStart();
-
-			text.getText().insert(selectionEnd, end);
-			text.getText().insert(selectionStart, start);
-
-			if (sel)
-				text.setSelection(selectionStart, start.length() + end.length() + selectionEnd);
-			else
-				text.setSelection(selectionStart + start.length());
-		}
-	}
-
-	public static class SimpleEditorPlugin extends WrapEditorPlugin {
-		private final int drawable;
-		private final CharSequence start;
-		private final CharSequence end;
-
-		public SimpleEditorPlugin(int drawable, CharSequence start, CharSequence end) {
-			this.drawable = drawable;
-			this.start = start;
-			this.end = end;
-		}
-
-		@Override protected CharSequence getStart() {
-			return start;
-		}
-		@Override protected CharSequence getEnd() {
-			return end;
-		}
-		@Override public Drawable getDrawable(Context context) {
-			Drawable icon = context.getResources().getDrawable(drawable);
-			icon.setColorFilter(context.getResources().getColor(R.color.bg_item_label), PorterDuff.Mode.SRC_ATOP);
-			return icon;
-		}
-	}
-
-
 }

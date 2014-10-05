@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.utils.Static;
 
 /**
  * Для обозначения уровня комментария.
@@ -23,7 +24,10 @@ public class LevelDrawable extends Drawable {
 
 	public LevelDrawable(Resources res, int start) {
 		this.start = start;
-		section_size = res.getDimensionPixelSize(R.dimen.comment_ladder);
+		section_size = (int) (
+				Static.ctx.getResources().getDisplayMetrics().density
+						* Static.cfg.ensure("comments.ladder", 25)
+		);
 		limit = res.getInteger(R.integer.maximum_gradient_length);
 
 		gradient_start = res.getColor(R.color.comment_ladder_gradient_start);

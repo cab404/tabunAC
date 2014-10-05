@@ -4,16 +4,24 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
+import com.cab404.libtabun.data.CommonInfo;
+import com.cab404.libtabun.data.Profile;
+import com.cab404.libtabun.pages.ProfilePage;
+import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.moonlight.parser.HTMLTree;
+import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CreditsPart;
-import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.HelpPart;
+import com.cab404.ponyscape.parts.editor.EditorPart;
+import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.state.AliasUtils;
@@ -91,7 +99,7 @@ public class CoreCommands {
 				Static.bus.send(new E.Commands.Finished());
 				Static.bus.send(new E.Commands.Clear());
 			}
-		}, new EditorPart.EditorPlugin[]{});
+		}, new EditorPlugin[]{});
 
 		Static.bus.send(new E.Parts.Run(editorPart, true));
 
@@ -139,11 +147,12 @@ public class CoreCommands {
 				return true;
 			}
 			@Override public void cancelled() {
+				Log.v("Editor", "Cancelled invoked!");
 				Static.bus.send(new E.Commands.Finished());
 				Static.bus.send(new E.Commands.Clear());
 
 			}
-		}, new EditorPart.EditorPlugin[]{});
+		}, new EditorPlugin[]{});
 
 		Static.bus.send(new E.Parts.Run(editorPart, true));
 
@@ -248,6 +257,67 @@ public class CoreCommands {
 
 	@Command(command = "autoconf")
 	public void autoconf() {
+		new Thread() {
+			@Override public void run() {
+				Simple.checkNetworkConnection();
+
+				CommonInfo inf = Static.last_page == null ? null : Static.last_page.c_inf;
+
+				if (inf == null) {
+
+					TabunPage test_page = new TabunPage();
+					test_page.fetch(Static.user);
+
+					if (test_page.c_inf == null) {
+						Static.bus.send(new E.Commands.Error("Войдите за пользователя, чтобы заполнить ссылки подписками."));
+					}
+
+					inf = test_page.c_inf;
+				}
+
+				List<AliasUtils.Alias> aliases = new ArrayList<>();
+
+				if (inf != null) {
+					ProfilePage page = new ProfilePage(inf.username);
+					page.fetch(Static.user);
+					ArrayList<String> add_as_links = new ArrayList<>();
+
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.BELONGS));
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.ADMIN));
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.CREATED));
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.MODERATOR));
+
+					for (String s : add_as_links) {
+						if (s == null) continue;
+
+						HTMLTree tree = new HTMLTree(s);
+
+						for (Tag tag : tree.xPath("a"))
+							aliases.add(
+									new AliasUtils.Alias(
+											tree.getContents(tag),
+											"page load " + SU.sub(tag.get("href"), "/blog/", "/")
+									)
+							);
+
+					}
+
+				}
+
+				aliases.add(new AliasUtils.Alias("Настройки", "configure"));
+				aliases.add(new AliasUtils.Alias("Главная", "page load /"));
+				aliases.add(new AliasUtils.Alias("Архив", "saved posts"));
+				aliases.add(new AliasUtils.Alias("Почта", "mailbox"));
+				aliases.add(new AliasUtils.Alias("Вход", "login"));
+
+				AliasUtils.setAliases(aliases);
+
+				Static.bus.send(new E.Aliases.Update());
+				Static.bus.send(new E.Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
+
+			}
+		}.start();
 
 	}
 
