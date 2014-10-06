@@ -56,7 +56,7 @@ public class MailboxController extends Part {
 
 											} catch (MoonlightFail f) {
 												Log.w("MSG", f);
-												Static.bus.send(new E.Commands.Error("Не удалось удалить письма."));
+												Static.bus.send(new E.Commands.Failure("Не удалось удалить письма."));
 											}
 
 										}
@@ -92,7 +92,7 @@ public class MailboxController extends Part {
 
 						} catch (MoonlightFail f) {
 							Log.w("MSG", f);
-							Static.bus.send(new E.Commands.Error("Не удалось отметить письма как прочитанные."));
+							Static.bus.send(new E.Commands.Failure("Не удалось отметить письма как прочитанные."));
 						}
 
 					}

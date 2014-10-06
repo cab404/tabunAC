@@ -186,18 +186,18 @@ public class MainActivity extends AbstractActivity {
 
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
-				Static.bus.send(new E.Commands.Error("Команда не найдена"));
+				Static.bus.send(new E.Commands.Failure("Команда не найдена"));
 				Static.bus.send(new E.Commands.Finished());
 
 			} catch (Simple.NetworkNotFound nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
-				Static.bus.send(new E.Commands.Error("Нет подключения к Сети"));
+				Static.bus.send(new E.Commands.Failure("Нет подключения к Сети"));
 
 				Static.bus.send(new E.Commands.Finished());
 			} catch (NonEnclosedParesisException nf) {
 
 				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
-				Static.bus.send(new E.Commands.Error("Незакрытые кавычки."));
+				Static.bus.send(new E.Commands.Failure("Незакрытые кавычки."));
 				Static.bus.send(new E.Commands.Finished());
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
@@ -366,7 +366,7 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void error(E.Commands.Error err) {
+	public void error(E.Commands.Failure err) {
 		Toast toast = Toast.makeText(this, err.error, Toast.LENGTH_SHORT);
 		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
 		toast.show();

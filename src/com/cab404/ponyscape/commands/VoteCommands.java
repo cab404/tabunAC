@@ -68,10 +68,10 @@ public class VoteCommands {
 						Static.bus.send(new E.Commands.Success(request.msg));
 						send(type, id, request.result);
 					} else
-						Static.bus.send(new E.Commands.Error(request.msg));
+						Static.bus.send(new E.Commands.Failure(request.msg));
 
 				} catch (Exception e) {
-					Static.bus.send(new E.Commands.Error("Не удалось проголосовать."));
+					Static.bus.send(new E.Commands.Failure("Не удалось проголосовать."));
 					Log.e("VOTE", "ERR", e);
 				} finally {
 					Static.bus.send(new E.Commands.Clear());

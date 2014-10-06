@@ -55,7 +55,7 @@ public class PostCommands {
 					@Override protected void onResponseGain(HttpResponse response) {
 						if (response.getStatusLine().getStatusCode() / 100 >= 4) {
 							cancel();
-							Static.bus.send(new E.Commands.Error("Ошибка " + response.getStatusLine().getStatusCode()));
+							Static.bus.send(new E.Commands.Failure("Ошибка " + response.getStatusLine().getStatusCode()));
 							Static.bus.send(new E.Commands.Finished());
 						}
 					}
@@ -148,7 +148,7 @@ public class PostCommands {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Ошибка при загрузке поста."));
+					Static.bus.send(new E.Commands.Failure("Ошибка при загрузке поста."));
 					Log.w("PageCommands", f);
 				}
 
@@ -218,7 +218,7 @@ public class PostCommands {
 
 							return true;
 						} else {
-							Static.bus.send(new E.Commands.Error("Не все части поста найдены: " +
+							Static.bus.send(new E.Commands.Failure("Не все части поста найдены: " +
 									"проверьте, разделены ли теги, текст и заголовок '====='"));
 							return false;
 						}

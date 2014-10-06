@@ -246,7 +246,7 @@ public class CommentListPart extends Part {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Не удалось обновить список комментариев."));
+					Static.bus.send(new E.Commands.Failure("Не удалось обновить список комментариев."));
 				} finally {
 
 					Static.handler.post(new Runnable() {
@@ -326,7 +326,7 @@ public class CommentListPart extends Part {
 							refresh();
 
 						} catch (MoonlightFail f) {
-							Static.bus.send(new E.Commands.Error(msg));
+							Static.bus.send(new E.Commands.Failure(msg));
 							Static.bus.send(new E.Parts.Run(new EditorPart(title, text, handler), true));
 						}
 					}

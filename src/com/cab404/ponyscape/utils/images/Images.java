@@ -203,6 +203,8 @@ public class Images {
 
 					Bitmap bitmap = BitmapFactory.decodeStream(upstream, null, opt);
 
+					upstream.close();
+
 					/// Putting into file cache.
 					if (bitmap == null) {
 						if (!file.delete()) throw new RuntimeException("CANNOT REMOVE CACHE ENTRY " + file);

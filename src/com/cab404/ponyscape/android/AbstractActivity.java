@@ -85,7 +85,7 @@ public class AbstractActivity extends Activity {
 								if (response.getStatusLine().getStatusCode() / 100 < 4)
 									Static.bus.send(new E.Commands.Success("Приглашение принято."));
 								else
-									Static.bus.send(new E.Commands.Error("Ошибка при принятии приглашения : "
+									Static.bus.send(new E.Commands.Failure("Ошибка при принятии приглашения : "
 											+ response.getStatusLine().getStatusCode()));
 							}
 						}.start();
@@ -98,7 +98,7 @@ public class AbstractActivity extends Activity {
 								if (response.getStatusLine().getStatusCode() / 100 < 4)
 									Static.bus.send(new E.Commands.Success("Приглашение отвергнуто."));
 								else
-									Static.bus.send(new E.Commands.Error("Ошибка при отказе от приглашения : "
+									Static.bus.send(new E.Commands.Failure("Ошибка при отказе от приглашения : "
 											+ response.getStatusLine().getStatusCode()));
 							}
 						}.start();

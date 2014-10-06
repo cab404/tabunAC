@@ -95,9 +95,9 @@ public class E {
 		/**
 		 * Выводит ошибку на экран.
 		 */
-		public static class Error {
+		public static class Failure {
 			public final CharSequence error;
-			public Error(CharSequence error) {this.error = error;}
+			public Failure(CharSequence error) {this.error = error;}
 		}
 
 		/**

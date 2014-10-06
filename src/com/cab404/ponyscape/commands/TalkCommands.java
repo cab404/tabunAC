@@ -102,7 +102,7 @@ public class TalkCommands {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Ошибка при загрузке письма."));
+					Static.bus.send(new E.Commands.Failure("Ошибка при загрузке письма."));
 					Log.w("PageCommands", f);
 				}
 				Static.bus.unregister(page);
@@ -162,7 +162,7 @@ public class TalkCommands {
 
 							return true;
 						} else {
-							Static.bus.send(new E.Commands.Error("Не все части письма найдены: " +
+							Static.bus.send(new E.Commands.Failure("Не все части письма найдены: " +
 									"проверьте, разделены ли адресаты, текст и заголовок '====='"));
 							return false;
 						}

@@ -50,7 +50,7 @@ public class ArchCommands {
 							)
 					);
 		} catch (IOException | ParseException e) {
-			Static.bus.send(new E.Commands.Error("Ошибка при загрузке данных из архива: " + file));
+			Static.bus.send(new E.Commands.Failure("Ошибка при загрузке данных из архива: " + file));
 			Log.w("ERR", e);
 			if (!file.delete())
 				Log.wtf("Archive", "Не могу удалить запись из архива: " + file);
@@ -128,7 +128,7 @@ public class ArchCommands {
 
 		} else {
 
-			Static.bus.send(new E.Commands.Error("Нет такой записи в архиве."));
+			Static.bus.send(new E.Commands.Failure("Нет такой записи в архиве."));
 
 		}
 

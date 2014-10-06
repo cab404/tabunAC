@@ -88,7 +88,7 @@ public class PageCommands {
 				try {
 					page.fetch(Static.user);
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Ошибка при загрузке страницы."));
+					Static.bus.send(new E.Commands.Failure("Ошибка при загрузке страницы."));
 					Log.w("PageCommands", f);
 				}
 

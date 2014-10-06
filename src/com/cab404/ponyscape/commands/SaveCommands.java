@@ -43,7 +43,7 @@ public class SaveCommands {
 
 					data.put("comments", comments);
 					if (page.header == null) {
-						Static.bus.send(new E.Commands.Error("Не удалось сохранить пост - для нас его нет."));
+						Static.bus.send(new E.Commands.Failure("Не удалось сохранить пост - для нас его нет."));
 						Static.bus.send(new E.Commands.Finished());
 						return;
 					}
@@ -87,7 +87,7 @@ public class SaveCommands {
 
 					data.put("comments", comments);
 					if (page.header == null) {
-						Static.bus.send(new E.Commands.Error("Не удалось сохранить письмо, в нашем измерении его не существует."));
+						Static.bus.send(new E.Commands.Failure("Не удалось сохранить письмо, в нашем измерении его не существует."));
 						Static.bus.send(new E.Commands.Finished());
 						return;
 					}

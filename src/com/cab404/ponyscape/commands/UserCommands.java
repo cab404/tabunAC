@@ -46,10 +46,10 @@ public class UserCommands {
 							case BLOCK_ERROR:
 								switch ((TabunError) object) {
 									case NOT_FOUND:
-										Static.bus.send(new E.Commands.Error("Пользователя не существует."));
+										Static.bus.send(new E.Commands.Failure("Пользователя не существует."));
 										break;
 									default:
-										Static.bus.send(new E.Commands.Error("Произошла НЁХ. Свяжитесь со спецлужбами."));
+										Static.bus.send(new E.Commands.Failure("Произошла НЁХ. Свяжитесь со спецлужбами."));
 										break;
 								}
 								cancel();
@@ -68,7 +68,7 @@ public class UserCommands {
 				} catch (LoadingFail f) {
 					Log.w("Profile", name + ": Нет таких");
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Ошибка при запросе данных пользователя."));
+					Static.bus.send(new E.Commands.Failure("Ошибка при запросе данных пользователя."));
 					Log.w("UserInfo", f);
 				}
 				Static.last_page = page;
