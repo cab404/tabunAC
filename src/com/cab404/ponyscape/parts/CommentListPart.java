@@ -392,7 +392,6 @@ public class CommentListPart extends Part {
 		/* Настраиваем бар */
 		View bar = view.findViewById(R.id.bar);
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) bar.getLayoutParams();
-		params.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
 		params.addRule(bar_on_top ? RelativeLayout.ALIGN_PARENT_TOP : RelativeLayout.ALIGN_PARENT_BOTTOM);
 		bar.getBackground().setAlpha(150);
 		/* Ставим для того, чтобы бар не пропускал на нижние вьюхи нажатия.*/

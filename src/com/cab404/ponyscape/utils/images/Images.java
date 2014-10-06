@@ -201,6 +201,10 @@ public class Images {
 					// Reading saved image from file
 					BufferedInputStream upstream = new BufferedInputStream(new FileInputStream(file));
 
+					// Touching the file, so cache cleaning system think we've just downloaded it.
+					if (!file.setLastModified(System.currentTimeMillis()))
+						Log.wtf("Images", "I can't modify the timestream in file cache. How unfortunate.");
+
 					Bitmap bitmap = BitmapFactory.decodeStream(upstream, null, opt);
 
 					upstream.close();

@@ -48,6 +48,7 @@ public class TopicPart extends Part {
 
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
+		Log.v("View", "inf_invoked");
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 		{
 			((TextView) view.findViewById(R.id.title))
