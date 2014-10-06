@@ -130,9 +130,11 @@ public class CommentListPart extends Part {
 				.create(LayoutInflater.from(getContext()), listView, getContext());
 		((TopicPart) topicPart).setLink("");
 
-		// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
-		((LinearLayout.LayoutParams) ((LinearLayout) topic_view)
-				.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		if (bar_on_top) {
+			// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
+			((LinearLayout.LayoutParams) ((LinearLayout) topic_view)
+					.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		}
 
 		listView.addHeaderView(topic_view);
 		listView.setAdapter(adapter);
@@ -142,9 +144,11 @@ public class CommentListPart extends Part {
 		View letter_view = ((LetterPart) (topicPart = new LetterPart(letter)))
 				.create(LayoutInflater.from(getContext()), listView, getContext());
 
-		// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
-		((LinearLayout.LayoutParams) ((LinearLayout) letter_view)
-				.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		if (bar_on_top) {
+			// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
+			((LinearLayout.LayoutParams) ((LinearLayout) letter_view)
+					.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		}
 
 		listView.addHeaderView(letter_view);
 		listView.setAdapter(adapter);
@@ -339,9 +343,12 @@ public class CommentListPart extends Part {
 
 	}
 
+	boolean bar_on_top = Static.cfg.ensure("comments.bar_on_top", false);
+
 	@SuppressLint("NewApi")
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
+
 		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
 
@@ -355,21 +362,21 @@ public class CommentListPart extends Part {
 				move();
 			}
 		});
+
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
 				// показываем, что грузим комментарии
-
 				Anim.swapIcon(
 						((ImageView) view.findViewById(R.id.update)),
 						getContext().getResources().getDrawable(R.drawable.anim_luna)
 				);
-
 				invalidateNew();
 				refresh();
 			}
 		});
 
 		listView.setFastScrollEnabled(Static.cfg.ensure("comments.fast_scroll", false));
+
 
 		view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
@@ -382,9 +389,14 @@ public class CommentListPart extends Part {
 			}
 		});
 
-		view.findViewById(R.id.bar).getBackground().setAlpha(150);
+		/* Настраиваем бар */
+		View bar = view.findViewById(R.id.bar);
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) bar.getLayoutParams();
+		params.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+		params.addRule(bar_on_top ? RelativeLayout.ALIGN_PARENT_TOP : RelativeLayout.ALIGN_PARENT_BOTTOM);
+		bar.getBackground().setAlpha(150);
 		/* Ставим для того, чтобы бар не пропускал на нижние вьюхи нажатия.*/
-		view.findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
+		bar.setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {}
 		});
 
@@ -395,13 +407,6 @@ public class CommentListPart extends Part {
 
 		adapter = new CommentListAdapter(context);
 		listView.addFooterView(footer);
-//		listView.setAdapter(adapter);
-//
-//		/* Fadein-аем */
-//		if (Build.VERSION.SDK_INT >= 12) {
-//			view.setAlpha(0);
-//			view.animate().alpha(1).setDuration(200);
-//		}
 
 		return view;
 	}

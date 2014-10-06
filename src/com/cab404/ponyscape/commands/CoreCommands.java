@@ -133,8 +133,7 @@ public class CoreCommands {
 			public boolean finished(CharSequence text) {
 				int line_num = 0;
 				try {
-					JSONObject new_config = (JSONObject) new JSONParser().parse(text.toString());
-					Static.cfg.data = new_config;
+					Static.cfg.data = (JSONObject) new JSONParser().parse(text.toString());
 				} catch (ParseException e) {
 					Static.bus.send(new E.Commands.Error("Неправильный json ._."));
 					return false;
@@ -275,7 +274,7 @@ public class CoreCommands {
 					inf = test_page.c_inf;
 				}
 
-				List<AliasUtils.Alias> aliases = new ArrayList<>();
+				Collection<AliasUtils.Alias> aliases = new ArrayList<>();
 
 				if (inf != null) {
 					ProfilePage page = new ProfilePage(inf.username);
@@ -312,9 +311,10 @@ public class CoreCommands {
 
 				AliasUtils.setAliases(aliases);
 
-				Static.bus.send(new E.Aliases.Update());
 				Static.bus.send(new E.Commands.Finished());
 				Static.bus.send(new E.Commands.Clear());
+
+				Static.bus.send(new E.Aliases.Update());
 
 			}
 		}.start();

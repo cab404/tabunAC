@@ -64,10 +64,10 @@ public class HelpPart extends Part {
 								Log.v("Init", "SUCCESS");
 								Static.bus.unregister(this);
 								startup_command.append("login \"").append(credentials[0]).append("\" ").append(credentials[1]).append(";");
-								startup_command.append("autoconf; page load /");
+								startup_command.append("page load /");
 								Static.cfg.put("main.init", startup_command.toString());
 								Static.cfg.save();
-								Static.bus.send(new E.Commands.Run("page load /"));
+								Static.bus.send(new E.Commands.Run("autoconf; page load /"));
 							}
 
 							@Bus.Handler
@@ -100,8 +100,8 @@ public class HelpPart extends Part {
 							}
 
 							@Override public void cancelled() {
-								startup_command.append("autoconf; page load /");
-								Static.bus.send(new E.Commands.Run("page load /"));
+								startup_command.append("page load /");
+								Static.bus.send(new E.Commands.Run("autoconf; page load /"));
 								Static.cfg.put("main.init", startup_command.toString());
 								Static.cfg.save();
 								Static.bus.unregister(this);
@@ -117,11 +117,11 @@ public class HelpPart extends Part {
 							@Override public void resolved(boolean ok) {
 								if (ok) {
 									startup_command.append("login;");
-									startup_command.append("autoconf; page load /");
+									startup_command.append("page load /");
 									Static.cfg.put("main.init", startup_command.toString());
 									Static.cfg.save();
 
-									Static.bus.send(new E.Commands.Run("login; page load /"));
+									Static.bus.send(new E.Commands.Run("login; autoconf; page load /"));
 								} else {
 									Static.bus.send(new E.Parts.Run(request_login, true));
 								}
