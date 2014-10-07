@@ -48,7 +48,6 @@ public class CommentPart extends Part {
 
 	public void convert(final View view, Context context) {
 		this.view = view;
-		Log.v("View", "cm_upd_invoked");
 
 		/* Выставляем текст */
 		{

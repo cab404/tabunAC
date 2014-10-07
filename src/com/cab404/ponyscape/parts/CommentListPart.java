@@ -458,6 +458,16 @@ public class CommentListPart extends Part {
 		public void setOffset(int offset) {
 			if (c_level != offset) {
 				c_level = offset;
+
+				/* Иногда появляются проблемы с кэшем прорисовки на старых девайсах (привет, LazyOne) */
+				if (Build.VERSION.SDK_INT < 11) {
+					ViewGroup.LayoutParams params = listView.getLayoutParams();
+					DisplayMetrics dm = Static.ctx.getResources().getDisplayMetrics();
+					int nw = dm.widthPixels + offset * comment_ladder;
+					if (nw < params.width)
+						params.width = nw;
+				}
+
 				Anim.shift(listView, offset * comment_ladder, 100, null);
 			}
 		}
