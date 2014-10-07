@@ -35,7 +35,7 @@ public class MailboxController extends Part {
 						selected.ids.toArray(new Integer[selected.ids.size()])
 				);
 				Static.bus.send(new E.Parts.Run(new ConfirmPart(
-						"Вы уверены, что хотите отправить на луну " +
+						"Вы уверены, что хотите отправить на Луну " +
 								selected.ids.size() + " " +
 								Static.ctx.getResources().getQuantityString(R.plurals.letters, selected.ids.size()) + "?",
 						new ConfirmPart.ResultHandler() {
@@ -43,7 +43,9 @@ public class MailboxController extends Part {
 								if (ok)
 									new Thread() {
 										@Override public void run() {
+											Static.bus.send(new E.Commands.Run("luna"));
 											try {
+												Static.bus.send(new E.Status("Достигаю второй космической..."));
 												req.exec(Static.user);
 												E.Letters.UpdateDeleted deleted = new E.Letters.UpdateDeleted();
 												deleted.ids = selected.ids;
@@ -51,14 +53,14 @@ public class MailboxController extends Part {
 												Static.bus.send(new E.Commands.Success(
 														selected.ids.size() + " " +
 																Static.ctx.getResources().getQuantityString(R.plurals.letters, selected.ids.size())
-																+ " уже на луне."));
+																+ " уже на пути к Луне."));
 												Static.bus.send(deleted);
 
 											} catch (MoonlightFail f) {
 												Log.w("MSG", f);
-												Static.bus.send(new E.Commands.Failure("Не удалось удалить письма."));
+												Static.bus.send(new E.Commands.Failure("Не удалось достигнуть второй космической."));
 											}
-
+											Static.bus.send(new E.Commands.Finished());
 										}
 									}.start();
 							}
@@ -82,7 +84,9 @@ public class MailboxController extends Part {
 
 				new Thread() {
 					@Override public void run() {
+						Static.bus.send(new E.Commands.Run("luna"));
 						try {
+							Static.bus.send(new E.Status("Отмечаю письма знаком Чёрной Нинужнины..."));
 							req.exec(Static.user);
 							E.Letters.UpdateNew deleted = new E.Letters.UpdateNew();
 							deleted.ids = selected.ids;
@@ -94,6 +98,7 @@ public class MailboxController extends Part {
 							Log.w("MSG", f);
 							Static.bus.send(new E.Commands.Failure("Не удалось отметить письма как прочитанные."));
 						}
+						Static.bus.send(new E.Commands.Finished());
 
 					}
 				}.start();

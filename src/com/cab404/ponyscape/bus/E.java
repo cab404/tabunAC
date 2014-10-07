@@ -25,7 +25,7 @@ public class E {
 	}
 
 	public static class Status {
-		final String status;
+		public final String status;
 		public Status(String status) {this.status = status;}
 	}
 
@@ -34,8 +34,6 @@ public class E {
 	 */
 	public static class Android {
 		private Android() {}
-
-		public static class RootSizeChanged { }
 
 		/**
 		 * Запускает задание из текущей Activity

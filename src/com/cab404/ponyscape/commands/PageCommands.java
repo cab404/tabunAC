@@ -6,6 +6,7 @@ import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
 import com.cab404.libtabun.data.*;
 import com.cab404.libtabun.modules.BlogModule;
+import com.cab404.libtabun.modules.CommentModule;
 import com.cab404.libtabun.modules.LetterLabelModule;
 import com.cab404.libtabun.modules.TopicModule;
 import com.cab404.libtabun.pages.TabunPage;
@@ -27,12 +28,10 @@ public class PageCommands {
 	public void load(final String str) {
 		Simple.checkNetworkConnection();
 
-		final StaticTextPart loading = new StaticTextPart();
 		final String address = str.startsWith("/") ? str : "/blog/" + str;
 
 		Static.bus.send(new E.Parts.Clear());
-		Static.bus.send(new E.Parts.Add(loading));
-		loading.setText("Загружаю страницу...");
+		Static.bus.send(new E.Status("Загружаю страницу..."));
 
 		Static.history.add("page load " + str);
 
@@ -47,6 +46,7 @@ public class PageCommands {
 					@Override protected void bindParsers(ModularBlockParser base) {
 						super.bindParsers(base);
 						base.bind(new TopicModule(TopicModule.Mode.LIST), BLOCK_TOPIC_HEADER);
+						base.bind(new CommentModule(CommentModule.Mode.LIST), BLOCK_COMMENT);
 						base.bind(new LetterLabelModule(), BLOCK_LETTER_LABEL);
 						base.bind(new BlogModule(), BLOCK_BLOG_INFO);
 					}
@@ -61,6 +61,9 @@ public class PageCommands {
 							case BLOCK_ERROR:
 								Static.bus.send(new E.Parts.Add(new ErrorPart((TabunError) object)));
 								cancel();
+								break;
+							case BLOCK_COMMENT:
+								Static.bus.send(new E.Parts.Add(new CommentPart((Comment) object, false)));
 								break;
 							case BLOCK_PAGINATION:
 								Static.bus.send(new E.Parts.Add(new PaginatorPart((Paginator) object)));
@@ -82,7 +85,7 @@ public class PageCommands {
 					@Bus.Handler
 					public void cancel(E.Commands.Abort abort) {
 						super.cancel();
-						loading.delete();
+//						loading.delete();
 					}
 				};
 				try {
@@ -99,7 +102,7 @@ public class PageCommands {
 					@Override public void run() {
 						Static.bus.send(new E.Commands.Clear());
 						Static.bus.send(new E.Commands.Finished());
-						loading.delete();
+//						loading.delete();
 					}
 				});
 			}

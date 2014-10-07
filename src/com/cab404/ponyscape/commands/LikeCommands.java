@@ -50,6 +50,7 @@ public class LikeCommands {
 	void fav(final Type type, final int id, final boolean add) {
 		Simple.checkNetworkConnection();
 
+		Static.bus.send(new E.Status("Добавляю в избранное..."));
 		final FavRequest request = new FavRequest(type, id, add);
 		new Thread(new Runnable() {
 			@Override public void run() {

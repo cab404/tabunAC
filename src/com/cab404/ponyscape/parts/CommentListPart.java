@@ -19,14 +19,12 @@ import com.cab404.libtabun.requests.LSRequest;
 import com.cab404.libtabun.requests.RefreshCommentsRequest;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
-import com.cab404.sjbus.Bus;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -74,12 +72,6 @@ public class CommentListPart extends Part {
 		this.isLetter = isLetter;
 		comments = new ArrayList<>();
 		levels = new HashMap<>();
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onConfigChange(E.Android.RootSizeChanged e) {
-		listView.invalidate();
-		view.requestLayout();
 	}
 
 	public int indexOf(int id) {
@@ -213,6 +205,7 @@ public class CommentListPart extends Part {
 		);
 	}
 
+
 	/**
 	 * Убирает все отметки новых комментариев.
 	 */
@@ -228,6 +221,8 @@ public class CommentListPart extends Part {
 	public void refresh() {
 		new Thread("Update thread " + id) {
 			@Override public void run() {
+				Static.bus.send(new E.Commands.Run("luna"));
+				Static.bus.send(new E.Status("Обновляю комментарии..."));
 
 				RefreshCommentsRequest request =
 						new RefreshCommentsRequest(isLetter ? Type.TALK : Type.TOPIC, id, max_comment_id());
@@ -248,7 +243,7 @@ public class CommentListPart extends Part {
 				} catch (MoonlightFail f) {
 					Static.bus.send(new E.Commands.Failure("Не удалось обновить список комментариев."));
 				} finally {
-
+					Static.bus.send(new E.Commands.Finished());
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
 							// возвращаем стрелочку
@@ -312,6 +307,9 @@ public class CommentListPart extends Part {
 				final EditorPart.EditorActionHandler handler = this;
 				new Thread(new Runnable() {
 					@Override public void run() {
+						Static.bus.send(new E.Commands.Run("luna"));
+						Static.bus.send(new E.Status(isEditing ? "Редактирую комментарий..." : "Отправляю комментарий..."));
+
 						String msg = isEditing ? "Не удалось отредактировать комментарий." : "Не удалось добавить комментарий.";
 						try {
 							boolean success = request.exec(Static.user).success();
@@ -323,6 +321,7 @@ public class CommentListPart extends Part {
 								Static.bus.send(new E.Commands.Success(msg));
 							}
 
+							Static.bus.send(new E.Commands.Finished());
 							refresh();
 
 						} catch (MoonlightFail f) {

@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.LinearLayout;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.android.AbstractActivity;
-import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.views.ViewSugar;
@@ -95,13 +93,4 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 		super.onDestroy();
 	}
 
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onStart(E.Commands.Run unused) {
-		findViewById(R.id.loading).setVisibility(View.VISIBLE);
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onFinish(E.Commands.Finished unused) {
-		findViewById(R.id.loading).setVisibility(View.GONE);
-	}
 }

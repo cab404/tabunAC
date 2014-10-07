@@ -124,7 +124,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 
-			android:id="@+id/execution"
+			android:id="@+id/princess_Luna"
 
 			android:visibility="invisible"
 			android:padding="10dp"
@@ -136,9 +136,9 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="end"
-			android:layout_alignBottom="@+id/execution"
-			android:layout_toLeftOf="@+id/execution"
-			android:layout_alignTop="@+id/execution"
+			android:layout_alignBottom="@+id/princess_Luna"
+			android:layout_toLeftOf="@+id/princess_Luna"
+			android:layout_alignTop="@+id/princess_Luna"
 
 			>
 		<TextView
@@ -146,7 +146,6 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical|right"
-				android:text="New Text"
 				android:id="@+id/load_msg"
 				android:background="@drawable/bg_text_bubble"
 				android:padding="8dp"

@@ -106,7 +106,12 @@ public class PostCommands {
 								break;
 
 							case BLOCK_COMMENT:
-								comments.add((com.cab404.libtabun.data.Comment) object);
+								Comment comment = (Comment) object;
+								comments.add(comment);
+
+								if (!comment.deleted)
+									Static.bus.send(new E.Status("Комментарий от " + comment.author.login));
+
 								if (comments.size() > 50) {
 									final List<Comment> dump = comments;
 									comments = new LinkedList<>();

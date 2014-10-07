@@ -58,6 +58,7 @@ public class VoteCommands {
 	void vote(final Type type, final int id, final int vote) {
 		Simple.checkNetworkConnection();
 
+		Static.bus.send(new E.Status("Заряжаю плюсомёт..."));
 		final VoteRequest request = new VoteRequest(id, vote, type);
 		new Thread(new Runnable() {
 			@Override public void run() {

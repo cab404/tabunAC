@@ -52,6 +52,10 @@ public class CoreCommands {
 		Static.bus.send(new E.Commands.Clear());
 	}
 
+	@Command(command = "luna")
+	/** Running Luna, yay!*/
+	public void luna() {Static.bus.send(new E.Commands.Clear());}
+
 
 	@Command(command = "aliases")
 	public void aliases() {

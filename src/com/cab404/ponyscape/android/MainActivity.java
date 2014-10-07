@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -22,6 +23,7 @@ import com.cab404.jconsol.CommandManager;
 import com.cab404.jconsol.CommandNotFoundException;
 import com.cab404.jconsol.NonEnclosedParesisException;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.moonlight.util.RU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
@@ -32,6 +34,8 @@ import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.ponyscape.utils.state.AliasUtils;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.sjbus.Bus;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpHead;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -62,7 +66,7 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Called when the activity is first created.
 	 */
-	@Override
+	@SuppressWarnings("Annotator") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -97,14 +101,6 @@ public class MainActivity extends AbstractActivity {
 
 		/* Делаем бар полупрозрачным */
 		line.getBackground().setAlpha(200);
-
-		if (Build.VERSION.SDK_INT >= 11)
-			findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-				@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
-					if (oL != l || oR != r)
-						Static.bus.send(new E.Android.RootSizeChanged());
-				}
-			});
 
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
@@ -144,6 +140,7 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
+
 	private boolean command_running = false;
 	/**
 	 * Запускает команду в окошке и блокирует его изменение
@@ -162,8 +159,6 @@ public class MainActivity extends AbstractActivity {
 
 		if (data.length() != 0)
 			try {
-
-				findViewById(R.id.execution).setVisibility(View.VISIBLE);
 				command_running = true;
 				updateInput();
 
@@ -259,7 +254,6 @@ public class MainActivity extends AbstractActivity {
 			line.setHint("pony@tabun:$");
 		}
 
-		findViewById(R.id.execution).setVisibility(View.GONE);
 		if (!command_queue.isEmpty()) {
 			Log.v("MainActivity", "Command queue is not empty, executing command from queue. Queue size: " + command_queue.size());
 			Static.bus.send(new E.Commands.Run(command_queue.remove(0)));
@@ -364,7 +358,6 @@ public class MainActivity extends AbstractActivity {
 		toast.show();
 	}
 
-
 	@Bus.Handler
 	public synchronized void startActivityFromEvent(E.Android.StartActivityForResult e) {
 		int request_key = (int) (Math.random() * Integer.MAX_VALUE);
@@ -395,9 +388,9 @@ public class MainActivity extends AbstractActivity {
 	 * Переключает меню алиасов.
 	 */
 	public void onMenuButtonPressed(View view) {
-		if (!TextUtils.isEmpty(line.getText()) && !command_running)
-			execute();
-		else if (aliases_menu_active)
+		if (!TextUtils.isEmpty(line.getText()) && !command_running) {
+			Static.bus.send(new E.Commands.Run(String.valueOf(line.getText())));
+		} else if (aliases_menu_active)
 			hideAliases(alias_menu_animation_duration);
 		else
 			showAliases(alias_menu_animation_duration);
@@ -472,6 +465,7 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Показывает меню алиасов.
 	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showAliases(final int delay_per_item) {
 		line.setError(null);
 
@@ -632,4 +626,84 @@ public class MainActivity extends AbstractActivity {
 		}
 
 	}
+
+
+	/**
+	 * Тут происходит весь резолвинг адресов.
+	 */
+	@Override
+	protected void onNewIntent(final Intent intent) {
+		super.onNewIntent(intent);
+
+		if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+
+			Uri data = intent.getData();
+			Log.v("Main", "Получили новый Intent по адресу " + data);
+			List<String> segments = data.getPathSegments();
+			String command = null;
+
+			/* Корневой адрес */
+			if (segments.size() == 0)
+				command = "page load /";
+
+			if (segments.size() == 2) {
+
+				/* Обработка постов */
+				if ("blog".equals(segments.get(0)))
+					command = "page load " + segments.get(1);
+
+				/* Обработка профилей */
+				if ("profile".equals(segments.get(0)))
+					command = "user load " + segments.get(1);
+
+				/* Обработка ссылок на комментарии  */
+				if ("comments".equals(segments.get(0)))
+					command = "post by_comment " + segments.get(1);
+
+			}
+			if (segments.size() == 3) {
+				if ("blog".equals(segments.get(0))) {
+
+					/* Обработка приглашений в блоги */
+					if (segments.get(2).equals("accept"))
+						new Thread() {
+							@Override public void run() {
+								Simple.checkNetworkConnection();
+								HttpHead accept = new HttpHead(intent.getData().toString());
+								HttpResponse response = RU.exec(accept, Static.user);
+								if (response.getStatusLine().getStatusCode() / 100 < 4)
+									Static.bus.send(new E.Commands.Success("Приглашение принято."));
+								else
+									Static.bus.send(new E.Commands.Failure("Ошибка при принятии приглашения : "
+											+ response.getStatusLine().getStatusCode()));
+							}
+						}.start();
+					else if (segments.get(2).equals("reject"))
+						new Thread() {
+							@Override public void run() {
+								Simple.checkNetworkConnection();
+								HttpHead accept = new HttpHead(intent.getData().toString());
+								HttpResponse response = RU.exec(accept, Static.user);
+								if (response.getStatusLine().getStatusCode() / 100 < 4)
+									Static.bus.send(new E.Commands.Success("Приглашение отвергнуто."));
+								else
+									Static.bus.send(new E.Commands.Failure("Ошибка при отказе от приглашения : "
+											+ response.getStatusLine().getStatusCode()));
+							}
+						}.start();
+					else
+
+					/* Обработка постов */
+						command = "post load " + segments.get(2).replace(".html", "");
+				}
+			}
+
+			if (command != null)
+				Static.bus.send(new E.Commands.Run(command));
+
+		} else
+			super.onNewIntent(intent);
+	}
+
+
 }
