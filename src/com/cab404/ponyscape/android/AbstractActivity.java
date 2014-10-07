@@ -65,4 +65,30 @@ public class AbstractActivity extends Activity {
 		findViewById(R.id.princess_Luna).setVisibility(View.GONE);
 	}
 
+	public void luna_quote() {
+		if (findViewById(R.id.princess_Luna).getVisibility() == View.VISIBLE) return;
+		String[] phrases = getResources().getStringArray(R.array.luna_phrases);
+		String quote = phrases[((int) (Math.random() * phrases.length))];
+
+		Static.bus.send(new E.Commands.Run("luna"));
+		Static.bus.send(new E.Status(quote));
+
+		Static.handler.postDelayed(new Runnable() {
+			@Override public void run() {
+				Static.bus.send(new E.Commands.Finished());
+			}
+		}, 5000);
+	}
+
+	public void luna_quote(String quote) {
+		if (findViewById(R.id.princess_Luna).getVisibility() == View.VISIBLE) return;
+		Static.bus.send(new E.Commands.Run("luna"));
+		Static.bus.send(new E.Status(quote));
+
+		Static.handler.postDelayed(new Runnable() {
+			@Override public void run() {
+				Static.bus.send(new E.Commands.Finished());
+			}
+		}, 5000);
+	}
 }

@@ -505,7 +505,7 @@ public class CommentListPart extends Part {
 			/* Отметка о пустой секции комментариев. */
 			if (comments.size() == 0) {
 				return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.no_comments, viewGroup, false);
-			} else if (view.findViewById(R.id.avatar) == null)
+			} else if (view != null && view.findViewById(R.id.avatar) == null)
 				view = null;
 
 
