@@ -132,15 +132,8 @@ public class MainActivity extends AbstractActivity {
 		Static.handler.post(
 				new Runnable() {
 					@Override public void run() {
-						if (!bar_locked_by_expansion &&
-								findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()
-								) {
+						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()) {
 							showBar();
-						}
-						if (bar_locked_by_expansion) {
-							hideBar();
-							if (aliases_menu_active)
-								hideAliases(0);
 						}
 						Static.handler.postDelayed(this, 200);
 					}
@@ -227,6 +220,16 @@ public class MainActivity extends AbstractActivity {
 		}
 
 	}
+	@Override public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			if (aliases_menu_active)
+				hideAliases(alias_menu_animation_duration);
+			else
+				showAliases(alias_menu_animation_duration);
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
 
 	/*    / / / BUS
 	 * / / /
@@ -297,24 +300,6 @@ public class MainActivity extends AbstractActivity {
 		View root = findViewById(R.id.data_root);
 		e.width = root.getWidth();
 		e.height = root.getHeight();
-	}
-
-
-	boolean bar_locked_by_expansion = false;
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void expand(E.Parts.Expand e) {
-		findViewById(R.id.data).setPadding(0, 0, 0, 0);
-		findViewById(R.id.data).requestLayout();
-		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
-		bar_locked_by_expansion = true;
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void collapse(E.Parts.Collapse e) {
-		findViewById(R.id.data).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
-		findViewById(R.id.data).requestLayout();
-		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(true);
-		bar_locked_by_expansion = false;
 	}
 
 	@Bus.Handler
@@ -489,7 +474,10 @@ public class MainActivity extends AbstractActivity {
 	 */
 	private void showAliases(final int delay_per_item) {
 		line.setError(null);
-		if (aliases_menu_active | !bar_enabled | bar_processing | bar_locked_by_expansion) return;
+
+		if (aliases_menu_active | bar_processing) return;
+		if (!bar_enabled)
+			showBar();
 
 		aliases_menu_active = true;
 
@@ -578,7 +566,6 @@ public class MainActivity extends AbstractActivity {
 	 */
 	protected void hideBar() {
 		if (!bar_enabled || bar_processing || aliases_menu_active) return;
-		Log.v("Bar", "Hidden");
 		bar_enabled = false;
 		bar_processing = true;
 		updateInput();
@@ -599,7 +586,6 @@ public class MainActivity extends AbstractActivity {
 	protected void showBar() {
 		if (bar_enabled || bar_processing) return;
 
-		Log.v("Bar", "Shown");
 		bar_enabled = true;
 		bar_processing = true;
 		updateInput();
@@ -613,6 +599,7 @@ public class MainActivity extends AbstractActivity {
 		});
 
 	}
+
 
 	/**
 	 * Довольно интересная функция. В зависимости от кучи факторов включает

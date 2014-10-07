@@ -284,16 +284,6 @@ public class E {
 		}
 
 		/**
-		 * Убирает padding внизу листа
-		 */
-		public static class Expand { }
-
-		/**
-		 * Возвращает padding внизу листа
-		 */
-		public static class Collapse { }
-
-		/**
 		 * Очищает список.
 		 */
 		public static class Clear { }

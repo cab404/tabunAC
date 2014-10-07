@@ -13,6 +13,7 @@ import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
 import com.cab404.ponyscape.parts.editor.plugins.ParameteredWrapPlugin;
 import com.cab404.ponyscape.parts.editor.plugins.SimpleEditorPlugin;
+import com.cab404.ponyscape.parts.editor.plugins.SmilesPlugin;
 
 /**
  * @author cab404
@@ -59,6 +60,8 @@ public class EditorPart extends Part {
 						"",
 						"Введите адрес изображения"
 				),
+				new SmilesPlugin(),
+
 		};
 	}
 
@@ -104,7 +107,7 @@ public class EditorPart extends Part {
 			action.requestLayout();
 		}
 
-		if (plugins.length == 0) actions.setVisibility(View.GONE);
+		if (plugins.length == 0) view.findViewById(R.id.editor_actions_holder).setVisibility(View.GONE);
 
 		view.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {

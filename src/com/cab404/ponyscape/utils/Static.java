@@ -7,8 +7,8 @@ import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.util.TabunAccessProfile;
 import com.cab404.ponyscape.utils.images.Images;
 import com.cab404.ponyscape.utils.state.Settings;
-import com.cab404.theme_dances.ThemeManager;
 import com.cab404.sjbus.Bus;
+import com.cab404.theme_dances.ThemeManager;
 
 import java.util.ArrayList;
 
@@ -77,5 +77,7 @@ public class Static {
 	 * Темы
 	 */
 	public static ThemeManager theme = null;
+
+	public static float dp = 1;
 
 }

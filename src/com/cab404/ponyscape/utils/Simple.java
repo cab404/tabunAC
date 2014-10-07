@@ -63,6 +63,17 @@ public class Simple {
 		throw new NetworkNotFound();
 	}
 
+	public static void checkNonCellularConnection() {
+		ConnectivityManager net =
+				(ConnectivityManager) Static.ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		for (NetworkInfo info : net.getAllNetworkInfo())
+			if (info.isAvailable() && info.isConnected() && info.getType() != ConnectivityManager.TYPE_MOBILE)
+				return;
+
+		throw new NetworkNotFound();
+	}
+
 	public static void redirect(String to) {
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Run(to));

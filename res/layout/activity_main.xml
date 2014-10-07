@@ -148,7 +148,7 @@
 				android:layout_gravity="center_vertical|right"
 				android:text="New Text"
 				android:id="@+id/load_msg"
-				android:background="@drawable/bubble_bg"
+				android:background="@drawable/bg_text_bubble"
 				android:padding="8dp"
 				/>
 	</FrameLayout>

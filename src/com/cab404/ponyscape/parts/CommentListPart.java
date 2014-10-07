@@ -415,8 +415,6 @@ public class CommentListPart extends Part {
 
 		Static.bus.unregister(this);
 
-		Static.bus.send(new E.Parts.Collapse());
-
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
 		if (topicPart instanceof LetterPart)
@@ -443,7 +441,7 @@ public class CommentListPart extends Part {
 		}
 
 		@Override public int getCount() {
-			return comments.size();
+			return comments.size() == 0 ? 1 : comments.size();
 		}
 		@Override public Object getItem(int i) {
 			return comments.get(i);
@@ -504,6 +502,14 @@ public class CommentListPart extends Part {
 
 		@SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {
+
+			/* Отметка о пустой секции комментариев. */
+			if (comments.size() == 0) {
+				return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.no_comments, viewGroup, false);
+			} else if (view.findViewById(R.id.avatar) == null)
+				view = null;
+
+
 			final Comment comment = comments.get(i);
 			CommentPart part;
 

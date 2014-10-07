@@ -34,46 +34,25 @@ public class App extends Application {
 		if (!image_storage.exists() && !image_storage.mkdirs())
 			Log.w("Bootstrap", "Images won't be avalible.");
 
+		Static.dp = getBaseContext().getResources().getDisplayMetrics().density;
+
         /* Инициализируем статику. */
 		Static.bus = new Bus();
+
 		Static.cm = new CommandManager();
-		Static.user = new TabunAccessProfile();
-		Static.img = new Images(this, image_storage);
 		Static.ctx = getApplicationContext();
+		Static.user = new TabunAccessProfile();
+		Static.pools = new Pools();
 		Static.handler = new Handler(getMainLooper());
-		Static.history = new ArrayList<>();
+
 		Static.cfg = Settings.load(this, "settings.bin");
 		Static.obscure = Settings.load(this, "obscure.cfg");
-		Static.pools = new Pools();
 
-
-		JSONObject object = new JSONObject();
-//		object.put("font_color_command_line", "#FF0000");
-//		object.put("bg_main", "#FF0000");
-//		object.put("bg_tint", "#FF0000");
-//		object.put("bg_item", "#FF0000");
-//		object.put("bg_item_shadow", "#FF0000");
-//		object.put("bg_item_new", "#FF0000");
-//		object.put("bg_item_fav", "#FF0000");
-//		object.put("bg_item_label", "#FF0000");
-//		object.put("bg_shortcuts", "#FF0000");
-//		object.put("font_color_shortcuts", "#FF0000");
-//		object.put("font_color", "#FF0000");
-//		object.put("font_color_link", "#FF0000");
-//		object.put("font_color_red", "#FF0000");
-//		object.put("font_color_blue", "#FF0000");
-//		object.put("font_color_green", "#FF0000");
-//		object.put("comment_ladder_gradient_start", "#FF0000");
-//		object.put("comment_ladder_gradient_end", "#FF0000");
-//		object.put("spoiler_bg", "#FF0000");
-//		object.put("cut_border", "#FF0000");
-//		object.put("cut_bg", "#FF0000");
-//		object.put("code_bg", "#FF0000");
-//		object.put("code_color", "#FF0000");
-
+		Static.img = new Images(this, image_storage);
 		Static.theme = new ThemeManager(generateColorResolver(), getResources());
+		Static.history = new ArrayList<>();
 
-		Static.theme.setTheme(object);
+		Static.theme.setTheme(new JSONObject());
 		Static.img.reconfigure();
 		PartActivity.setup();
 

@@ -32,7 +32,7 @@
 		<HorizontalScrollView
 				android:layout_width="match_parent"
 				android:layout_height="32dp"
-				>
+				android:id="@+id/editor_actions_holder">
 			<LinearLayout
 					android:orientation="horizontal"
 					android:layout_width="wrap_content"

@@ -1,20 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
-		android:orientation="vertical"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+<RelativeLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:background="@color/bg_item">
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:background="@color/bg_item"
+		android:paddingTop="@dimen/external_margins"
+		android:paddingBottom="@dimen/external_margins">
 	<HorizontalScrollView
 			android:layout_width="match_parent"
-			android:layout_height="120dp"
-			>
+			android:layout_height="64dp"
+			android:layout_below="@+id/settings"
+			android:id="@+id/__1">
 		<LinearLayout
 				android:orientation="horizontal"
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
 				android:id="@+id/smiles">
 		</LinearLayout>
 	</HorizontalScrollView>
-</LinearLayout>
+	<ImageView
+			android:layout_width="24dp"
+			android:layout_height="24dp"
+			android:src="@drawable/ic_bar_settings"
+			android:id="@+id/settings"
+			android:tint="@color/bg_item_label"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="@dimen/external_margins"/>
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Смайлопак"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_above="@+id/__1"
+			android:textStyle="bold"
+			android:textSize="@dimen/title_text_size"
+			android:gravity="center_vertical"
+			android:paddingLeft="@dimen/external_margins"/>
+
+</RelativeLayout>

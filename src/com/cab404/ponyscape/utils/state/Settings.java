@@ -2,7 +2,6 @@ package com.cab404.ponyscape.utils.state;
 
 import android.content.Context;
 import android.util.Log;
-import com.cab404.ponyscape.utils.Static;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -33,7 +32,7 @@ public class Settings {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T ensure(String key, T def_value) {
-		Object curr = Static.cfg.get(key);
+		Object curr = get(key);
 
 		if (curr == null) {
 			put(key, def_value);

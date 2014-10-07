@@ -16,8 +16,8 @@ import com.cab404.moonlight.parser.HTMLTree;
 import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.HelpPart;
-import com.cab404.ponyscape.parts.SmilesPart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
 import com.cab404.ponyscape.utils.Simple;
@@ -47,7 +47,7 @@ public class CoreCommands {
 
 	@Command(command = "about")
 	public void displayCredits() {
-		Static.bus.send(new E.Parts.Run((new SmilesPart()), true));
+		Static.bus.send(new E.Parts.Run(new CreditsPart(), true));
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}
