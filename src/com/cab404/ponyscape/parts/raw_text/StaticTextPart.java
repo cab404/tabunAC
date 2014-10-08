@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.parts;
+package com.cab404.ponyscape.parts.raw_text;
 
 /**
  * Текст, который ещё и менять можно.

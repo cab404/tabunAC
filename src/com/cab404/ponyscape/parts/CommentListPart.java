@@ -94,7 +94,6 @@ public class CommentListPart extends Part {
 		// Проверка на повторения.
 		for (Comment cm : comments) if (comment.id == cm.id) return;
 
-
 		if (comment.parent == 0) {
 			levels.put(comment.id, 0);
 		} else {

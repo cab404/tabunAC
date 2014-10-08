@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.parts;
+package com.cab404.ponyscape.parts.help;
 
 import android.content.Context;
 import android.util.Log;
@@ -12,6 +12,7 @@ import com.cab404.jconsol.CommandHolder;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.parts.ConfirmPart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
 import com.cab404.ponyscape.utils.Static;
@@ -21,7 +22,7 @@ import com.cab404.sjbus.Bus;
 /**
  * @author cab404
  */
-public class HelpPart extends Part {
+public class MainHelpPart extends Part {
 
 	HtmlRipper ripper;
 

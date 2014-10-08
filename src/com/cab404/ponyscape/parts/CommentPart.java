@@ -5,7 +5,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +38,6 @@ public class CommentPart extends Part {
 	}
 
 	@Override public View create(LayoutInflater inflater, ViewGroup viewGroup, final Context context) {
-		Log.v("View", "inf_invoked");
 
 		view = inflater.inflate(R.layout.part_comment, viewGroup, false);
 		convert(view, context);

@@ -17,9 +17,10 @@ import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CreditsPart;
-import com.cab404.ponyscape.parts.HelpPart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
+import com.cab404.ponyscape.parts.help.ConfigHelpPart;
+import com.cab404.ponyscape.parts.help.MainHelpPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.state.AliasUtils;
@@ -40,7 +41,17 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new E.Parts.Add(new HelpPart()));
+		Static.bus.send(new E.Parts.Clear());
+		Static.bus.send(new E.Parts.Add(new MainHelpPart()));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
+
+	@Command(command = "help-config")
+	public void displayConfigHelp() {
+		Static.bus.send(new E.Parts.Clear());
+		Static.bus.send(new E.Parts.Add(new ConfigHelpPart()));
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}
@@ -307,6 +318,7 @@ public class CoreCommands {
 
 				aliases.add(new AliasUtils.Alias("Настройки", "configure"));
 				aliases.add(new AliasUtils.Alias("Главная", "page load /"));
+				aliases.add(new AliasUtils.Alias("Помощь", "help"));
 				aliases.add(new AliasUtils.Alias("Архив", "saved posts"));
 				aliases.add(new AliasUtils.Alias("Почта", "mailbox"));
 				aliases.add(new AliasUtils.Alias("Вход", "login"));
