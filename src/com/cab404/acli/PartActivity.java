@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.LinearLayout;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.android.AbstractActivity;
-import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.views.ViewSugar;
@@ -34,7 +32,7 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 	@Override public Part partAt(int index) {return part;}
 	@Override public int indexOf(Part part) {return 0;}
 	@Override public int size() {return 1;}
-	@Override public Context getContext() {return this;}
+	@Override public Context getContext() {return Static.theme.getContext(this);}
 
 
 	private static class PartLaunchHandler {
@@ -60,12 +58,13 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
 		if (getIntent().getBooleanExtra("floating", false))
 			setTheme(R.style.Ponyscape_Dialog);
 		else
 			setTheme(R.style.Ponyscape);
+
+		super.onCreate(savedInstanceState);
+
 
 		setContentView(R.layout.activity_part);
 
@@ -84,23 +83,14 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 
 		part.onInsert(this);
 
-		root.addView(part.create(getLayoutInflater(), root, this));
+		root.addView(part.create(getLayoutInflater(), root, getContext()));
 
 	}
 
 	@Override protected void onDestroy() {
 		if (part != null && root != null)
-			part.onRemove(root.getChildAt(0), root, this);
+			part.onRemove(root.getChildAt(0), root, getContext());
 		super.onDestroy();
 	}
 
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onStart(E.Commands.Run unused) {
-		findViewById(R.id.loading).setVisibility(View.VISIBLE);
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onFinish(E.Commands.Finished unused) {
-		findViewById(R.id.loading).setVisibility(View.GONE);
-	}
 }

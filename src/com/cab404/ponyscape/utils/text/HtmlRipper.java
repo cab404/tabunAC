@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.Layout;
@@ -46,6 +48,8 @@ public class HtmlRipper {
 	private Collection<Runnable> onDestroy;
 	private Collection<Runnable> onLayout;
 	private List<View> cached_contents;
+
+	private static final Rect IMAGE_REPLACER_BOUNDS = new Rect(0, 0, (int) (30 * Static.dp), (int) (30 * Static.dp));
 
 	public HtmlRipper(ViewGroup layout) {
 		cached_contents = new ArrayList<>();
@@ -400,12 +404,12 @@ public class HtmlRipper {
 
 							builder.insert(off + tag.start, "||image||");
 
-							Bitmap bm = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-							bm.eraseColor(Color.BLACK);
-
 							final String src = tag.get("src");
 
-							final ImageSpan replacer = new ImageSpan(context, bm);
+							Drawable dr = context.getResources().getDrawable(R.drawable.ic_image_loading);
+							dr.setBounds(IMAGE_REPLACER_BOUNDS);
+
+							final ImageSpan replacer = new ImageSpan(dr);
 
 							builder.setSpan(
 									replacer,
@@ -529,9 +533,6 @@ public class HtmlRipper {
 
 			@Bus.Handler(executor = AppContextExecutor.class)
 			public void error(E.GotData.Image.Error err) {
-				Bitmap replace = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
-				replace.eraseColor(Color.RED);
-
 				for (ImageSpan span : targets.getValues(err.src)) {
 					int start = builder.getSpanStart(span);
 					int end = builder.getSpanEnd(span);
@@ -541,8 +542,11 @@ public class HtmlRipper {
 					}
 
 					builder.removeSpan(span);
+					Drawable dr = context.getResources().getDrawable(R.drawable.ic_image_error);
+					dr.setBounds(IMAGE_REPLACER_BOUNDS);
+
 					builder.setSpan(
-							new ImageSpan(context, replace),
+							new ImageSpan(dr),
 							start,
 							end,
 							Spanned.SPAN_INCLUSIVE_EXCLUSIVE

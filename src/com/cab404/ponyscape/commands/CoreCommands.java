@@ -4,16 +4,23 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.widget.Toast;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
 import com.cab404.jconsol.converters.Str;
+import com.cab404.libtabun.data.CommonInfo;
+import com.cab404.libtabun.data.Profile;
+import com.cab404.libtabun.pages.ProfilePage;
+import com.cab404.libtabun.pages.TabunPage;
 import com.cab404.libtabun.util.TabunAccessProfile;
+import com.cab404.moonlight.parser.HTMLTree;
+import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CreditsPart;
-import com.cab404.ponyscape.parts.EditorPart;
-import com.cab404.ponyscape.parts.HelpPart;
+import com.cab404.ponyscape.parts.editor.EditorPart;
+import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
+import com.cab404.ponyscape.parts.help.ConfigHelpPart;
+import com.cab404.ponyscape.parts.help.MainHelpPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.state.AliasUtils;
@@ -34,17 +41,31 @@ public class CoreCommands {
 
 	@Command(command = "help")
 	public void displayHelp() {
-		Static.bus.send(new E.Parts.Add(new HelpPart()));
+		Static.bus.send(new E.Parts.Clear());
+		Static.bus.send(new E.Parts.Add(new MainHelpPart()));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
+
+	@Command(command = "help-config")
+	public void displayConfigHelp() {
+		Static.bus.send(new E.Parts.Clear());
+		Static.bus.send(new E.Parts.Add(new ConfigHelpPart()));
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}
 
 	@Command(command = "about")
 	public void displayCredits() {
-		Static.bus.send(new E.Parts.Run((new CreditsPart()), true));
+		Static.bus.send(new E.Parts.Run(new CreditsPart(), true));
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}
+
+	@Command(command = "luna")
+	/** Running Luna, yay!*/
+	public void luna() {Static.bus.send(new E.Commands.Clear());}
 
 
 	@Command(command = "aliases")
@@ -70,7 +91,7 @@ public class CoreCommands {
 					if (line.isEmpty()) continue;
 
 					if (!line.contains("->")) {
-						Static.bus.send(new E.Commands.Error("Нет разделителя в строке " + line_num));
+						Static.bus.send(new E.Commands.Failure("Нет разделителя в строке " + line_num));
 						return false;
 					} else {
 						List<String> parts = SU.split(line, "->", 2);
@@ -81,7 +102,6 @@ public class CoreCommands {
 				}
 
 				AliasUtils.setAliases(new_shortcuts);
-
 				Static.bus.send(new E.Aliases.Update());
 				Static.bus.send(new E.Commands.Finished());
 				Static.bus.send(new E.Commands.Clear());
@@ -91,7 +111,7 @@ public class CoreCommands {
 				Static.bus.send(new E.Commands.Finished());
 				Static.bus.send(new E.Commands.Clear());
 			}
-		}, new EditorPart.EditorPlugin[]{});
+		}, new EditorPlugin[]{});
 
 		Static.bus.send(new E.Parts.Run(editorPart, true));
 
@@ -125,10 +145,9 @@ public class CoreCommands {
 			public boolean finished(CharSequence text) {
 				int line_num = 0;
 				try {
-					JSONObject new_config = (JSONObject) new JSONParser().parse(text.toString());
-					Static.cfg.data = new_config;
+					Static.cfg.data = (JSONObject) new JSONParser().parse(text.toString());
 				} catch (ParseException e) {
-					Static.bus.send(new E.Commands.Error("Неправильный json ._."));
+					Static.bus.send(new E.Commands.Failure("Неправильный json ._."));
 					return false;
 				}
 
@@ -143,7 +162,7 @@ public class CoreCommands {
 				Static.bus.send(new E.Commands.Clear());
 
 			}
-		}, new EditorPart.EditorPlugin[]{});
+		}, new EditorPlugin[]{});
 
 		Static.bus.send(new E.Parts.Run(editorPart, true));
 
@@ -158,6 +177,8 @@ public class CoreCommands {
 
 	@Command(command = "login")
 	public void login() {
+		Simple.checkNetworkConnection();
+
 		try {
 			Static.bus.send(
 					new E.Android.StartActivityForResult(
@@ -165,20 +186,20 @@ public class CoreCommands {
 							new E.Android.StartActivityForResult.ResultHandler() {
 								@Override public void handle(int resultCode, Intent data) {
 									if (resultCode == Activity.RESULT_OK) {
-										Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
+										Static.bus.send(new E.Commands.Success("Вошли"));
 										Static.user = TabunAccessProfile.parseString(data.getStringExtra("everypony.tabun.cookie"));
 										Static.obscure.put("main.profile", Static.user.serialize());
 										Static.obscure.save();
 										Static.bus.send(new E.Login.Success());
 									} else {
-										Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
+										Static.bus.send(new E.Commands.Failure("Не вошли"));
 										Static.bus.send(new E.Login.Failure());
 									}
 									Static.bus.send(new E.Commands.Clear());
 									Static.bus.send(new E.Commands.Finished());
 								}
 								@Override public void error(Throwable e) {
-									Toast.makeText(Static.ctx, "Не вошли, нет Tabun.Auth", Toast.LENGTH_SHORT).show();
+									Static.bus.send(new E.Commands.Failure("Не вошли, установи Tabun.Auth и попробуй снова"));
 									Intent download = new Intent(
 											Intent.ACTION_VIEW,
 											Uri.parse("market://details?id=everypony.tabun.auth")
@@ -192,7 +213,7 @@ public class CoreCommands {
 					)
 			);
 		} catch (ActivityNotFoundException e) {
-			Static.bus.send(new E.Commands.Error("TabunAuth не установлен."));
+			Static.bus.send(new E.Commands.Failure("TabunAuth не установлен."));
 		}
 
 	}
@@ -224,13 +245,13 @@ public class CoreCommands {
 				Static.handler.post(new Runnable() {
 					@Override public void run() {
 						if (success) {
-							Toast.makeText(Static.ctx, "Вошли", Toast.LENGTH_SHORT).show();
+							Static.bus.send(new E.Commands.Success("Вошли"));
 							Static.obscure.put("main.profile", Static.user.serialize());
 							Static.obscure.save();
 							Static.bus.send(new E.Login.Success());
 							Static.bus.send(new E.Commands.Clear());
 						} else {
-							Toast.makeText(Static.ctx, "Не вошли", Toast.LENGTH_SHORT).show();
+							Static.bus.send(new E.Commands.Failure("Не вошли"));
 							Static.bus.send(new E.Login.Failure());
 						}
 						Static.bus.send(new E.Commands.Finished());
@@ -248,6 +269,69 @@ public class CoreCommands {
 
 	@Command(command = "autoconf")
 	public void autoconf() {
+		new Thread() {
+			@Override public void run() {
+				Simple.checkNetworkConnection();
+
+				CommonInfo inf = Static.last_page == null ? null : Static.last_page.c_inf;
+
+				if (inf == null) {
+
+					TabunPage test_page = new TabunPage();
+					test_page.fetch(Static.user);
+
+					if (test_page.c_inf == null) {
+						Static.bus.send(new E.Commands.Failure("Войдите за пользователя, чтобы заполнить ссылки подписками."));
+					}
+
+					inf = test_page.c_inf;
+				}
+
+				Collection<AliasUtils.Alias> aliases = new ArrayList<>();
+
+				if (inf != null) {
+					ProfilePage page = new ProfilePage(inf.username);
+					page.fetch(Static.user);
+					ArrayList<String> add_as_links = new ArrayList<>();
+
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.BELONGS));
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.ADMIN));
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.CREATED));
+					add_as_links.add(page.user_info.get(Profile.UserInfoType.MODERATOR));
+
+					for (String s : add_as_links) {
+						if (s == null) continue;
+
+						HTMLTree tree = new HTMLTree(s);
+
+						for (Tag tag : tree.xPath("a"))
+							aliases.add(
+									new AliasUtils.Alias(
+											tree.getContents(tag),
+											"page load " + SU.sub(tag.get("href"), "/blog/", "/")
+									)
+							);
+
+					}
+
+				}
+
+				aliases.add(new AliasUtils.Alias("Настройки", "configure"));
+				aliases.add(new AliasUtils.Alias("Главная", "page load /"));
+				aliases.add(new AliasUtils.Alias("Помощь", "help"));
+				aliases.add(new AliasUtils.Alias("Архив", "saved posts"));
+				aliases.add(new AliasUtils.Alias("Почта", "mailbox"));
+				aliases.add(new AliasUtils.Alias("Вход", "login"));
+
+				AliasUtils.setAliases(aliases);
+
+				Static.bus.send(new E.Commands.Finished());
+				Static.bus.send(new E.Commands.Clear());
+
+				Static.bus.send(new E.Aliases.Update());
+
+			}
+		}.start();
 
 	}
 

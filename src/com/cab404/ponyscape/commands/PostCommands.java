@@ -16,8 +16,8 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CommentListPart;
-import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.ErrorPart;
+import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
@@ -55,7 +55,7 @@ public class PostCommands {
 					@Override protected void onResponseGain(HttpResponse response) {
 						if (response.getStatusLine().getStatusCode() / 100 >= 4) {
 							cancel();
-							Static.bus.send(new E.Commands.Error("Ошибка " + response.getStatusLine().getStatusCode()));
+							Static.bus.send(new E.Commands.Failure("Ошибка " + response.getStatusLine().getStatusCode()));
 							Static.bus.send(new E.Commands.Finished());
 						}
 					}
@@ -106,7 +106,12 @@ public class PostCommands {
 								break;
 
 							case BLOCK_COMMENT:
-								comments.add((com.cab404.libtabun.data.Comment) object);
+								Comment comment = (Comment) object;
+								comments.add(comment);
+
+								if (!comment.deleted)
+									Static.bus.send(new E.Status("Комментарий от " + comment.author.login));
+
 								if (comments.size() > 50) {
 									final List<Comment> dump = comments;
 									comments = new LinkedList<>();
@@ -148,7 +153,7 @@ public class PostCommands {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Ошибка при загрузке поста."));
+					Static.bus.send(new E.Commands.Failure("Ошибка при загрузке поста."));
 					Log.w("PageCommands", f);
 				}
 
@@ -218,7 +223,7 @@ public class PostCommands {
 
 							return true;
 						} else {
-							Static.bus.send(new E.Commands.Error("Не все части поста найдены: " +
+							Static.bus.send(new E.Commands.Failure("Не все части поста найдены: " +
 									"проверьте, разделены ли теги, текст и заголовок '====='"));
 							return false;
 						}

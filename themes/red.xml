@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Сделано  для Krys -->
+
+	<color name="font_color_command_line">#ff231010</color>
+	<color name="bg_main">#ffffca98</color>
+	<color name="bg_tint">#aa000000</color>
+	<color name="bg_item">#ffffe3ec</color>
+	<color name="bg_item_shadow">#ffa38887</color>
+	<color name="bg_item_new">#ffdfeef3</color>
+	<color name="bg_item_fav">#ffff7200</color>
+	<color name="bg_item_selected">#ffffd8de</color>
+
+	<color name="bg_item_label">#ff5d3c3c</color>
+
+	<color name="bg_shortcuts">#ffff4400</color>
+	<color name="font_color_shortcuts">#ff7a0000</color>
+
+	<color name="font_color">#ff2e2223</color>
+	<color name="font_color_link">#ff4b1918</color>
+	<color name="font_color_red">#ffca0033</color>
+	<color name="font_color_blue">#ff0086b6</color>
+	<color name="font_color_green">#ff00ab4b</color>
+
+	<color name="comment_ladder_gradient_start">#ffffd5d8</color>
+	<color name="comment_ladder_gradient_end">#ffd21100</color>
+
+	<color name="spoiler_bg">#98604d4f</color>
+
+	<color name="cut_border">#ff885256</color>
+	<color name="cut_bg">#8568454a</color>
+
+	<color name="code_bg">#ff45383a</color>
+	<color name="code_color">#a9ffbfa0</color>
+
+</resources>

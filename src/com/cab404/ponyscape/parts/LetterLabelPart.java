@@ -42,7 +42,13 @@ public class LetterLabelPart extends Part {
 
 	private void select() {
 		selected = !selected;
-		view.getBackground().setAlpha(selected ? 150 : 255);
+		view.setBackgroundColor(
+				getContext()
+						.getResources()
+						.getColor(
+								selected ? R.color.bg_item_selected : R.color.bg_item
+						)
+		);
 	}
 
 	private void updateNew() {
@@ -58,7 +64,6 @@ public class LetterLabelPart extends Part {
 
 	@Bus.Handler
 	public void handleSelection(E.Letters.SelectAll e) {
-		selected = false;
 		select();
 	}
 

@@ -28,7 +28,6 @@
 			android:gravity="center">
 		<ImageView android:layout_width="@dimen/title_text_size"
 		           android:layout_height="@dimen/title_text_size"
-		           android:id="@+id/imageView2"
 		           android:src="@drawable/ic_bar_left"
 		           android:tint="@color/bg_item_label"/>
 		<TextView
@@ -60,7 +59,6 @@
 		<ImageView
 				android:layout_width="@dimen/title_text_size"
 				android:layout_height="@dimen/title_text_size"
-				android:id="@+id/imageView"
 				android:src="@drawable/ic_bar_right"
 				android:tint="@color/bg_item_label"/>
 	</LinearLayout>

@@ -50,6 +50,7 @@ public class LikeCommands {
 	void fav(final Type type, final int id, final boolean add) {
 		Simple.checkNetworkConnection();
 
+		Static.bus.send(new E.Status("Добавляю в избранное..."));
 		final FavRequest request = new FavRequest(type, id, add);
 		new Thread(new Runnable() {
 			@Override public void run() {
@@ -60,10 +61,10 @@ public class LikeCommands {
 						Static.bus.send(new E.Commands.Success(request.msg));
 						send(type, id, add);
 					} else
-						Static.bus.send(new E.Commands.Error(request.msg));
+						Static.bus.send(new E.Commands.Failure(request.msg));
 
 				} catch (Exception e) {
-					Static.bus.send(new E.Commands.Error("Не удалось изменить список избранного."));
+					Static.bus.send(new E.Commands.Failure("Не удалось изменить список избранного."));
 					Log.e("FAV", "ERR", e);
 				} finally {
 					Static.bus.send(new E.Commands.Clear());

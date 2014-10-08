@@ -24,13 +24,16 @@ public class E {
 
 	}
 
+	public static class Status {
+		public final String status;
+		public Status(String status) {this.status = status;}
+	}
+
 	/**
 	 * @author cab404
 	 */
 	public static class Android {
 		private Android() {}
-
-		public static class RootSizeChanged { }
 
 		/**
 		 * Запускает задание из текущей Activity
@@ -90,9 +93,9 @@ public class E {
 		/**
 		 * Выводит ошибку на экран.
 		 */
-		public static class Error {
+		public static class Failure {
 			public final CharSequence error;
-			public Error(CharSequence error) {this.error = error;}
+			public Failure(CharSequence error) {this.error = error;}
 		}
 
 		/**
@@ -277,16 +280,6 @@ public class E {
 			public final Part part;
 			public Focus(Part part) {this.part = part;}
 		}
-
-		/**
-		 * Убирает padding внизу листа
-		 */
-		public static class Expand { }
-
-		/**
-		 * Возвращает padding внизу листа
-		 */
-		public static class Collapse { }
 
 		/**
 		 * Очищает список.

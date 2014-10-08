@@ -31,6 +31,8 @@ public class DateUtils {
 	 */
 	public static String convertToString(Calendar calendar, Context context) {
 		Calendar current = Calendar.getInstance();
+		calendar.setTimeZone(current.getTimeZone());
+
 		StringBuilder data = new StringBuilder();
 
 		long delta = current.getTimeInMillis() - calendar.getTimeInMillis();

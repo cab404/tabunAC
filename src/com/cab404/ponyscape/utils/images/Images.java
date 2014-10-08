@@ -14,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.simple.JSONArray;
 
 import java.io.*;
 import java.lang.ref.Reference;
@@ -31,6 +32,8 @@ public class Images {
 	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
 	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
 	public static final String DOWNSCALE_IMAGES_CFG_ENTRY = "images.downscale";
+	public static final String ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY = "images.only_over_non_cellular";
+	public static final String BLOCKED_PATTERNS_IMAGES_CFG_ENTRY = "images.blocked_patterns";
 
 	private File cacheDir;
 	private long cut, file_cache;
@@ -68,6 +71,9 @@ public class Images {
 	}
 
 	public synchronized Bitmap scale(E.GotData.Image.Loaded loaded, int w, int h) {
+		/* NOPENOPENOPENOPENOPENOPE */
+		if (w == 0 || h == 0) return loaded.loaded;
+
 		if (scaled.containsKey(loaded.src))
 			scaled.put(loaded.src, new SparseArray<Reference<Bitmap>>());
 
@@ -80,7 +86,6 @@ public class Images {
 		}
 		if (versions.get(encoded_size) != null)
 			return versions.get(encoded_size).get();
-
 		final Bitmap scaled = Bitmap.createScaledBitmap(loaded.loaded, w, h, true);
 		versions.put(encoded_size, new WeakReference<>(scaled));
 		return scaled;
@@ -113,20 +118,43 @@ public class Images {
 	}
 
 	public synchronized void download(String in) {
+		/* Копируем, чтобы отправлять картинку обратно не по модифицированному url */
+		final String original_url = in;
+
+		if (load_blocked) {
+			Static.bus.send(new E.GotData.Image.Error(original_url));
+			return;
+		}
+
+		/* Проверяем, заблокированы ли картинки от этого хоста */
+		JSONArray blocked_patterns = Static.cfg.ensure(BLOCKED_PATTERNS_IMAGES_CFG_ENTRY, new JSONArray());
+		for (Object object : blocked_patterns) {
+			String str = String.valueOf(object);
+			if (SU.fast_match(str, in)) {
+				Static.bus.send(new E.GotData.Image.Error(original_url));
+				return;
+			}
+		}
+
+		try {
+			if (Static.cfg.ensure(ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY, false))
+				Simple.checkNonCellularConnection();
+			else
+				Simple.checkNetworkConnection();
+		} catch (Simple.NetworkNotFound e) {
+			Static.bus.send(new E.GotData.Image.Error(original_url));
+			return;
+		}
+
 		if (in.contains("poniez.net"))
 			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
 
 		final String src = in;
 
-		if (load_blocked) {
-			Static.bus.send(new E.GotData.Image.Error(src));
-			return;
-		}
-
 		/* Смотрим в кэше. */
 		if (cache.containsKey(src) && cache.get(src).get() != null) {
 			log("Got " + src + " from cache");
-			Static.bus.send(new E.GotData.Image.Loaded(cache.get(src).get(), src));
+			Static.bus.send(new E.GotData.Image.Loaded(cache.get(src).get(), original_url));
 			return;
 		}
 
@@ -136,7 +164,7 @@ public class Images {
 
 		/* Нету в загружаемых, добавляем и загружаем. */
 		loading.add(src);
-		new Thread(new Runnable() {
+		Runnable load_task = new Runnable() {
 			@Override public void run() {
 				try {
 
@@ -199,7 +227,13 @@ public class Images {
 					// Reading saved image from file
 					BufferedInputStream upstream = new BufferedInputStream(new FileInputStream(file));
 
+					// Touching the file, so cache cleaning system think we've just downloaded it.
+					if (!file.setLastModified(System.currentTimeMillis()))
+						Log.wtf("Images", "I can't modify the timestream in file cache. How unfortunate.");
+
 					Bitmap bitmap = BitmapFactory.decodeStream(upstream, null, opt);
+
+					upstream.close();
 
 					/// Putting into file cache.
 					if (bitmap == null) {
@@ -208,7 +242,7 @@ public class Images {
 						return;
 					}
 
-					Static.bus.send(new E.GotData.Image.Loaded(bitmap, src));
+					Static.bus.send(new E.GotData.Image.Loaded(bitmap, original_url));
 
 
 //					handler.handleBitmap(src, bitmap);
@@ -216,12 +250,15 @@ public class Images {
 					// Используем крайние меры отлова бродячих ошибок.
 				} catch (Throwable e) {
 					Log.e("Images", "Не могу загрузить картинку из " + src, e);
-					Static.bus.send(new E.GotData.Image.Error(src));
+					Static.bus.send(new E.GotData.Image.Error(original_url));
 				}
 				loading.remove(src);
 
 			}
-		}).start();
+		};
+
+		Static.pools.img_load.execute(load_task);
+
 	}
 
 }

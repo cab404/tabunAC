@@ -28,7 +28,18 @@
 				android:text="Заголовок, который ты не должен видеть."
 				android:id="@+id/title"
 				android:textStyle="bold"
-				/>
+				android:textColor="@color/bg_item_label"/>
+		<HorizontalScrollView
+				android:layout_width="match_parent"
+				android:layout_height="32dp"
+				android:id="@+id/editor_actions_holder">
+			<LinearLayout
+					android:orientation="horizontal"
+					android:layout_width="wrap_content"
+					android:layout_height="32dp"
+					android:id="@+id/editor_actions"/>
+
+		</HorizontalScrollView>
 		<EditText android:layout_width="match_parent"
 		          android:layout_height="wrap_content"
 
@@ -40,18 +51,9 @@
 		          android:gravity="left|top"
 		          android:scrollbars="vertical"
 		          android:maxLines="15"
-		          android:minLines="3"/>
-		<HorizontalScrollView
-				android:layout_width="match_parent"
-				android:layout_height="32dp"
-				>
-			<LinearLayout
-					android:orientation="horizontal"
-					android:layout_width="wrap_content"
-					android:layout_height="32dp"
-					android:id="@+id/editor_actions"/>
-
-		</HorizontalScrollView>
+		          android:minLines="3"
+		          android:textColorHint="@color/bg_item_shadow"
+		          android:layout_marginBottom="@dimen/internal_margins"/>
 	</LinearLayout>
 
 	<LinearLayout
@@ -59,7 +61,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="48dp"
 			android:padding="4dp"
-			android:background="@drawable/bg_part_secondary"
+			android:background="@drawable/bg_part"
 			android:gravity="right"
 			android:layout_gravity="right"
 			android:layout_marginTop="5dp"

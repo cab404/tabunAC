@@ -38,6 +38,7 @@ public class CommentPart extends Part {
 	}
 
 	@Override public View create(LayoutInflater inflater, ViewGroup viewGroup, final Context context) {
+
 		view = inflater.inflate(R.layout.part_comment, viewGroup, false);
 		convert(view, context);
 		return view;
@@ -62,7 +63,7 @@ public class CommentPart extends Part {
 			ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
 			avatar.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					Static.bus.send(new E.Commands.Run("user load " + comment.author.login));
+					Static.bus.send(new E.Commands.Run("user load \"" + comment.author.login + "\""));
 				}
 			});
 			if (!comment.author.small_icon.equals(avatar.getTag())) {
@@ -184,11 +185,13 @@ public class CommentPart extends Part {
 
 	@Bus.Handler
 	public void handleVoteChange(final E.GotData.Vote.Comment vote) {
+		if (comment.id == vote.id)
+			comment.votes = vote.votes;
+
 		if (comment.id == vote.id) {
 			Static.handler.post(
 					new Runnable() {
 						@Override public void run() {
-							comment.votes = vote.votes;
 							final TextView rating = (TextView) view.findViewById(R.id.rating);
 							Anim.swapText(rating, (comment.votes > 0 ? "+" : "") + comment.votes);
 						}
@@ -199,11 +202,13 @@ public class CommentPart extends Part {
 
 	@Bus.Handler
 	public void handleFavChange(final E.GotData.Fav.Comment fav) {
+		if (comment.id == fav.id)
+			comment.in_favs = fav.added;
+
 		if (view.findViewById(R.id.favourite).getTag().equals(fav.id)) {
 			Static.handler.post(
 					new Runnable() {
 						@Override public void run() {
-							comment.in_favs = fav.added;
 							Anim.recolorIcon(
 									(ImageView) view.findViewById(R.id.favourite),
 									Static.ctx.getResources().getColor

@@ -19,13 +19,12 @@ import com.cab404.libtabun.requests.LSRequest;
 import com.cab404.libtabun.requests.RefreshCommentsRequest;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
-import com.cab404.sjbus.Bus;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -75,12 +74,6 @@ public class CommentListPart extends Part {
 		levels = new HashMap<>();
 	}
 
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void onConfigChange(E.Android.RootSizeChanged e) {
-		listView.invalidate();
-		view.requestLayout();
-	}
-
 	public int indexOf(int id) {
 
 		for (int i = 0; i < comments.size(); i++)
@@ -100,7 +93,6 @@ public class CommentListPart extends Part {
 
 		// Проверка на повторения.
 		for (Comment cm : comments) if (comment.id == cm.id) return;
-
 
 		if (comment.parent == 0) {
 			levels.put(comment.id, 0);
@@ -129,9 +121,11 @@ public class CommentListPart extends Part {
 				.create(LayoutInflater.from(getContext()), listView, getContext());
 		((TopicPart) topicPart).setLink("");
 
-		// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
-		((LinearLayout.LayoutParams) ((LinearLayout) topic_view)
-				.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		if (bar_on_top) {
+			// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
+			((LinearLayout.LayoutParams) ((LinearLayout) topic_view)
+					.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		}
 
 		listView.addHeaderView(topic_view);
 		listView.setAdapter(adapter);
@@ -141,9 +135,11 @@ public class CommentListPart extends Part {
 		View letter_view = ((LetterPart) (topicPart = new LetterPart(letter)))
 				.create(LayoutInflater.from(getContext()), listView, getContext());
 
-		// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
-		((LinearLayout.LayoutParams) ((LinearLayout) letter_view)
-				.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		if (bar_on_top) {
+			// Ужс. Добавляем марджин сверху, чтобы бар не накладывался на заголовок.
+			((LinearLayout.LayoutParams) ((LinearLayout) letter_view)
+					.getChildAt(0).getLayoutParams()).topMargin += getBarHeight();
+		}
 
 		listView.addHeaderView(letter_view);
 		listView.setAdapter(adapter);
@@ -208,6 +204,7 @@ public class CommentListPart extends Part {
 		);
 	}
 
+
 	/**
 	 * Убирает все отметки новых комментариев.
 	 */
@@ -223,6 +220,8 @@ public class CommentListPart extends Part {
 	public void refresh() {
 		new Thread("Update thread " + id) {
 			@Override public void run() {
+				Static.bus.send(new E.Commands.Run("luna"));
+				Static.bus.send(new E.Status("Обновляю комментарии..."));
 
 				RefreshCommentsRequest request =
 						new RefreshCommentsRequest(isLetter ? Type.TALK : Type.TOPIC, id, max_comment_id());
@@ -241,9 +240,9 @@ public class CommentListPart extends Part {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Не удалось обновить список комментариев."));
+					Static.bus.send(new E.Commands.Failure("Не удалось обновить список комментариев."));
 				} finally {
-
+					Static.bus.send(new E.Commands.Finished());
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
 							// возвращаем стрелочку
@@ -307,6 +306,9 @@ public class CommentListPart extends Part {
 				final EditorPart.EditorActionHandler handler = this;
 				new Thread(new Runnable() {
 					@Override public void run() {
+						Static.bus.send(new E.Commands.Run("luna"));
+						Static.bus.send(new E.Status(isEditing ? "Редактирую комментарий..." : "Отправляю комментарий..."));
+
 						String msg = isEditing ? "Не удалось отредактировать комментарий." : "Не удалось добавить комментарий.";
 						try {
 							boolean success = request.exec(Static.user).success();
@@ -318,10 +320,11 @@ public class CommentListPart extends Part {
 								Static.bus.send(new E.Commands.Success(msg));
 							}
 
+							Static.bus.send(new E.Commands.Finished());
 							refresh();
 
 						} catch (MoonlightFail f) {
-							Static.bus.send(new E.Commands.Error(msg));
+							Static.bus.send(new E.Commands.Failure(msg));
 							Static.bus.send(new E.Parts.Run(new EditorPart(title, text, handler), true));
 						}
 					}
@@ -338,9 +341,12 @@ public class CommentListPart extends Part {
 
 	}
 
+	boolean bar_on_top = Static.cfg.ensure("comments.bar_on_top", false);
+
 	@SuppressLint("NewApi")
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
+
 		view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
 		listView = (ListView) view.findViewById(R.id.comment_list);
 
@@ -354,15 +360,14 @@ public class CommentListPart extends Part {
 				move();
 			}
 		});
+
 		view.findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View onClick) {
 				// показываем, что грузим комментарии
-
 				Anim.swapIcon(
 						((ImageView) view.findViewById(R.id.update)),
 						getContext().getResources().getDrawable(R.drawable.anim_luna)
 				);
-
 				invalidateNew();
 				refresh();
 			}
@@ -370,13 +375,27 @@ public class CommentListPart extends Part {
 
 		listView.setFastScrollEnabled(Static.cfg.ensure("comments.fast_scroll", false));
 
+
 		view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
 				select(comments.size(), -500);
 			}
 		});
+		view.findViewById(R.id.up).setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				select(0, 5000);
+			}
+		});
 
-		view.findViewById(R.id.bar).getBackground().setAlpha(150);
+		/* Настраиваем бар */
+		View bar = view.findViewById(R.id.bar);
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) bar.getLayoutParams();
+		params.addRule(bar_on_top ? RelativeLayout.ALIGN_PARENT_TOP : RelativeLayout.ALIGN_PARENT_BOTTOM);
+		bar.getBackground().setAlpha(150);
+		/* Ставим для того, чтобы бар не пропускал на нижние вьюхи нажатия.*/
+		bar.setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {}
+		});
 
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 
@@ -385,13 +404,6 @@ public class CommentListPart extends Part {
 
 		adapter = new CommentListAdapter(context);
 		listView.addFooterView(footer);
-//		listView.setAdapter(adapter);
-//
-//		/* Fadein-аем */
-//		if (Build.VERSION.SDK_INT >= 12) {
-//			view.setAlpha(0);
-//			view.animate().alpha(1).setDuration(200);
-//		}
 
 		return view;
 	}
@@ -400,8 +412,6 @@ public class CommentListPart extends Part {
 		super.onRemove(view, parent, context);
 
 		Static.bus.unregister(this);
-
-		Static.bus.send(new E.Parts.Collapse());
 
 		for (CommentPart part : adapter.comment_cache.values()) part.kill();
 
@@ -416,7 +426,6 @@ public class CommentListPart extends Part {
 	 */
 	private class CommentListAdapter extends BaseAdapter {
 
-		private final int comment_ladder;
 		private final Context context;
 
 		private HashMap<Comment, CommentPart> comment_cache;
@@ -427,11 +436,10 @@ public class CommentListPart extends Part {
 			this.context = context;
 			comment_cache = new HashMap<>();
 			level_indicator = new LevelDrawable(context.getResources(), 0);
-			comment_ladder = context.getResources().getDimensionPixelSize(R.dimen.comment_ladder);
 		}
 
 		@Override public int getCount() {
-			return comments.size();
+			return comments.size() == 0 ? 1 : comments.size();
 		}
 		@Override public Object getItem(int i) {
 			return comments.get(i);
@@ -446,17 +454,62 @@ public class CommentListPart extends Part {
 		public void setOffset(int offset) {
 			if (c_level != offset) {
 				c_level = offset;
+
+				/* Иногда появляются проблемы с кэшем прорисовки на старых девайсах (привет, LazyOne) */
+				if (Build.VERSION.SDK_INT < 11) {
+					ViewGroup.LayoutParams params = listView.getLayoutParams();
+					DisplayMetrics dm = Static.ctx.getResources().getDisplayMetrics();
+					int nw = dm.widthPixels + offset * comment_ladder;
+					if (nw < params.width)
+						params.width = nw;
+				}
+
 				Anim.shift(listView, offset * comment_ladder, 100, null);
 			}
 		}
 
+
+		/**
+		 * Передвигает дерево по максимальному комменту.
+		 */
+		private void autoshift() {
+			int max = 0;
+			for (int i = 0; i < listView.getCount(); i++) {
+				View child = listView.getChildAt(i);
+				if (child == null) continue;
+				Object tag = child.getTag(R.id.id);
+
+				if (tag != null)
+					max = Math.max((Integer) tag, max);
+
+			}
+
+			max = max - autoshift_offset > 0 ? max - autoshift_offset : 0;
+			setOffset(max);
+		}
+
 		double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
+		boolean autoshift = Static.cfg.ensure("comments.autoshift", true);
+		int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 5);
+
+		int comment_ladder =
+				(int) (
+						Static.ctx.getResources().getDisplayMetrics().density
+								* Static.cfg.ensure("comments.ladder", 25)
+				);
 
 		@SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
 		@Override public View getView(int i, View view, ViewGroup viewGroup) {
+
+			/* Отметка о пустой секции комментариев. */
+			if (comments.size() == 0) {
+				return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.no_comments, viewGroup, false);
+			} else if (view != null && view.findViewById(R.id.avatar) == null)
+				view = null;
+
+
 			final Comment comment = comments.get(i);
 			CommentPart part;
-
 
 			/* Проверяем кэш на наличие собранных вьюх */
 			if (!comment_cache.containsKey(comment)) {
@@ -471,6 +524,8 @@ public class CommentListPart extends Part {
 				view = part.create(LayoutInflater.from(viewGroup.getContext()), viewGroup, viewGroup.getContext());
 			else
 				part.convert(view, viewGroup.getContext());
+
+			view.setTag(R.id.id, levels.get(comment.id));
 
 			/* Начинаем колбаситься */
 			LinearLayout.LayoutParams rootLayoutParams = (LinearLayout.LayoutParams) view.findViewById(R.id.root).getLayoutParams();
@@ -490,6 +545,11 @@ public class CommentListPart extends Part {
 						setOffset(level);
 				}
 			};
+
+			/**
+			 *  Сдвигаем всё нафиг.
+			 */
+			if (autoshift) autoshift();
 
 			view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
 			right_margin.setOnClickListener(shiftInvoker);

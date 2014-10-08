@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Комментариев нету"
+			android:layout_gravity="center_horizontal"
+			android:textColor="@color/font_color_command_line"
+			android:textSize="@dimen/title_text_size"
+			android:layout_marginTop="16dp"/>
+	<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="70dp"
+			android:layout_gravity="center_horizontal"
+			android:src="@drawable/ic_tumble_weed"/>
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Напиши или обнови их, что ли ._."
+			android:layout_gravity="center_horizontal"
+			android:textColor="@color/font_color_command_line"
+			android:textSize="@dimen/small_text_size"
+			/>
+</LinearLayout>

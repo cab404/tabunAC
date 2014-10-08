@@ -39,9 +39,9 @@ import org.apache.http.client.methods.HttpHead;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AbstractActivity {
 
@@ -52,7 +52,7 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Запущеные для результата задания. Точнее, слушалки этих самых результатов.
 	 */
-	private Map<Integer, E.Android.StartActivityForResult.ResultHandler> running = new HashMap<>();
+	private Map<Integer, E.Android.StartActivityForResult.ResultHandler> running = new ConcurrentHashMap<>();
 	/**
 	 * Менеджер всея листа.
 	 */
@@ -66,14 +66,13 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Called when the activity is first created.
 	 */
-	@Override
+	@SuppressWarnings("Annotator") @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
 
 		/* Кэшируем константы*/
-		alias_menu_animation_duration = Static.cfg.ensure("main.anim_delay", 50);
+		alias_menu_animation_duration = Static.cfg.ensure("main.anim_delay", 20);
 
         /* Привязываем локальные переменные */
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));
@@ -103,14 +102,6 @@ public class MainActivity extends AbstractActivity {
 		/* Делаем бар полупрозрачным */
 		line.getBackground().setAlpha(200);
 
-		if (Build.VERSION.SDK_INT >= 11)
-			findViewById(R.id.data_root).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-				@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
-					if (oL != l || oR != r)
-						Static.bus.send(new E.Android.RootSizeChanged());
-				}
-			});
-
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
 		view.setHandler(new FollowableScrollView.ScrollHandler() {
@@ -137,15 +128,8 @@ public class MainActivity extends AbstractActivity {
 		Static.handler.post(
 				new Runnable() {
 					@Override public void run() {
-						if (!bar_locked_by_expansion &&
-								findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()
-								) {
+						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()) {
 							showBar();
-						}
-						if (bar_locked_by_expansion) {
-							hideBar();
-							if (aliases_menu_active)
-								hideAliases(0);
 						}
 						Static.handler.postDelayed(this, 200);
 					}
@@ -154,7 +138,34 @@ public class MainActivity extends AbstractActivity {
 		/* Пытаемся достать init-команду */
 		Static.bus.send(new E.Commands.Run(Static.cfg.ensure("main.init", "help")));
 
+		/* Луняшим. */
+		Static.handler.postDelayed(new Runnable() {
+			@Override public void run() {
+				luna_quote();
+				int rnd = (int) (60000 * Math.random()) + 200000;
+				Static.handler.postDelayed(this, rnd);
+			}
+		}, 111111);
+
+		/* Луняшим. */
+		Static.handler.postDelayed(new Runnable() {
+			@Override public void run() {
+				if (
+						Static.last_page != null
+								&& Static.last_page.c_inf != null
+								&& Static.last_page.c_inf.new_messages > 0) {
+					luna_quote("У тебя " +
+							Static.last_page.c_inf.new_messages + " " +
+							getResources().getQuantityString(R.plurals.letters, Static.last_page.c_inf.new_messages) +
+							" в почтовом ящике. " +
+							"И я буду повторять тебе это постоянно.");
+				}
+				int rnd = (int) (15000 * Math.random()) + 40000;
+				Static.handler.postDelayed(this, rnd);
+			}
+		}, 10000);
 	}
+
 
 	private boolean command_running = false;
 	/**
@@ -174,8 +185,6 @@ public class MainActivity extends AbstractActivity {
 
 		if (data.length() != 0)
 			try {
-
-				findViewById(R.id.execution).setVisibility(View.VISIBLE);
 				command_running = true;
 				updateInput();
 
@@ -191,18 +200,18 @@ public class MainActivity extends AbstractActivity {
 
 			} catch (CommandNotFoundException e) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — command not found.");
-				Static.bus.send(new E.Commands.Error("Команда не найдена"));
+				Static.bus.send(new E.Commands.Failure("Команда не найдена"));
 				Static.bus.send(new E.Commands.Finished());
 
 			} catch (Simple.NetworkNotFound nf) {
 				Log.e("Command execution", "Error while evaluating '" + data + "' — network not found.");
-				Static.bus.send(new E.Commands.Error("Нет подключения к Сети"));
+				Static.bus.send(new E.Commands.Failure("Нет подключения к Сети"));
 
 				Static.bus.send(new E.Commands.Finished());
 			} catch (NonEnclosedParesisException nf) {
 
 				Log.e("Command execution", "Error while evaluating '" + data + "' — non-enclosed paresis.");
-				Static.bus.send(new E.Commands.Error("Незакрытые кавычки."));
+				Static.bus.send(new E.Commands.Failure("Незакрытые кавычки."));
 				Static.bus.send(new E.Commands.Finished());
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
@@ -212,8 +221,7 @@ public class MainActivity extends AbstractActivity {
 
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		Log.v("Main", "Got  activity result!");
+		Log.v("Main", "Получили результат " + requestCode + ": " + data);
 		running.remove(requestCode).handle(resultCode, data);
 	}
 
@@ -232,6 +240,16 @@ public class MainActivity extends AbstractActivity {
 			super.onBackPressed();
 		}
 
+	}
+	@Override public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			if (aliases_menu_active)
+				hideAliases(alias_menu_animation_duration);
+			else
+				showAliases(alias_menu_animation_duration);
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	/*    / / / BUS
@@ -262,7 +280,6 @@ public class MainActivity extends AbstractActivity {
 			line.setHint("pony@tabun:$");
 		}
 
-		findViewById(R.id.execution).setVisibility(View.GONE);
 		if (!command_queue.isEmpty()) {
 			Log.v("MainActivity", "Command queue is not empty, executing command from queue. Queue size: " + command_queue.size());
 			Static.bus.send(new E.Commands.Run(command_queue.remove(0)));
@@ -303,24 +320,6 @@ public class MainActivity extends AbstractActivity {
 		View root = findViewById(R.id.data_root);
 		e.width = root.getWidth();
 		e.height = root.getHeight();
-	}
-
-
-	boolean bar_locked_by_expansion = false;
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void expand(E.Parts.Expand e) {
-		findViewById(R.id.data).setPadding(0, 0, 0, 0);
-		findViewById(R.id.data).requestLayout();
-		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(false);
-		bar_locked_by_expansion = true;
-	}
-
-	@Bus.Handler(executor = AppContextExecutor.class)
-	public void collapse(E.Parts.Collapse e) {
-		findViewById(R.id.data).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.list_bottom_padding));
-		findViewById(R.id.data).requestLayout();
-		((FollowableScrollView) findViewById(R.id.data_root)).setScrollEnabled(true);
-		bar_locked_by_expansion = false;
 	}
 
 	@Bus.Handler
@@ -372,7 +371,7 @@ public class MainActivity extends AbstractActivity {
 	}
 
 	@Bus.Handler(executor = AppContextExecutor.class)
-	public void error(E.Commands.Error err) {
+	public void error(E.Commands.Failure err) {
 		Toast toast = Toast.makeText(this, err.error, Toast.LENGTH_SHORT);
 		toast.getView().getBackground().setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY));
 		toast.show();
@@ -385,12 +384,12 @@ public class MainActivity extends AbstractActivity {
 		toast.show();
 	}
 
-
 	@Bus.Handler
 	public synchronized void startActivityFromEvent(E.Android.StartActivityForResult e) {
-		int request_key = (int) ((Math.random() - 0.5) * 2 * Integer.MAX_VALUE);
+		int request_key = (int) (Math.random() * Integer.MAX_VALUE);
 		running.put(request_key, e.handler);
 		try {
+			Log.v("Main", "Запускаю активити по " + e.intent + " с кодом запуска " + request_key);
 			startActivityForResult(e.intent, request_key);
 		} catch (Throwable t) {
 			e.handler.error(t);
@@ -415,9 +414,9 @@ public class MainActivity extends AbstractActivity {
 	 * Переключает меню алиасов.
 	 */
 	public void onMenuButtonPressed(View view) {
-		if (!TextUtils.isEmpty(line.getText()) && !command_running)
-			execute();
-		else if (aliases_menu_active)
+		if (!TextUtils.isEmpty(line.getText()) && !command_running) {
+			Static.bus.send(new E.Commands.Run(String.valueOf(line.getText())));
+		} else if (aliases_menu_active)
 			hideAliases(alias_menu_animation_duration);
 		else
 			showAliases(alias_menu_animation_duration);
@@ -435,6 +434,7 @@ public class MainActivity extends AbstractActivity {
 
 
 		if (Build.VERSION.SDK_INT >= 12) {
+			bar_processing = true;
 
 			final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
 
@@ -469,12 +469,12 @@ public class MainActivity extends AbstractActivity {
 						@Override public void onAnimationEnd(Animator animator) {
 							findViewById(R.id.menu_scroll_pane).setVisibility(View.GONE);
 							findViewById(R.id.fade_bg).setVisibility(View.GONE);
+							bar_processing = false;
 						}
 					});
 
 		} else {
 			Anim.fadeOut(findViewById(R.id.fade_bg));
-			Anim.fadeOut(findViewById(R.id.command_bg));
 			Anim.fadeOut(findViewById(R.id.commands_root));
 			Anim.fadeOut(findViewById(R.id.menu_scroll_pane));
 		}
@@ -491,14 +491,20 @@ public class MainActivity extends AbstractActivity {
 	/**
 	 * Показывает меню алиасов.
 	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showAliases(final int delay_per_item) {
 		line.setError(null);
-		if (aliases_menu_active | !bar_enabled | bar_processing | bar_locked_by_expansion) return;
+
+		if (aliases_menu_active | bar_processing) return;
+		if (!bar_enabled)
+			showBar();
 
 		aliases_menu_active = true;
+
 		updateInput();
 
 		if (Build.VERSION.SDK_INT >= 12) {
+			bar_processing = true;
 
 			final LinearLayout items = (LinearLayout) findViewById(R.id.commands_root);
 			final View button = findViewById(R.id.command_bg);
@@ -550,6 +556,9 @@ public class MainActivity extends AbstractActivity {
 						@Override public void onAnimationStart(Animator animator) {
 							findViewById(R.id.fade_bg).setVisibility(View.VISIBLE);
 						}
+						@Override public void onAnimationEnd(Animator animation) {
+							bar_processing = false;
+						}
 					});
 
 			findViewById(R.id.menu_scroll_pane).setVisibility(View.VISIBLE);
@@ -557,7 +566,6 @@ public class MainActivity extends AbstractActivity {
 		} else {
 
 			Anim.fadeIn(findViewById(R.id.fade_bg));
-			Anim.fadeIn(findViewById(R.id.command_bg));
 			Anim.fadeIn(findViewById(R.id.commands_root));
 			Anim.fadeIn(findViewById(R.id.menu_scroll_pane));
 
@@ -578,7 +586,6 @@ public class MainActivity extends AbstractActivity {
 	 */
 	protected void hideBar() {
 		if (!bar_enabled || bar_processing || aliases_menu_active) return;
-		Log.v("Bar", "Hidden");
 		bar_enabled = false;
 		bar_processing = true;
 		updateInput();
@@ -599,7 +606,6 @@ public class MainActivity extends AbstractActivity {
 	protected void showBar() {
 		if (bar_enabled || bar_processing) return;
 
-		Log.v("Bar", "Shown");
 		bar_enabled = true;
 		bar_processing = true;
 		updateInput();
@@ -614,6 +620,7 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
+
 	/**
 	 * Довольно интересная функция. В зависимости от кучи факторов включает
 	 * или выключает возможность редактировать командную строку.
@@ -621,6 +628,31 @@ public class MainActivity extends AbstractActivity {
 	protected void updateInput() {
 		line.setEnabled(!command_running && bar_enabled && !aliases_menu_active);
 	}
+
+	/**
+	 * Обновляет список алиасов из глобальных настроек
+	 */
+	protected void updateAliasList() {
+		LayoutInflater inflater = getLayoutInflater();
+		LinearLayout views = (LinearLayout) findViewById(R.id.commands_root);
+		views.removeViews(0, views.getChildCount());
+
+		for (final AliasUtils.Alias alias : AliasUtils.getAliases()) {
+			View view = inflater.inflate(R.layout.shortcut, views, false);
+			((TextView) view.findViewById(R.id.label)).setText(alias.name);
+
+			view.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View view) {
+					if (aliases_menu_active)
+						Static.bus.send(new E.Commands.Run(alias.command));
+					closeAliases(view);
+				}
+			});
+			views.addView(view);
+		}
+
+	}
+
 
 	/**
 	 * Тут происходит весь резолвинг адресов.
@@ -668,7 +700,7 @@ public class MainActivity extends AbstractActivity {
 								if (response.getStatusLine().getStatusCode() / 100 < 4)
 									Static.bus.send(new E.Commands.Success("Приглашение принято."));
 								else
-									Static.bus.send(new E.Commands.Error("Ошибка при принятии приглашения : "
+									Static.bus.send(new E.Commands.Failure("Ошибка при принятии приглашения : "
 											+ response.getStatusLine().getStatusCode()));
 							}
 						}.start();
@@ -681,7 +713,7 @@ public class MainActivity extends AbstractActivity {
 								if (response.getStatusLine().getStatusCode() / 100 < 4)
 									Static.bus.send(new E.Commands.Success("Приглашение отвергнуто."));
 								else
-									Static.bus.send(new E.Commands.Error("Ошибка при отказе от приглашения : "
+									Static.bus.send(new E.Commands.Failure("Ошибка при отказе от приглашения : "
 											+ response.getStatusLine().getStatusCode()));
 							}
 						}.start();
@@ -699,26 +731,5 @@ public class MainActivity extends AbstractActivity {
 			super.onNewIntent(intent);
 	}
 
-	/**
-	 * Обновляет список алиасов из глобальных настроек
-	 */
-	protected void updateAliasList() {
-		LayoutInflater inflater = getLayoutInflater();
-		LinearLayout views = (LinearLayout) findViewById(R.id.commands_root);
-		views.removeViews(0, views.getChildCount());
 
-		for (final AliasUtils.Alias alias : AliasUtils.getAliases()) {
-			View view = inflater.inflate(R.layout.shortcut, views, false);
-			((TextView) view.findViewById(R.id.label)).setText(alias.name);
-
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View view) {
-					Static.bus.send(new E.Commands.Run(alias.command));
-					closeAliases(view);
-				}
-			});
-			views.addView(view);
-		}
-
-	}
 }

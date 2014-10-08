@@ -2,7 +2,6 @@ package com.cab404.ponyscape.utils.state;
 
 import android.content.Context;
 import android.util.Log;
-import com.cab404.ponyscape.utils.Static;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -28,12 +27,12 @@ public class Settings {
 		this(new JSONObject(), new File(context.getFilesDir(), filename));
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
-	 *  Если есть, то достаёт, если нет, то возвращает, что дают, и кладёт это в значение.
+	 * Если есть, то достаёт, если нет, то возвращает, что дают, и кладёт это в значение.
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T ensure(String key, T def_value) {
-		Object curr = Static.cfg.get(key);
+		Object curr = get(key);
 
 		if (curr == null) {
 			put(key, def_value);
@@ -42,7 +41,17 @@ public class Settings {
 		} else {
 			if (Integer.class.isAssignableFrom(def_value.getClass()))
 				curr = Integer.parseInt(curr.toString());
-			return (T) curr;
+			try {
+				return (T) def_value.getClass().cast(curr);
+			} catch (ClassCastException e) {
+				Log.w("Settings",
+						"Error while casting to final var: " +
+								"key=" + key + "; " +
+								"sval=" + curr + "; " +
+								"defaulting to " + def_value);
+				put(key, def_value);
+				return def_value;
+			}
 		}
 	}
 

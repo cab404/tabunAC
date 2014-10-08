@@ -13,8 +13,8 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CommentListPart;
-import com.cab404.ponyscape.parts.EditorPart;
 import com.cab404.ponyscape.parts.ErrorPart;
+import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
@@ -102,7 +102,7 @@ public class TalkCommands {
 					});
 
 				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Error("Ошибка при загрузке письма."));
+					Static.bus.send(new E.Commands.Failure("Ошибка при загрузке письма."));
 					Log.w("PageCommands", f);
 				}
 				Static.bus.unregister(page);
@@ -162,7 +162,7 @@ public class TalkCommands {
 
 							return true;
 						} else {
-							Static.bus.send(new E.Commands.Error("Не все части письма найдены: " +
+							Static.bus.send(new E.Commands.Failure("Не все части письма найдены: " +
 									"проверьте, разделены ли адресаты, текст и заголовок '====='"));
 							return false;
 						}

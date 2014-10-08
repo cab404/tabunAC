@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+
+		android:orientation="vertical"
+
+		android:layout_marginTop="@dimen/external_margins"
+		android:layout_marginLeft="@dimen/external_margins"
+		android:layout_marginRight="@dimen/external_margins"
+
+		android:background="@drawable/bg_part"
+		android:gravity="center|center_vertical|center_horizontal">
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="8dp"
+			android:text="Вы уверены, что хотите удалить Полуночники?"
+			android:id="@+id/title"
+			android:textStyle="bold"
+			android:textColor="@color/bg_item_label"/>
+	<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="wrap_content"
+			android:layout_height="48dp"
+			android:padding="4dp"
+			android:layout_gravity="right"
+			>
+		<Button
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Угум"
+				android:id="@+id/ok"
+				android:textSize="@dimen/primary_text_size"/>
+		<Button
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Нит"
+				android:id="@+id/cancel"
+				android:textSize="@dimen/primary_text_size"/>
+	</LinearLayout>
+
+</LinearLayout>

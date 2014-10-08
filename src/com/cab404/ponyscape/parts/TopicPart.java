@@ -48,8 +48,8 @@ public class TopicPart extends Part {
 
 	@Override protected View create(LayoutInflater inflater, final ViewGroup viewGroup, final Context context) {
 		Static.bus.register(this);
-		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 
+		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
 		{
 			((TextView) view.findViewById(R.id.title))
 					.setText(SU.deEntity(topic.title));
@@ -240,8 +240,8 @@ public class TopicPart extends Part {
 
 	@Bus.Handler(executor = AppContextExecutor.class)
 	public void handleVoteChange(E.GotData.Vote.Topic vote) {
-		disableVotes();
 		if (vote.id == topic.id) {
+			disableVotes();
 			topic.votes = (vote.votes > 0 ? "+" : "") + vote.votes;
 			final TextView rating = ((TextView) view.findViewById(R.id.rating));
 
