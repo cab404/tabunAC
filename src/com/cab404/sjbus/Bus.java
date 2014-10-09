@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
  */
 public class Bus {
 
-	boolean log = false;
+	public boolean log = false;
 
 	@Target(ElementType.METHOD)
 	@Retention(RetentionPolicy.RUNTIME)
@@ -74,12 +74,12 @@ public class Bus {
 
 	public void send(final Object event) {
 		boolean something_was_invoked = false;
-//		Log.w("SiJBus", handlers.size() + " handlers now");
+		Log.w("SiJBus", handlers.size() + " handlers now");
 
 		final String log_session = Integer.toHexString((int) (Math.random() * (Math.pow(16, 4) - Math.pow(16, 3)) + Math.pow(16, 3)));
 
-//		if (log)
-//			Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
+		if (log)
+			Log.v("SiJBus:Send:" + log_session, "Sent event of class " + event.getClass() + ", inst. " + Integer.toHexString(event.hashCode()));
 		for (final PendingMethod method : handlers)
 			if (method.canBeInvokedWith(event)) {
 				something_was_invoked = true;

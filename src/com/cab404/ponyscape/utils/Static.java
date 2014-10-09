@@ -72,12 +72,14 @@ public class Static {
 	 */
 	public static Images img = null;
 
-
 	/**
 	 * Темы
 	 */
 	public static ThemeManager theme = null;
 
+	/**
+	 * Множитель dpi для текущего девайса.
+	 */
 	public static float dp = 1;
 
 }

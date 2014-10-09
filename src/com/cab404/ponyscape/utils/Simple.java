@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 import com.cab404.libtabun.data.Letter;
 import com.cab404.moonlight.util.SU;
@@ -23,7 +24,7 @@ public class Simple {
 		Toast.makeText(Static.ctx, text, Toast.LENGTH_SHORT).show();
 	}
 
-	public static String parse(String url) {
+	public static String imgurl(String url) {
 		return url
 				.replace("[", "%5B")
 				.replace(":", "%3A");
@@ -43,11 +44,11 @@ public class Simple {
 
 	}
 
-
 	public static String md5(String str) {
 		try {
 			return Base64.encodeToString(MessageDigest.getInstance("MD5").digest(String.valueOf(str).getBytes(Charset.forName("UTF-8"))), Base64.URL_SAFE);
 		} catch (NoSuchAlgorithmException e) {
+			Log.wtf("MD5", "We cannot md5.");
 			return "NO-MD-CAN-BE-CALCULATED";
 		}
 	}
