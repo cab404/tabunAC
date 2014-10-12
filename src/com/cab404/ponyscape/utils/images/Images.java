@@ -26,21 +26,21 @@ import java.util.*;
  */
 public class Images {
 	private HashSet<String> loading;
-	private Map<String, Reference<Bitmap>> cache;
+	private Map<String, Reference<Bitmap>> memory_cache;
 	private Map<String, SparseArray<Reference<Bitmap>>> scaled;
 	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
 	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
-	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
 	public static final String DOWNSCALE_IMAGES_CFG_ENTRY = "images.downscale";
-	public static final String ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY = "images.only_over_non_cellular";
+	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
 	public static final String BLOCKED_PATTERNS_IMAGES_CFG_ENTRY = "images.blocked_patterns";
+	public static final String ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY = "images.only_over_non_cellular";
 
 	private File cacheDir;
 	private long cut, file_cache;
 	private boolean load_blocked;
 
 
-	private final boolean log = false;
+	public boolean log = false;
 	private void log(String string) {
 		if (log)
 			log(string);
@@ -55,7 +55,7 @@ public class Images {
 	public Images(Context context, File cacheDir) {
 		this.cacheDir = cacheDir;
 
-		cache = new HashMap<>();
+		memory_cache = new HashMap<>();
 		scaled = new HashMap<>();
 		loading = new HashSet<>();
 	}
@@ -91,6 +91,9 @@ public class Images {
 		return scaled;
 	}
 
+	/**
+	 * Cleaning file cache down to the maximum size.
+	 */
 	public void clear() {
 		List<File> files = new ArrayList<>(Arrays.asList(cacheDir.listFiles()));
 		Collections.sort(files, new Comparator<File>() {
@@ -118,15 +121,24 @@ public class Images {
 	}
 
 	public synchronized void download(String in) {
-		/* Копируем, чтобы отправлять картинку обратно не по модифицированному url */
+		/* Copying original url, so we'll be able to send image to whom requested */
 		final String original_url = in;
 
+		/* If images are BLOCKED, then we can do nothing and just give up. */
 		if (load_blocked) {
 			Static.bus.send(new E.GotData.Image.Error(original_url));
 			return;
 		}
 
-		/* Проверяем, заблокированы ли картинки от этого хоста */
+		/* Fixing address for poniez.net */
+		if (in.contains("poniez.net"))
+			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
+		final String src = Simple.imgurl(in);
+
+		/* File cache... file */
+		final File file_cache_entry = new File(cacheDir, Simple.md5(src));
+
+		/* Checking blacklists */
 		JSONArray blocked_patterns = Static.cfg.ensure(BLOCKED_PATTERNS_IMAGES_CFG_ENTRY, new JSONArray());
 		for (Object object : blocked_patterns) {
 			String str = String.valueOf(object);
@@ -136,118 +148,123 @@ public class Images {
 			}
 		}
 
+
+		/* Looking for entry in memory cache. */
+		if (memory_cache.containsKey(src) && memory_cache.get(src).get() != null) {
+			log("Got " + src + " from cache");
+			Static.bus.send(new E.GotData.Image.Loaded(memory_cache.get(src).get(), original_url));
+			return;
+		}
+
 		try {
-			if (Static.cfg.ensure(ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY, false))
-				Simple.checkNonCellularConnection();
-			else
-				Simple.checkNetworkConnection();
+			/* We don't care about network, if there's an entry in file cache. */
+			if (!file_cache_entry.exists())
+				if (Static.cfg.ensure(ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY, false))
+					Simple.checkNonCellularConnection();
+				else
+					Simple.checkNetworkConnection();
 		} catch (Simple.NetworkNotFound e) {
 			Static.bus.send(new E.GotData.Image.Error(original_url));
 			return;
 		}
 
-		if (in.contains("poniez.net"))
-			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
-
-		final String src = in;
-
-		/* Смотрим в кэше. */
-		if (cache.containsKey(src) && cache.get(src).get() != null) {
-			log("Got " + src + " from cache");
-			Static.bus.send(new E.GotData.Image.Loaded(cache.get(src).get(), original_url));
+		/* No cache entry, adding and downloading */
+		if (loading.contains(src)) {
+			log("For " + src + " was no loaders invoked.");
 			return;
 		}
 
-		/* Нету в кэше, смотрим в загружаемых.*/
-		if (loading.contains(src)) return;
-		log("For " + src + " was no loaders invoked.");
-
-		/* Нету в загружаемых, добавляем и загружаем. */
+		/* No entry in loading list, so we'll just start it on our own */
 		loading.add(src);
 		Runnable load_task = new Runnable() {
 			@Override public void run() {
 				try {
 
-					File file = new File(cacheDir, Simple.md5(src));
 					BitmapFactory.Options opt = new BitmapFactory.Options();
 					opt.inPurgeable = true;
 
-					if (!file.exists()) {
+					/* If we already have an image in file cache, then buck it all */
+					if (!file_cache_entry.exists()) {
 						log("Loading " + src);
 						/// Connecting.
 
 						HttpUriRequest get = new HttpGet(src);
 						HttpResponse response = new DefaultHttpClient().execute(get);
 
-//						int length = -1;
-//						if (response.getFirstHeader("Content-Length") != null)
-//							length = Integer.parseInt(response.getFirstHeader("Content-Length").getValue());
-
-
+						int length = -1;
+						if (response.getFirstHeader("Content-Length") != null)
+							length = Integer.parseInt(response.getFirstHeader("Content-Length").getValue());
+						BufferedInputStream upstream = new BufferedInputStream(response.getEntity().getContent());
 						log("Got response for " + src);
 
+						/* Decoding and processing metadata */
+						{
+							/* Nobody will ever hate us for allocating 100K for meta... yeah? */
+							int max_meta = 100 * 1024;
+							/* Just making sure that meta is shorter than image ;D */
+							upstream.mark(length != -1 ? length > max_meta ? max_meta : length : max_meta);
 
-						BufferedInputStream upstream = new BufferedInputStream(response.getEntity().getContent());
-						upstream.mark(10 * 1024); // Should be enough for any mime type out there.
+							/* Downloading metadata of an image */
+							opt.inJustDecodeBounds = true;
+							BitmapFactory.decodeStream(upstream, null, opt);
 
-						/// Downloading bounds
-						opt.inJustDecodeBounds = true;
-						BitmapFactory.decodeStream(upstream, null, opt);
+							log("Loaded bounds for " + src + ", " + opt.outMimeType);
 
-						log("Loaded bounds for " + src + ", " + opt.outMimeType);
+							/*
+							 * BROADCAST-YOUR-META-HERE (?)
+							 */
 
+							if (opt.outWidth * opt.outHeight > cut)
+								throw new IOException
+										("Image is bigger than limit (" + cut + ")");
 
-					/* Тут броадкастить данные картинки (?)*/
-//					boolean cont = handler.handleParams(src, opt.outMimeType, opt.outWidth, opt.outHeight);
+							opt.inJustDecodeBounds = false;
 
-						if (opt.outWidth * opt.outHeight > cut)
-							throw new IOException
-									("Image is bigger than limit (" + cut + ")");
-
-						opt.inJustDecodeBounds = false;
-
-						// Rewinding back to start.
-						upstream.reset();
-
-						// Writing cache
-						BufferedOutputStream file_cache = new BufferedOutputStream(new FileOutputStream(file));
-						byte[] buf = new byte[16 * 1024]; // 16K should be enough for everything
-
-						int read;
-						while ((read = upstream.read(buf)) > 0) {
-							file_cache.write(buf, 0, read);
+							/* Rewinding stream back to the start. */
+							upstream.reset();
 						}
 
-						file_cache.close();
+						/* Writing it all to file */
+						{
+							/* 16K should be enough for everything */
+							byte[] buf = new byte[16 * 1024];
+							int read;
+
+							BufferedOutputStream file_cache = new BufferedOutputStream(new FileOutputStream(file_cache_entry));
+							while ((read = upstream.read(buf)) > 0) {
+								file_cache.write(buf, 0, read);
+							}
+
+							file_cache.close();
+
+						}
+
 						upstream.close();
 					} else
 						log("Getting " + src + " from file cache");
 
+					/* Reading saved image from file */
+					BufferedInputStream upstream = new BufferedInputStream(new FileInputStream(file_cache_entry));
 
-					// Reading saved image from file
-					BufferedInputStream upstream = new BufferedInputStream(new FileInputStream(file));
-
-					// Touching the file, so cache cleaning system think we've just downloaded it.
-					if (!file.setLastModified(System.currentTimeMillis()))
+					/* Touching the file, so cache cleaning system think we've just downloaded it. */
+					if (!file_cache_entry.setLastModified(System.currentTimeMillis()))
 						Log.wtf("Images", "I can't modify the timestream in file cache. How unfortunate.");
 
 					Bitmap bitmap = BitmapFactory.decodeStream(upstream, null, opt);
 
 					upstream.close();
 
-					/// Putting into file cache.
+					/* If bitmap is null, then something went wrong, and it's our duty to delete that thing. */
 					if (bitmap == null) {
-						if (!file.delete()) throw new RuntimeException("CANNOT REMOVE CACHE ENTRY " + file);
+						if (!file_cache_entry.delete())
+							throw new RuntimeException("CANNOT REMOVE CACHE ENTRY " + file_cache_entry);
 						log("Bitmap from " + src + " is null. Cancelling.");
 						return;
 					}
 
 					Static.bus.send(new E.GotData.Image.Loaded(bitmap, original_url));
 
-
-//					handler.handleBitmap(src, bitmap);
-
-					// Используем крайние меры отлова бродячих ошибок.
+					/* Anything may happen in high-memory-consumption-web-image-byte-stream-play procedure*/
 				} catch (Throwable e) {
 					Log.e("Images", "Не могу загрузить картинку из " + src, e);
 					Static.bus.send(new E.GotData.Image.Error(original_url));

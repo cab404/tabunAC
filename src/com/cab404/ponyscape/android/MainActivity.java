@@ -239,8 +239,8 @@ public class MainActivity extends AbstractActivity {
 		} else {
 			super.onBackPressed();
 		}
-
 	}
+
 	@Override public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
 			if (aliases_menu_active)
@@ -653,6 +653,10 @@ public class MainActivity extends AbstractActivity {
 
 	}
 
+	@Override protected void onDestroy() {
+		super.onDestroy();
+		Static.img.clear();
+	}
 
 	/**
 	 * Тут происходит весь резолвинг адресов.
