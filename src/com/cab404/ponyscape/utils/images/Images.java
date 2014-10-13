@@ -130,10 +130,16 @@ public class Images {
 			return;
 		}
 
-		/* Fixing address for poniez.net */
+		/* Fixing address */
+		if (in.startsWith("//"))
+			in = "http:" + in;
 		if (in.contains("poniez.net"))
 			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
-		final String src = Simple.imgurl(in);
+		in = in
+				.replace("[", "%5B")
+				.replace("]", "%5D");
+
+		final String src = in;
 
 		/* File cache... file */
 		final File file_cache_entry = new File(cacheDir, Simple.md5(src));

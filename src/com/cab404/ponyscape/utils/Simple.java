@@ -26,8 +26,7 @@ public class Simple {
 
 	public static String imgurl(String url) {
 		return url
-				.replace("[", "%5B")
-				.replace(":", "%3A");
+				.replace("[", "%5B");
 	}
 
 	public static String buildRecipients(Context context, Letter letter) {
