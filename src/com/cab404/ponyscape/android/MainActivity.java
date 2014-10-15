@@ -222,7 +222,11 @@ public class MainActivity extends AbstractActivity {
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v("Main", "Получили результат " + requestCode + ": " + data);
-		running.remove(requestCode).handle(resultCode, data);
+		E.Android.StartActivityForResult.ResultHandler handler = running.remove(requestCode);
+		if (handler != null)
+			handler.handle(resultCode, data);
+		else
+			Log.e("ActivityResultHandler", "Got a hole!");
 	}
 
 	@Override public void onBackPressed() {
