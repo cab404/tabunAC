@@ -148,22 +148,25 @@ public class MainActivity extends AbstractActivity {
 		}, 111111);
 
 		/* Луняшим. */
-		Static.handler.postDelayed(new Runnable() {
-			@Override public void run() {
-				if (
-						Static.last_page != null
-								&& Static.last_page.c_inf != null
-								&& Static.last_page.c_inf.new_messages > 0) {
-					luna_quote("У тебя " +
-							Static.last_page.c_inf.new_messages + " " +
-							getResources().getQuantityString(R.plurals.letters, Static.last_page.c_inf.new_messages) +
-							" в почтовом ящике. " +
-							"И я буду повторять тебе это постоянно.");
+		if (Static.cfg.ensure("main.luna_talks", true))
+			Static.handler.postDelayed(new Runnable() {
+				@Override public void run() {
+					if (
+							Static.last_page != null
+									&& Static.last_page.c_inf != null
+									&& Static.last_page.c_inf.new_messages > 0) {
+						luna_quote("У тебя " +
+								Static.last_page.c_inf.new_messages + " " +
+								getResources().getQuantityString(R.plurals.letters, Static.last_page.c_inf.new_messages) +
+								" в почтовом ящике. " +
+								"И я буду повторять тебе это постоянно.");
+					}
+					int rnd = (int) (15000 * Math.random()) + 40000;
+
+					if (Static.cfg.ensure("main.luna_talks", true))
+						Static.handler.postDelayed(this, rnd);
 				}
-				int rnd = (int) (15000 * Math.random()) + 40000;
-				Static.handler.postDelayed(this, rnd);
-			}
-		}, 10000);
+			}, 10000);
 	}
 
 
