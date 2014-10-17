@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AbstractActivity {
 
+
 	/**
 	 * Командная строка
 	 */
@@ -131,6 +132,7 @@ public class MainActivity extends AbstractActivity {
 						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()) {
 							showBar();
 						}
+
 						Static.handler.postDelayed(this, 200);
 					}
 				});
@@ -139,16 +141,16 @@ public class MainActivity extends AbstractActivity {
 		Static.bus.send(new E.Commands.Run(Static.cfg.ensure("main.init", "help")));
 
 		/* Луняшим. */
-		Static.handler.postDelayed(new Runnable() {
-			@Override public void run() {
-				luna_quote();
-				int rnd = (int) (60000 * Math.random()) + 200000;
-				Static.handler.postDelayed(this, rnd);
-			}
-		}, 111111);
+		if (Static.cfg.ensure("main.luna_talks", false)) {
 
-		/* Луняшим. */
-		if (Static.cfg.ensure("main.luna_talks", true))
+			Static.handler.postDelayed(new Runnable() {
+				@Override public void run() {
+					luna_quote();
+					int rnd = (int) (60000 * Math.random()) + 200000;
+					Static.handler.postDelayed(this, rnd);
+				}
+			}, 111111);
+
 			Static.handler.postDelayed(new Runnable() {
 				@Override public void run() {
 					if (
@@ -167,6 +169,8 @@ public class MainActivity extends AbstractActivity {
 						Static.handler.postDelayed(this, rnd);
 				}
 			}, 10000);
+		}
+
 	}
 
 
