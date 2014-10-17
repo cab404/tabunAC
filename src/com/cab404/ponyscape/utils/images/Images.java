@@ -28,12 +28,12 @@ public class Images {
 	private HashSet<String> loading;
 	private Map<String, Reference<Bitmap>> memory_cache;
 	private Map<String, SparseArray<Reference<Bitmap>>> scaled;
-	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
-	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
-	public static final String DOWNSCALE_IMAGES_CFG_ENTRY = "images.downscale";
-	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
-	public static final String BLOCKED_PATTERNS_IMAGES_CFG_ENTRY = "images.blocked_patterns";
 	public static final String ONLY_NON_CELLULAR_IMAGES_CFG_ENTRY = "images.only_over_non_cellular";
+	public static final String BLOCKED_PATTERNS_IMAGES_CFG_ENTRY = "images.blocked_patterns";
+	public static final String FILE_CACHE_LIMIT_CFG_ENTRY = "images.file_cache_limit";
+	public static final String DOWNSCALE_IMAGES_CFG_ENTRY = "images.downscale";
+	public static final String LOAD_BLOCK_CFG_ENTRY = "images.blocked";
+	public static final String LIMIT_CFG_ENTRY = "images.pixel_limit";
 
 	private File cacheDir;
 	private long cut, file_cache;
@@ -130,10 +130,16 @@ public class Images {
 			return;
 		}
 
-		/* Fixing address for poniez.net */
+		/* Fixing address */
+		if (in.startsWith("//"))
+			in = "http:" + in;
 		if (in.contains("poniez.net"))
 			in = "http://andreymal.org/poniez/?q=" + SU.rl(in);
-		final String src = Simple.imgurl(in);
+		in = in
+				.replace("[", "%5B")
+				.replace("]", "%5D");
+
+		final String src = in;
 
 		/* File cache... file */
 		final File file_cache_entry = new File(cacheDir, Simple.md5(src));
@@ -199,8 +205,8 @@ public class Images {
 
 						/* Decoding and processing metadata */
 						{
-							/* Nobody will ever hate us for allocating 100K for meta... yeah? */
-							int max_meta = 100 * 1024;
+							/* Nobody will ever hate us for allocating 50K for meta... yeah? */
+							int max_meta = 50 * 1024;
 							/* Just making sure that meta is shorter than image ;D */
 							upstream.mark(length != -1 ? length > max_meta ? max_meta : length : max_meta);
 
@@ -262,6 +268,7 @@ public class Images {
 						return;
 					}
 
+					memory_cache.put(original_url, new WeakReference<Bitmap>(bitmap));
 					Static.bus.send(new E.GotData.Image.Loaded(bitmap, original_url));
 
 					/* Anything may happen in high-memory-consumption-web-image-byte-stream-play procedure*/

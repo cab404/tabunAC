@@ -120,18 +120,28 @@
 		           android:layout_marginRight="8dp"
 		           android:layout_marginTop="8dp"/>
 	</RelativeLayout>
-	<LinearLayout
-			android:orientation="vertical"
+	<!--<LinearLayout-->
+			<!--android:orientation="horizontal"-->
+			<!--android:layout_width="match_parent"-->
+			<!--android:layout_height="wrap_content">-->
+	<!--</LinearLayout>-->
+	<ScrollView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/data_points"
-			android:layout_marginTop="-8dp">
-		<LinearLayout android:orientation="vertical"
-		              android:layout_width="match_parent"
-		              android:layout_height="wrap_content"
-		              android:background="@drawable/bg_part"
-		              android:layout_marginTop="4dp"
-		              android:padding="@dimen/internal_margins"
-		              android:id="@+id/data"/>
-	</LinearLayout>
+			android:id="@+id/scrollView">
+		<LinearLayout
+				android:orientation="vertical"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/data_points"
+				android:layout_marginTop="-8dp">
+			<LinearLayout android:orientation="vertical"
+			              android:layout_width="match_parent"
+			              android:layout_height="wrap_content"
+			              android:background="@drawable/bg_part"
+			              android:layout_marginTop="4dp"
+			              android:padding="@dimen/internal_margins"
+			              android:id="@+id/data"/>
+		</LinearLayout>
+	</ScrollView>
 </LinearLayout>

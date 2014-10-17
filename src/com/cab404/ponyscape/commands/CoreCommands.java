@@ -17,6 +17,7 @@ import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CreditsPart;
+import com.cab404.ponyscape.parts.TimelinePart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
 import com.cab404.ponyscape.parts.help.ConfigHelpPart;
@@ -59,6 +60,13 @@ public class CoreCommands {
 	@Command(command = "about")
 	public void displayCredits() {
 		Static.bus.send(new E.Parts.Run(new CreditsPart(), true));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
+	@Command(command = "timeline")
+	public void displayTimeline() {
+		Static.bus.send(new E.Parts.Run(new TimelinePart(), true));
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}

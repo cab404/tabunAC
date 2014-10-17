@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AbstractActivity {
 
+
 	/**
 	 * Командная строка
 	 */
@@ -131,6 +132,7 @@ public class MainActivity extends AbstractActivity {
 						if (findViewById(R.id.data).getHeight() < findViewById(R.id.data_root).getHeight()) {
 							showBar();
 						}
+
 						Static.handler.postDelayed(this, 200);
 					}
 				});
@@ -139,31 +141,36 @@ public class MainActivity extends AbstractActivity {
 		Static.bus.send(new E.Commands.Run(Static.cfg.ensure("main.init", "help")));
 
 		/* Луняшим. */
-		Static.handler.postDelayed(new Runnable() {
-			@Override public void run() {
-				luna_quote();
-				int rnd = (int) (60000 * Math.random()) + 200000;
-				Static.handler.postDelayed(this, rnd);
-			}
-		}, 111111);
+		if (Static.cfg.ensure("main.luna_talks", false)) {
 
-		/* Луняшим. */
-		Static.handler.postDelayed(new Runnable() {
-			@Override public void run() {
-				if (
-						Static.last_page != null
-								&& Static.last_page.c_inf != null
-								&& Static.last_page.c_inf.new_messages > 0) {
-					luna_quote("У тебя " +
-							Static.last_page.c_inf.new_messages + " " +
-							getResources().getQuantityString(R.plurals.letters, Static.last_page.c_inf.new_messages) +
-							" в почтовом ящике. " +
-							"И я буду повторять тебе это постоянно.");
+			Static.handler.postDelayed(new Runnable() {
+				@Override public void run() {
+					luna_quote();
+					int rnd = (int) (60000 * Math.random()) + 200000;
+					Static.handler.postDelayed(this, rnd);
 				}
-				int rnd = (int) (15000 * Math.random()) + 40000;
-				Static.handler.postDelayed(this, rnd);
-			}
-		}, 10000);
+			}, 111111);
+
+			Static.handler.postDelayed(new Runnable() {
+				@Override public void run() {
+					if (
+							Static.last_page != null
+									&& Static.last_page.c_inf != null
+									&& Static.last_page.c_inf.new_messages > 0) {
+						luna_quote("У тебя " +
+								Static.last_page.c_inf.new_messages + " " +
+								getResources().getQuantityString(R.plurals.letters, Static.last_page.c_inf.new_messages) +
+								" в почтовом ящике. " +
+								"И я буду повторять тебе это постоянно.");
+					}
+					int rnd = (int) (15000 * Math.random()) + 40000;
+
+					if (Static.cfg.ensure("main.luna_talks", true))
+						Static.handler.postDelayed(this, rnd);
+				}
+			}, 10000);
+		}
+
 	}
 
 
@@ -222,7 +229,11 @@ public class MainActivity extends AbstractActivity {
 
 	@Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v("Main", "Получили результат " + requestCode + ": " + data);
-		running.remove(requestCode).handle(resultCode, data);
+		E.Android.StartActivityForResult.ResultHandler handler = running.remove(requestCode);
+		if (handler != null)
+			handler.handle(resultCode, data);
+		else
+			Log.e("ActivityResultHandler", "Got a hole!");
 	}
 
 	@Override public void onBackPressed() {

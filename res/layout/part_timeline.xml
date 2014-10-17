@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:background="@drawable/bg_part"
+              android:gravity="center_horizontal">
+
+	<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:gravity="center"
+			android:id="@id/update"
+			>
+		<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="Прямой эфир"
+				android:textColor="@color/bg_item_label"
+				android:layout_weight="1"
+				android:padding="@dimen/internal_margins"
+				android:textSize="@dimen/title_text_size"
+				/>
+		<ImageView
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:id="@+id/imageView"
+				android:src="@drawable/ic_update"
+				android:padding="@dimen/internal_margins"
+				android:tint="@color/bg_item_label"/>
+	</LinearLayout>
+
+	<View android:layout_width="match_parent"
+	      android:layout_height="1dp"
+	      android:background="@color/bg_item_shadow"
+			/>
+	<ListView android:layout_width="240dp"
+	          android:layout_height="match_parent"
+	          android:id="@+id/timeline"
+	          android:layout_marginBottom="@dimen/internal_margins"/>
+
+
+</LinearLayout>
