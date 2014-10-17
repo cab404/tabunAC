@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
@@ -401,8 +402,9 @@ public class HtmlRipper {
 							break;
 						case "img":
 							if (tag.get("src").isEmpty()) continue;
+							final String repl = "I";
 
-							builder.insert(off + tag.start, "||image||");
+							builder.insert(off + tag.start, repl);
 
 							final String src = tag.get("src");
 
@@ -414,7 +416,7 @@ public class HtmlRipper {
 							builder.setSpan(
 									replacer,
 									off + tag.start,
-									off + tag.start + "||image||".length(),
+									off + tag.start + repl.length(),
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 							builder.setSpan(
@@ -428,11 +430,11 @@ public class HtmlRipper {
 										}
 									},
 									off + tag.start,
-									off + tag.start + "||image||".length(),
+									off + tag.start + repl.length(),
 									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 							);
 
-							off += "||image||".length();
+							off += repl.length();
 							targets.add(src, replacer);
 							meta.put(replacer, tag);
 							loadImages.add(src);
@@ -580,7 +582,11 @@ public class HtmlRipper {
 	private TextView form(String text, Context context) {
 		TextView view = new TextView(context);
 		simpleEscape(view, text, context);
-//		view.setTextIsSelectable(true);
+
+		if (Build.VERSION.SDK_INT > 10)
+			if (Static.cfg.ensure("text.selectable", false))
+				view.setTextIsSelectable(true);
+
 		view.setMovementMethod(LinkMovementMethod.getInstance());
 		return view;
 	}
