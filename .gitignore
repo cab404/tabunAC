@@ -6,3 +6,6 @@ bin/
 .idea/
 .navigation/
 .gradle/
+ant.properties
+local.properties
+apk/
