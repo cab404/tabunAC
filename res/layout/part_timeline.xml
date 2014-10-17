@@ -18,7 +18,7 @@
 		<TextView
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:text="Лента"
+				android:text="Прямой эфир"
 				android:textColor="@color/bg_item_label"
 				android:layout_weight="1"
 				android:padding="@dimen/internal_margins"
