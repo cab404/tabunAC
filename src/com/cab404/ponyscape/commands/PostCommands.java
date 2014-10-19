@@ -116,8 +116,8 @@ public class PostCommands {
 									comments = new LinkedList<>();
 									Static.handler.post(new Runnable() {
 										@Override public void run() {
-											while (!dump.isEmpty())
-												list.add(dump.remove(0));
+											for (Comment comment : dump)
+												list.add(comment);
 											list.update();
 										}
 									});
