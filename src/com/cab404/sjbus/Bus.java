@@ -74,7 +74,6 @@ public class Bus {
 
 	public void send(final Object event) {
 		boolean something_was_invoked = false;
-		Log.w("SiJBus", handlers.size() + " handlers now");
 
 		final String log_session = Integer.toHexString((int) (Math.random() * (Math.pow(16, 4) - Math.pow(16, 3)) + Math.pow(16, 3)));
 

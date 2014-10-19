@@ -18,6 +18,7 @@ public class PendingMethod {
 	private final Object holder;
 	public final Class<? extends Executor> starter;
 	public final String label;
+	private final Class<?>[] m_par;
 
 	/**
 	 * @param holder Object, with which method will be executed.
@@ -26,6 +27,7 @@ public class PendingMethod {
 	public PendingMethod(Method method, Object holder) {
 		this.method = method;
 		this.holder = holder;
+		m_par = method.getParameterTypes();
 		label = holder.getClass().getSimpleName() + "." + method.getName() + Integer.toHexString(holder.hashCode());
 		starter = method.getAnnotation(Bus.Handler.class).executor();
 	}
@@ -35,10 +37,8 @@ public class PendingMethod {
 	 */
 	public boolean canBeInvokedWith(Object parameter) {
 
-		if (method.getParameterTypes().length != 1)
+		if (m_par.length != 1)
 			return false;
-
-		Class[] m_par = method.getParameterTypes();
 
 		Class<?> p_type = parameter.getClass();
 		Class<?> m_type = m_par[0];
@@ -54,10 +54,8 @@ public class PendingMethod {
 	 */
 	public boolean canBeInvokedWith(Object... parameters) {
 
-		if (!(parameters.length == method.getParameterTypes().length || method.isVarArgs()))
+		if (!(parameters.length == m_par.length || method.isVarArgs()))
 			return false;
-
-		Class[] m_par = method.getParameterTypes();
 
 		for (int i = 0; i != parameters.length; i++) {
 			Class<?> p_type = parameters[i].getClass();

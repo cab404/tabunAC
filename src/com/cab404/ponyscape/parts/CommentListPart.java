@@ -150,6 +150,7 @@ public class CommentListPart extends Part {
 		if (listView != null)
 			adapter.notifyDataSetChanged();
 		updateNew();
+		adapter.selected = -1;
 	}
 
 	private int max_comment_id() {
@@ -160,6 +161,7 @@ public class CommentListPart extends Part {
 	}
 
 	public void select(int index, int from) {
+		adapter.selected = index;
 		if (Build.VERSION.SDK_INT < 11)
 			listView.setSelectionFromTop(index + 1, getBarHeight());
 		else if (index - from > -30 && index - from < 10)
@@ -235,7 +237,6 @@ public class CommentListPart extends Part {
 					Static.handler.post(new Runnable() {
 						@Override public void run() {
 							update();
-							updateNew();
 						}
 					});
 
@@ -374,16 +375,18 @@ public class CommentListPart extends Part {
 		});
 
 		listView.setFastScrollEnabled(Static.cfg.ensure("comments.fast_scroll", false));
-
+		listView.setScrollingCacheEnabled(Static.cfg.ensure("comments.scroll_cache", false));
 
 		view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
 				select(comments.size(), -500);
+				adapter.selected = -1;
 			}
 		});
 		view.findViewById(R.id.up).setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View v) {
 				select(0, 5000);
+				adapter.selected = -1;
 			}
 		});
 
@@ -427,6 +430,7 @@ public class CommentListPart extends Part {
 	private class CommentListAdapter extends BaseAdapter {
 
 		private final Context context;
+		private int selected = -1;
 
 		private HashMap<Comment, CommentPart> comment_cache;
 		private LevelDrawable level_indicator;
@@ -593,7 +597,13 @@ public class CommentListPart extends Part {
 					comment(comment, true);
 				}
 			});
+
+			/* Отмечаем выделенный коммент */
+			if (selected == i)
+				view.findViewById(R.id.root).setBackgroundColor(context.getResources().getColor(R.color.bg_item_selected));
+
 			return view;
+
 		}
 	}
 

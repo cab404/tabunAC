@@ -7,5 +7,4 @@ bin/
 .navigation/
 .gradle/
 ant.properties
-local.properties
 apk/

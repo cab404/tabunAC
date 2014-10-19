@@ -128,13 +128,13 @@
 	<ScrollView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/scrollView">
+			android:layout_marginTop="-8dp"
+			>
 		<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:id="@+id/data_points"
-				android:layout_marginTop="-8dp">
+				android:id="@+id/data_points">
 			<LinearLayout android:orientation="vertical"
 			              android:layout_width="match_parent"
 			              android:layout_height="wrap_content"

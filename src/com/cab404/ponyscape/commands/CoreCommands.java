@@ -71,6 +71,20 @@ public class CoreCommands {
 		Static.bus.send(new E.Commands.Clear());
 	}
 
+	@Command(command = "ph")
+	public void ponyhawks() {
+		Simple.redirect("page top ponyhawks");
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
+	@Command(command = "lh")
+	public void lighthouse() {
+		Simple.redirect("page top lighthouse");
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
 	@Command(command = "luna")
 	/** Running Luna, yay!*/
 	public void luna() {Static.bus.send(new E.Commands.Clear());}

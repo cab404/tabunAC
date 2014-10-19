@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.cab404.acli.Part;
 import com.cab404.libtabun.data.TimelineEntry;
 import com.cab404.libtabun.requests.TimelineRequest;
+import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
@@ -89,11 +90,15 @@ public class TimelinePart extends Part {
 			final TimelineEntry e = timeline.get(position);
 
 			((TextView) convertView.findViewById(R.id.first_line)).setText(
-					e.commenter.login + " в блоге " + e.topic.blog.name
+					SU.deEntity(
+							e.commenter.login + " в блоге " + e.topic.blog.name
+					)
 			);
 
 			((TextView) convertView.findViewById(R.id.topic_name)).setText(
-					e.topic.title
+					SU.deEntity(
+							e.topic.title
+					)
 			);
 
 			((TextView) convertView.findViewById(R.id.comment_count)).setText(

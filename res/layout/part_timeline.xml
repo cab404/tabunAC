@@ -2,8 +2,15 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:minWidth="240dp"
+
+              android:layout_marginLeft="70dp"
+              android:layout_marginRight="70dp"
+              android:layout_marginBottom="30dp"
+              android:layout_marginTop="30dp"
+
               android:background="@drawable/bg_part"
               android:gravity="center_horizontal">
 
@@ -37,10 +44,11 @@
 	      android:layout_height="1dp"
 	      android:background="@color/bg_item_shadow"
 			/>
-	<ListView android:layout_width="240dp"
-	          android:layout_height="match_parent"
-	          android:id="@+id/timeline"
-	          android:layout_marginBottom="@dimen/internal_margins"/>
+	<ListView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/timeline"
+			android:layout_marginBottom="@dimen/internal_margins"/>
 
 
 </LinearLayout>
