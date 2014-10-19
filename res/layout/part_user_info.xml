@@ -45,7 +45,7 @@
 				android:layout_alignParentEnd="true"
 				android:layout_marginRight="20dp"
 				android:layout_marginLeft="10dp"
-				android:id="@+id/linearLayout">
+				android:id="@+id/__2">
 			<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
 				android:id="@+id/plus"
 				android:src="@drawable/ic_bar_plus"
 				android:tint="@color/bg_tint"
-				android:layout_alignTop="@+id/linearLayout"
+				android:layout_alignTop="@+id/__2"
 				android:layout_alignParentRight="true"
 				android:layout_alignParentEnd="true"
 				android:layout_marginRight="8dp"/>

@@ -1,8 +1,7 @@
-package com.cab404.ponyscape.parts;
+package com.cab404.ponyscape.parts.raw_text;
 
 import com.cab404.libtabun.data.TabunError;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.parts.raw_text.AbstractTextPart;
 import com.cab404.ponyscape.utils.Static;
 
 /**

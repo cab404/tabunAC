@@ -165,7 +165,6 @@ public class CoreCommands {
 		EditorPart editorPart = new EditorPart("Редактируем настройки", config_serialized, new EditorPart.EditorActionHandler() {
 			@Override
 			public boolean finished(CharSequence text) {
-				int line_num = 0;
 				try {
 					Static.cfg.data = (JSONObject) new JSONParser().parse(text.toString());
 				} catch (ParseException e) {

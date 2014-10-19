@@ -14,6 +14,7 @@ import com.cab404.moonlight.framework.ModularBlockParser;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.*;
+import com.cab404.ponyscape.parts.raw_text.ErrorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;

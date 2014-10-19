@@ -12,6 +12,5 @@
 	<dimen name="corner_cut">4dp</dimen>
 
 	<integer name="maximum_gradient_length">30</integer>
-	<integer name="alias_menu_animation_duration">50</integer>
 
 </resources>

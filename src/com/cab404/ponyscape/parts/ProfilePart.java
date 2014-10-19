@@ -35,11 +35,9 @@ public class ProfilePart extends Part {
 	private final Profile profile;
 	private HtmlRipper ripper;
 
-
 	public ProfilePart(Profile profile) {
 		this.profile = profile;
 	}
-
 
 	@Bus.Handler
 	public void handleImages(final E.GotData.Image.Loaded image) {
@@ -178,5 +176,6 @@ public class ProfilePart extends Part {
 	@Override protected void onRemove(View view, ViewGroup parent, Context context) {
 		Static.bus.unregister(this);
 		super.onRemove(view, parent, context);
+		ripper.destroy();
 	}
 }

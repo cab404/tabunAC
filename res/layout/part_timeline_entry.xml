@@ -12,27 +12,18 @@
               android:layout_height="wrap_content"
               android:text="Господин N в блоге &quot;Fancy Pants&quot;"
               android:id="@+id/first_line"
-              android:layout_centerVertical="true"
-              android:layout_alignParentLeft="true"
-              android:layout_alignParentStart="true"
               android:textColor="@color/font_color"
               android:singleLine="true"/>
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="Злые шутки Мистера X"
               android:id="@+id/topic_name"
-              android:layout_centerVertical="true"
-              android:layout_alignParentLeft="true"
-              android:layout_alignParentStart="true"
               android:textColor="@color/bg_item_label"
             />
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="12 комментариев"
               android:id="@+id/comment_count"
-              android:layout_centerVertical="true"
-              android:layout_alignParentLeft="true"
-              android:layout_alignParentStart="true"
               android:textColor="@color/bg_item_shadow"
               android:layout_gravity="right"/>
 </LinearLayout>

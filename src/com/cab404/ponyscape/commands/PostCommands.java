@@ -16,8 +16,8 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.CommentListPart;
-import com.cab404.ponyscape.parts.ErrorPart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
+import com.cab404.ponyscape.parts.raw_text.ErrorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
@@ -74,7 +74,6 @@ public class PostCommands {
 					@Override public void finished() {
 						Static.bus.send(new E.Commands.Finished());
 					}
-					@Override public void fetch(AccessProfile profile) {super.fetch(profile);}
 				}.fetch(Static.user);
 			}
 		}).start();

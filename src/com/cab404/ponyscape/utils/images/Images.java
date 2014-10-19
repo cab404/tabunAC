@@ -268,7 +268,7 @@ public class Images {
 						return;
 					}
 
-					memory_cache.put(original_url, new WeakReference<Bitmap>(bitmap));
+					memory_cache.put(original_url, new WeakReference<>(bitmap));
 					Static.bus.send(new E.GotData.Image.Loaded(bitmap, original_url));
 
 					/* Anything may happen in high-memory-consumption-web-image-byte-stream-play procedure*/
