@@ -71,8 +71,7 @@ public class ArchCommands {
 
 					new Thread() {
 						@Override public void run() {
-								/* Загружаем данные */
-							JSONParser parser = new JSONParser();
+							/* Загружаем данные */
 							final JSONObject post_data = jsonLoad(cached);
 							if (post_data == null) {
 								Static.bus.send(new E.Commands.Finished());

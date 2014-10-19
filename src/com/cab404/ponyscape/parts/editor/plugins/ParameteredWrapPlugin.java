@@ -47,10 +47,9 @@ public class ParameteredWrapPlugin implements EditorPlugin {
 	@Override public void performAction(final EditText text) {
 		final int selectionStart;
 		final int selectionEnd;
-		boolean sel = text.isSelected();
 
-		selectionEnd = text.getSelectionEnd();
 		selectionStart = text.getSelectionStart();
+		selectionEnd = text.getSelectionEnd();
 
 		Static.bus.send(new E.Parts.Run(request(request, new EditorPart.EditorActionHandler() {
 			@Override public boolean finished(CharSequence param) {

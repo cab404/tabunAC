@@ -32,7 +32,7 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 	@Override public Part partAt(int index) {return part;}
 	@Override public int indexOf(Part part) {return 0;}
 	@Override public int size() {return 1;}
-	@Override public Context getContext() {return Static.theme.getContext(this);}
+	@Override public Context getContext() {return this;}
 
 
 	private static class PartLaunchHandler {

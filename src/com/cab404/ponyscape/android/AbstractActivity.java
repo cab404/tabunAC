@@ -1,7 +1,6 @@
 package com.cab404.ponyscape.android;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -16,8 +15,6 @@ import com.cab404.sjbus.Bus;
  */
 public class AbstractActivity extends Activity {
 
-	static final boolean THEMES_ENABLED = Static.cfg.ensure("main.themes_enabled", false);
-
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Static.bus.register(this);
@@ -26,13 +23,6 @@ public class AbstractActivity extends Activity {
 	@Override protected void onDestroy() {
 		super.onDestroy();
 		Static.bus.unregister(this);
-	}
-
-	@Override protected void attachBaseContext(Context newBase) {
-		super.attachBaseContext(
-				THEMES_ENABLED ?
-						Static.theme.getContext(newBase) : newBase
-		);
 	}
 
 	private void setLunaTalk(String msg) {

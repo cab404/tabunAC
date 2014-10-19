@@ -120,6 +120,11 @@
 		\n
 		\n
 
+		&lt;strong&gt;text.selectable&lt;/strong&gt;:
+		\n
+		\t Вообще, лучше не трогать. Лаганная штука. Отвечает за выделяемость текста.
+		\n
+		\n
 
 		&lt;strong&gt;comments.fast_scroll&lt;/strong&gt;:
 		\n
@@ -127,6 +132,13 @@
 		\n
 		\n
 
+		&lt;strong&gt;comments.scroll_cache&lt;/strong&gt;:
+		\n
+		\t Если установить в true, то [МНОГО ФИГНИ О БИТМАПАХ И ПАМЯТИ]. В принципе, может ускорить (и неплохо)
+		прокрутку на новых девайсах, но на старых иногда [МНОГО ФИГНИ О ПОДДЕРЖКЕ СТАРХ УСТРОЙСТВ], что может привести к
+		неимоверным лагам при прокрутке.
+		\n
+		\n
 
 		&lt;strong&gt;comments.ladder&lt;/strong&gt;:
 		\n
@@ -160,7 +172,7 @@
 
 		&lt;strong&gt;comment.scale_width&lt;/strong&gt;:
 		\n
-		\t Множитель ширины комментария. Например, если выставить в 0.8, то комментарий будет ширитой в 4/5 от ширины
+		\t Множитель ширины комментария. Например, если выставить в 0.8, то комментарий будет шириной в 0.8 от ширины
 		экрана.
 		\n
 		\n
@@ -231,8 +243,6 @@
 	<string name="err404">Ошибка: Страница не найдена</string>
 	<string name="err403">Ошибка: Доступ запрещён</string>
 	<string name="errUNKNOWN">Ошибка: WTF CONDITION, RUN FOR YOUR LIVE!</string>
-
-	<string name="comments">Комментарии</string>
 
 	<string name="label_editor_activity">Редактор</string>
 

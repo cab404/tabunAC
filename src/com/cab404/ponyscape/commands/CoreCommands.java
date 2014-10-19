@@ -71,6 +71,20 @@ public class CoreCommands {
 		Static.bus.send(new E.Commands.Clear());
 	}
 
+	@Command(command = "ph")
+	public void ponyhawks() {
+		Simple.redirect("page top ponyhawks");
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
+	@Command(command = "lh")
+	public void lighthouse() {
+		Simple.redirect("page top lighthouse");
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
 	@Command(command = "luna")
 	/** Running Luna, yay!*/
 	public void luna() {Static.bus.send(new E.Commands.Clear());}
@@ -151,7 +165,6 @@ public class CoreCommands {
 		EditorPart editorPart = new EditorPart("Редактируем настройки", config_serialized, new EditorPart.EditorActionHandler() {
 			@Override
 			public boolean finished(CharSequence text) {
-				int line_num = 0;
 				try {
 					Static.cfg.data = (JSONObject) new JSONParser().parse(text.toString());
 				} catch (ParseException e) {

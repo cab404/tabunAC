@@ -2,6 +2,7 @@ package com.cab404.acli;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ public class ACLIList implements FragmentedList {
 	public ACLIList(ViewGroup root) {
 		this.root = root;
 		parts = new ArrayList<>();
-		threading = new Handler(root.getContext().getMainLooper());
+		threading = new Handler(Looper.getMainLooper());
 	}
 
 	public void add(Part part) {
