@@ -321,13 +321,15 @@ public class CommentListPart extends Part {
 								Static.bus.send(new E.Commands.Success(msg));
 							}
 
-							Static.bus.send(new E.Commands.Finished());
 							refresh();
 
 						} catch (MoonlightFail f) {
 							Static.bus.send(new E.Commands.Failure(msg));
 							Static.bus.send(new E.Parts.Run(new EditorPart(title, text, handler), true));
+						} finally {
+							Static.bus.send(new E.Commands.Finished());
 						}
+
 					}
 				}).start();
 
