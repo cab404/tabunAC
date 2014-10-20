@@ -23,6 +23,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -102,15 +103,22 @@ public class ArchCommands {
 									comments = new ArrayList<>();
 									Static.handler.post(new Runnable() {
 										@Override public void run() {
-											while (!dump.isEmpty())
-												add(dump.remove(0));
+											for (Comment comment : dump)
+												add(comment);
 											update();
 										}
 									});
 								}
 							}
-							while (!comments.isEmpty())
-								add(comments.remove(0));
+							if (!comments.isEmpty()) {
+								final List<Comment> dump = comments;
+								Static.handler.post(new Runnable() {
+									@Override public void run() {
+										for (Comment comment : dump)
+											add(comment);
+									}
+								});
+							}
 
 							Static.bus.send(new E.Commands.Finished());
 							Static.bus.send(new E.Commands.Clear());
