@@ -192,6 +192,7 @@ public class CommentListPart extends Part {
 	 */
 	private void updateNew() {
 		int new_c = 0;
+
 		for (Comment comment : comments)
 			if (comment.is_new)
 				new_c++;
@@ -470,7 +471,9 @@ public class CommentListPart extends Part {
 						params.width = nw;
 				}
 
-				Anim.shift(listView, offset * comment_ladder, 100, null);
+				listView.scrollTo(offset * comment_ladder, listView.getScrollY());
+
+//				Anim.shift(listView, offset * comment_ladder, 100, null);
 			}
 		}
 

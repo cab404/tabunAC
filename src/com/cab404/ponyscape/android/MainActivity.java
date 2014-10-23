@@ -33,6 +33,7 @@ import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.ponyscape.utils.state.AliasUtils;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
+import com.cab404.ponyscape.utils.views.ScrollHandler;
 import com.cab404.sjbus.Bus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpHead;
@@ -105,7 +106,7 @@ public class MainActivity extends AbstractActivity {
 
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
-		view.setHandler(new FollowableScrollView.ScrollHandler() {
+		view.setHandler(new ScrollHandler() {
 			final int CAPACITY = 5;
 			int charge = 0;
 			@Override public void onScrolled(int y, int old_y) {

@@ -777,9 +777,11 @@ public class HtmlRipper {
 
 		ViewGroup header_layout = (ViewGroup) view.findViewById(R.id.header);
 
-		if (header != null)
-			escape(tree.getContents(header), header_layout);
-		else
+		if (header != null) {
+			TextView head = form(tree.getContents(header), context);
+			head.setTextColor(context.getResources().getColor(R.color.spoiler_label));
+			header_layout.addView(head);
+		} else
 			escape("Спойлер", header_layout);
 
 		// Отключаем перемещение по ссылкам в заголовке спойлера

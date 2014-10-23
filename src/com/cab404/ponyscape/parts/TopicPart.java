@@ -1,7 +1,12 @@
 package com.cab404.ponyscape.parts;
 
+import android.annotation.TargetApi;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -50,10 +55,12 @@ public class TopicPart extends Part {
 		Static.bus.register(this);
 
 		view = (ViewGroup) inflater.inflate(R.layout.part_topic, viewGroup, false);
+		TextView title = (TextView) view.findViewById(R.id.title);
+
 		{
-			((TextView) view.findViewById(R.id.title))
+			title
 					.setText(SU.deEntity(topic.title));
-			view.findViewById(R.id.title)
+			title
 					.setOnClickListener(new View.OnClickListener() {
 						@Override public void onClick(View unused) {
 							Static.bus.send(new E.Commands.Run(link));
@@ -75,10 +82,11 @@ public class TopicPart extends Part {
 
 		/* Отслеживаем изменения родителя. */
 		{
-			ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
+			ViewGroup content = (ViewGroup) view.findViewById(R.id.content);
+			ripper = new HtmlRipper(content);
 			ripper.escape(topic.text);
 			if (Build.VERSION.SDK_INT >= 11)
-				view.findViewById(R.id.content).addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				content.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 					int last_width = 0;
 					@Override public void onLayoutChange(View v, int l, int t, int r, int b, int oL, int oT, int oR, int oB) {
 				/*
@@ -204,23 +212,50 @@ public class TopicPart extends Part {
 
 		/* Количество комментариев и id */
 		{
-			StringBuilder info = new StringBuilder("#" + topic.id);
-			if (topic.comments != 0) {
-				info
-						.append('\n')
-						.append(topic.comments)
-						.append(" ")
-						.append(context.getResources().getQuantityString(R.plurals.comments, topic.comments));
-				if (topic.comments_new != 0)
-					info
-							.append(", ")
-							.append(topic.comments_new)
-							.append(" ")
-							.append(context.getResources().getQuantityString(R.plurals.new_comments, topic.comments_new));
+			((TextView) view.findViewById(R.id.id)).setText("" + topic.id);
+			if (Build.VERSION.SDK_INT > 10)
+				view.findViewById(R.id.id).setOnClickListener(new View.OnClickListener() {
+					@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+					@Override public void onClick(View v) {
+						ClipboardManager man =
+								(ClipboardManager) Static.ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+						Static.ctx.sendBroadcast(
+								new Intent(
+										Intent.ACTION_SEND
+								)
+						);
+						man.setPrimaryClip(
+								ClipData.newRawUri(
+										topic.title,
+										Uri.parse("http://tabun.everypony.ru/blog/" + topic.id + ".html")
+								)
+						);
 
-			}
+					}
+				});
 
-			((TextView) view.findViewById(R.id.id)).setText(info);
+			StringBuilder info = new StringBuilder();
+
+			info.append(topic.comments);
+			if (topic.comments_new != 0)
+				info.append(" +").append(topic.comments_new);
+			((TextView) view.findViewById(R.id.comments)).setText(info);
+
+//			if (topic.comments != 0) {
+//				info
+//						.append('\n')
+//						.append(topic.comments)
+//						.append(" ")
+//						.append(context.getResources().getQuantityString(R.plurals.comments, topic.comments));
+//				if (topic.comments_new != 0)
+//					info
+//							.append(", ")
+//							.append(topic.comments_new)
+//							.append(" ")
+//							.append(context.getResources().getQuantityString(R.plurals.new_comments, topic.comments_new));
+//			}
+
+
 		}
 
 		/* Fadein */

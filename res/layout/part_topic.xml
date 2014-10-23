@@ -105,17 +105,53 @@
 				android:gravity="right"
 				>
 
-			<TextView android:layout_width="0dp"
-			          android:layout_height="wrap_content"
-			          android:text="#13444"
-			          android:id="@+id/id"
-			          android:singleLine="false"
-			          android:layout_weight="1"
-			          android:gravity="bottom"
-			          android:textColor="@color/bg_item_shadow"
-			          android:paddingBottom="4dp"
-			          android:layout_gravity="center_vertical"
-			          android:paddingTop="4dp"/>
+			<LinearLayout
+					android:orientation="vertical"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1">
+				<LinearLayout
+						android:orientation="horizontal"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:gravity="center">
+					<ImageView
+							android:layout_width="@dimen/small_text_size"
+							android:layout_height="@dimen/small_text_size"
+							android:src="@drawable/ic_goto"
+							android:tint="@color/bg_item_shadow"/>
+					<TextView android:layout_width="wrap_content"
+					          android:layout_height="wrap_content"
+					          android:text="13444"
+					          android:id="@+id/id"
+					          android:singleLine="false"
+					          android:layout_weight="1"
+					          android:gravity="bottom"
+					          android:textColor="@color/bg_item_shadow"
+					          android:layout_gravity="center_vertical"
+					          android:textSize="@dimen/small_text_size"/>
+				</LinearLayout>
+				<LinearLayout android:orientation="horizontal"
+				              android:layout_width="wrap_content"
+				              android:layout_height="wrap_content"
+				              android:gravity="center"
+						>
+					<ImageView android:layout_width="@dimen/small_text_size"
+					           android:layout_height="@dimen/small_text_size"
+					           android:src="@drawable/ic_reply"
+					           android:tint="@color/bg_item_shadow"/>
+					<TextView android:layout_width="wrap_content"
+					          android:layout_height="wrap_content"
+					          android:text="10 +8"
+					          android:id="@+id/comments"
+					          android:singleLine="false"
+					          android:layout_weight="1"
+					          android:gravity="bottom"
+					          android:textColor="@color/bg_item_shadow"
+					          android:layout_gravity="center_vertical"
+					          android:textSize="@dimen/small_text_size"/>
+				</LinearLayout>
+			</LinearLayout>
 
 			<ImageView android:layout_width="32dp"
 			           android:layout_height="30dp"

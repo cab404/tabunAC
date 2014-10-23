@@ -3,39 +3,31 @@ package com.cab404.ponyscape.utils.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.ScrollView;
+import android.widget.ListView;
 
 /**
- * Transparent socket above ScrollView
- *
  * @author cab404
  */
-public class FollowableScrollView extends ScrollView {
-
-	public FollowableScrollView(Context context) {
+public class FollowableListView extends ListView {
+	public FollowableListView(Context context) {
 		super(context);
 	}
-	public FollowableScrollView(Context context, AttributeSet attrs) {
+	public FollowableListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
-	public FollowableScrollView(Context context, AttributeSet attrs, int defStyle) {
+	public FollowableListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 	}
 
 	private ScrollHandler handler;
+	private float delta = 0; // Хранит delta Y.
 
 	public void setHandler(ScrollHandler handler) {
 		this.handler = handler;
 	}
 
-	boolean scroll_enabled = true;
-
-	@Override public int getMaxScrollAmount() {
-		return isScrollEnabled() ? super.getMaxScrollAmount() : 0;
-	}
-
 	@Override public boolean onTouchEvent(MotionEvent ev) {
-		boolean b = isScrollEnabled() && super.onTouchEvent(ev);
+		boolean b = super.onTouchEvent(ev);
 
 		if (ev.getAction() == MotionEvent.ACTION_UP) {
 			if (handler != null)
@@ -57,17 +49,6 @@ public class FollowableScrollView extends ScrollView {
 
 		return b;
 	}
-
-
-	public boolean isScrollEnabled() {
-		return scroll_enabled;
-	}
-
-	public void setScrollEnabled(boolean scroll_enabled) {
-		this.scroll_enabled = scroll_enabled;
-	}
-
-	private float delta = 0; // Хранит delta Y.
 
 	public float getDelta() {
 		return delta;

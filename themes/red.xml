@@ -26,6 +26,7 @@
 	<color name="comment_ladder_gradient_end">#ffd21100</color>
 
 	<color name="spoiler_bg">#98604d4f</color>
+	<color name="spoiler_label">@color/bg_item</color>
 
 	<color name="cut_border">#ff885256</color>
 	<color name="cut_bg">#8568454a</color>
