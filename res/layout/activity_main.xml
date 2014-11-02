@@ -16,7 +16,8 @@
 
 			android:id="@+id/data_root"
 			android:layout_alignBottom="@+id/input"
-			android:focusable="true">
+
+		>
 		<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="fill_parent"
