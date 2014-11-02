@@ -290,9 +290,9 @@ public class CoreCommands {
 
 	@Command(command = "autoconf")
 	public void autoconf() {
+		Simple.checkNetworkConnection();
 		new Thread() {
 			@Override public void run() {
-				Simple.checkNetworkConnection();
 
 				CommonInfo inf = Static.last_page == null ? null : Static.last_page.c_inf;
 

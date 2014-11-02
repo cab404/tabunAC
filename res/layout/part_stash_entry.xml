@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/bg_item">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30 секунд назад..."
+            android:id="@+id/date_added"
+            android:textColor="@color/bg_item_shadow"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/text"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:id="@+id/delete"
+        android:layout_margin="4dp"
+        android:src="@drawable/ic_delete"
+        android:padding="6dp"
+        android:tint="@color/font_color_red"/>
+</LinearLayout>
