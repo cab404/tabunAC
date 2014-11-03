@@ -87,7 +87,7 @@ public class ACLIList implements FragmentedList {
 		}
 	}
 
-	public void hide(final Part part) {
+	public void hide(Part part) {
 		if (parts.contains(part)) {
 			int index = parts.indexOf(part);
 			final LinearLayout view = (LinearLayout) root.getChildAt(index);
@@ -108,7 +108,7 @@ public class ACLIList implements FragmentedList {
 		}
 	}
 
-	public void show(final Part part) {
+	public void show(Part part) {
 		if (parts.contains(part)) {
 			int index = parts.indexOf(part);
 			final LinearLayout view = (LinearLayout) root.getChildAt(index);

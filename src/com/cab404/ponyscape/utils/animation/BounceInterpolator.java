@@ -18,9 +18,9 @@ public class BounceInterpolator implements TimeInterpolator {
 		float pre_clamp = 0.5f; // Когда начинаем возвращать значение к единице.
 
 		if (input < pre_clamp)
-			return (float) (Math.sqrt(input / pre_clamp) * clamp);
+			return (float) ((input / pre_clamp) * clamp);
 		else
-			return (float) (clamp - (clamp - 1) * Math.sqrt((input - pre_clamp) / (1 - pre_clamp)));
+			return (float) (clamp - (clamp - 1) * ((input - pre_clamp) / (1 - pre_clamp)));
 	}
 
 }

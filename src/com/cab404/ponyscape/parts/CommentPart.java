@@ -47,13 +47,20 @@ public class CommentPart extends Part {
 	public void convert(final View view, Context context) {
 		this.view = view;
 
+		TextView rating = (TextView) view.findViewById(R.id.rating);
+		View minus = view.findViewById(R.id.minus);
+		View plus = view.findViewById(R.id.plus);
+		View root = view.findViewById(R.id.root);
+
 		/* Выставляем текст */
 		{
+			ViewGroup content = (ViewGroup) view.findViewById(R.id.content);
+
 			if (ripper == null) {
-				ripper = new HtmlRipper((ViewGroup) view.findViewById(R.id.content));
+				ripper = new HtmlRipper(content);
 				ripper.escape(comment.text);
 			} else {
-				ripper.changeLayout((ViewGroup) view.findViewById(R.id.content));
+				ripper.changeLayout(content);
 			}
 
 		}
@@ -61,6 +68,7 @@ public class CommentPart extends Part {
 		/* Загрузка аватарки. Складываем ссылку в тег картинки. */
 		{
 			ImageView avatar = (ImageView) view.findViewById(R.id.avatar);
+
 			avatar.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
 					Static.bus.send(new E.Commands.Run("user load \"" + comment.author.login + "\""));
@@ -94,23 +102,22 @@ public class CommentPart extends Part {
 
 		}
 
-
 		/* Выставляем рейтинг */
 		{
-			((TextView) view.findViewById(R.id.rating))
+			rating
 					.setText(comment.votes > 0 ? "+" + comment.votes : "" + comment.votes);
 		}
 
 		/* Если это письмо, то отключаем рейтинг и редактирование. */
 		{
 			if (!isLetter) {
-				view.findViewById(R.id.plus).setOnClickListener(new View.OnClickListener() {
+				plus.setOnClickListener(new View.OnClickListener() {
 					@Override public void onClick(View view) {
 						Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " +1"));
 					}
 				});
 
-				view.findViewById(R.id.minus).setOnClickListener(new View.OnClickListener() {
+				minus.setOnClickListener(new View.OnClickListener() {
 					@Override public void onClick(View view) {
 						Static.bus.send(new E.Commands.Run("votefor comment " + comment.id + " -1"));
 					}
@@ -148,9 +155,9 @@ public class CommentPart extends Part {
 		/* Если письмо, то отключаем ненужное. */
 		{
 			if (isLetter) {
-				view.findViewById(R.id.plus).setVisibility(View.GONE);
+				plus.setVisibility(View.GONE);
+				minus.setVisibility(View.GONE);
 				view.findViewById(R.id.edit).setVisibility(View.GONE);
-				view.findViewById(R.id.minus).setVisibility(View.GONE);
 				view.findViewById(R.id.rating).setVisibility(View.GONE);
 				view.findViewById(R.id.favourite).setVisibility(View.GONE);
 			}
@@ -160,12 +167,12 @@ public class CommentPart extends Part {
 		/* Устанавливаем боевую расскраску, если коммент новый */
 		{
 			if (comment.is_new)
-				view.findViewById(R.id.root)
+				root
 						.setBackgroundColor(
 								context.getResources().getColor(R.color.bg_item_new)
 						);
 			else
-				view.findViewById(R.id.root)
+				root
 						.setBackgroundColor(
 								context.getResources().getColor(R.color.bg_item)
 						);

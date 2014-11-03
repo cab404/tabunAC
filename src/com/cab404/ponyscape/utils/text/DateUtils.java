@@ -31,13 +31,18 @@ public class DateUtils {
 	 */
 	public static String convertToString(Calendar calendar, Context context) {
 		Calendar current = Calendar.getInstance();
-		calendar.setTimeZone(current.getTimeZone());
 
+		long abs_cal = calendar.getTimeInMillis() - calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
+		long abs_cur = current.getTimeInMillis() - current.getTimeZone().getOffset(current.getTimeInMillis());
+
+		calendar.setTimeZone(current.getTimeZone());
 		StringBuilder data = new StringBuilder();
 
-		long delta = current.getTimeInMillis() - calendar.getTimeInMillis();
+		long delta = abs_cur - abs_cal;
 
+		/* Если меньше 15 минут */
 		if (delta < 60000 * 15) {
+			/* Если меньше минуты */
 			if (delta < 60000) {
 				data
 						.append(delta / 1000).append(' ')

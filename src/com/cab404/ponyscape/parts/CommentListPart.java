@@ -192,6 +192,7 @@ public class CommentListPart extends Part {
 	 */
 	private void updateNew() {
 		int new_c = 0;
+
 		for (Comment comment : comments)
 			if (comment.is_new)
 				new_c++;
@@ -470,6 +471,8 @@ public class CommentListPart extends Part {
 						params.width = nw;
 				}
 
+//				listView.scrollTo(offset * comment_ladder, listView.getScrollY());
+
 				Anim.shift(listView, offset * comment_ladder, 100, null);
 			}
 		}
@@ -496,7 +499,7 @@ public class CommentListPart extends Part {
 
 		double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
 		boolean autoshift = Static.cfg.ensure("comments.autoshift", true);
-		int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 5);
+		int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 1);
 
 		int comment_ladder =
 				(int) (

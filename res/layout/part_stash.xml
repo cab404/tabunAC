@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="240dp"
+              android:minWidth="240dp"
+
+              android:layout_marginLeft="30dp"
+              android:layout_marginRight="30dp"
+              android:layout_marginBottom="30dp"
+              android:layout_marginTop="30dp"
+
+              android:background="@drawable/bg_part"
+              android:gravity="center_horizontal"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/icons_size"
+        android:text="Stash"
+        android:id="@+id/textView"
+        android:gravity="center"
+        android:textSize="@dimen/title_text_size"
+        android:textColor="@color/bg_item_label"/>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/bg_item_shadow"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/data"
+        android:choiceMode="none"/>
+
+</LinearLayout>

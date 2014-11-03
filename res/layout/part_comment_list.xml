@@ -7,7 +7,7 @@
                 android:isScrollContainer="true"
                 android:id="@+id/root">
 
-	<ListView
+	<com.cab404.ponyscape.utils.views.FollowableListView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:id="@+id/comment_list"

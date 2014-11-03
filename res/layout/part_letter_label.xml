@@ -4,7 +4,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="64dp"
 		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:background="@drawable/bg_gapless"
+		android:background="@color/bg_item"
 		android:padding="@dimen/internal_margins">
 	<LinearLayout
 			android:orientation="vertical"

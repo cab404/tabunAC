@@ -33,6 +33,7 @@ import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.ponyscape.utils.state.AliasUtils;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
+import com.cab404.ponyscape.utils.views.ScrollHandler;
 import com.cab404.sjbus.Bus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpHead;
@@ -105,7 +106,7 @@ public class MainActivity extends AbstractActivity {
 
 		/* Тут проставлено скрытие/показ бара */
 		FollowableScrollView view = (FollowableScrollView) findViewById(R.id.data_root);
-		view.setHandler(new FollowableScrollView.ScrollHandler() {
+		view.setHandler(new ScrollHandler() {
 			final int CAPACITY = 5;
 			int charge = 0;
 			@Override public void onScrolled(int y, int old_y) {
@@ -439,8 +440,8 @@ public class MainActivity extends AbstractActivity {
 	private void hideAliases(final int delay_per_item) {
 
 		if (!aliases_menu_active) return;
-
 		aliases_menu_active = false;
+
 		updateInput();
 
 
@@ -504,13 +505,12 @@ public class MainActivity extends AbstractActivity {
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void showAliases(final int delay_per_item) {
-		line.setError(null);
-
 		if (aliases_menu_active | bar_processing) return;
+		aliases_menu_active = true;
+
 		if (!bar_enabled)
 			showBar();
-
-		aliases_menu_active = true;
+		line.setError(null);
 
 		updateInput();
 
@@ -601,7 +601,7 @@ public class MainActivity extends AbstractActivity {
 		bar_processing = true;
 		updateInput();
 
-		Anim.fadeOut(findViewById(R.id.input), 200);
+		Anim.fadeOut(line, 200);
 		Anim.fadeOut(findViewById(R.id.command_bg), 200);
 		Anim.fadeOut(findViewById(R.id.command_button), 200, new Runnable() {
 			@Override public void run() {
@@ -616,12 +616,12 @@ public class MainActivity extends AbstractActivity {
 	 */
 	protected void showBar() {
 		if (bar_enabled || bar_processing) return;
-
 		bar_enabled = true;
+
 		bar_processing = true;
 		updateInput();
 
-		Anim.fadeIn(findViewById(R.id.input), 200);
+		Anim.fadeIn(line, 200);
 		Anim.fadeIn(findViewById(R.id.command_bg), 200);
 		Anim.fadeIn(findViewById(R.id.command_button), 200, new Runnable() {
 			@Override public void run() {
