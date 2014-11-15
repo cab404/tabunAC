@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Сделано  для Krys -->
 
-	<color name="font_color_command_line">#ff231010</color>
-	<color name="bg_main">#ffffca98</color>
+	<color name="font_color_command_line">#ff293033</color>
+	<color name="bg_main">#ff7ac0d9</color>
 	<color name="bg_tint">#aa000000</color>
-	<color name="bg_item">#ffffe3ec</color>
-	<color name="bg_item_shadow">#ffa38887</color>
+
+	<color name="bg_item">#ffffffff</color>
+	<color name="bg_item_shadow">#ff8aadab</color>
 	<color name="bg_item_new">#ffdfeef3</color>
-	<color name="bg_item_fav">#ffff7200</color>
-	<color name="bg_item_selected">#ffffd8de</color>
+	<color name="bg_item_fav">#fff3da3a</color>
+	<color name="bg_item_selected">#ffacc1c5</color>
 
-	<color name="bg_item_label">#ff5d3c3c</color>
+	<color name="bg_item_label">#ff3d6163</color>
 
-	<color name="bg_shortcuts">#ffff4400</color>
-	<color name="font_color_shortcuts">#ff7a0000</color>
+	<color name="bg_image">#ffffffff</color>
 
-	<color name="font_color">#ff2e2223</color>
-	<color name="font_color_link">#ff4b1918</color>
+	<color name="bg_shortcuts">#ff315250</color>
+	<color name="font_color_shortcuts">#ffe7e7e7</color>
+
+	<color name="font_color">#ff5c5c5c</color>
+	<color name="font_color_link">#ff19464b</color>
 	<color name="font_color_red">#ffca0033</color>
 	<color name="font_color_blue">#ff0086b6</color>
 	<color name="font_color_green">#ff00ab4b</color>
 
-	<color name="comment_ladder_gradient_start">#ffffd5d8</color>
-	<color name="comment_ladder_gradient_end">#ffd21100</color>
 
-	<color name="spoiler_bg">#98604d4f</color>
+	<color name="comment_ladder_gradient_start">#ffb9d9d2</color>
+	<color name="comment_ladder_gradient_end">#ff3e414c</color>
+
+	<color name="spoiler_bg">#98716f72</color>
 	<color name="spoiler_label">@color/bg_item</color>
 
-	<color name="cut_border">#ff885256</color>
-	<color name="cut_bg">#8568454a</color>
+	<color name="cut_border">#ff628288</color>
+	<color name="cut_bg">#85476068</color>
 
-	<color name="code_bg">#ff45383a</color>
-	<color name="code_color">#a9ffbfa0</color>
+	<color name="code_bg">#ff3b3b3b</color>
+	<color name="code_color">#A9B7C6</color>
+
 
 </resources>

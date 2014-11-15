@@ -726,7 +726,7 @@ public class HtmlRipper {
 				code.setBackgroundResource(R.drawable.bg_code);
 				code.setPadding(px_padding, px_padding, px_padding, px_padding);
 				code.setTypeface(Typeface.MONOSPACE);
-				code.setTextSize(code.getTextSize() * 0.6f);
+				code.setTextSize(code.getTextSize() * 0.9f);
 				code.setTextColor(context.getResources().getColor(R.color.code_color));
 
 				group.addView(code);

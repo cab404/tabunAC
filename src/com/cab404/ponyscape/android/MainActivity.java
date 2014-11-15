@@ -3,8 +3,9 @@ package com.cab404.ponyscape.android;
 import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.graphics.*;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -527,19 +528,6 @@ public class MainActivity extends AbstractActivity {
 					.setInterpolator(new BounceInterpolator())
 					.setDuration(items.getChildCount() * delay_per_item + delay_per_item);
 
-			new Drawable() {
-				Movie movie = Movie.decodeFile("");
-				@Override public void draw(Canvas canvas) {
-					movie.draw(canvas, 0, 0);
-				}
-				@Override public void setAlpha(int alpha) {
-				}
-				@Override public void setColorFilter(ColorFilter cf) {
-				}
-				@Override public int getOpacity() {
-					return PixelFormat.OPAQUE;
-				}
-			};
 
 			for (int i = 0; i < items.getChildCount(); i++) {
 				final View anim = items.getChildAt(i);

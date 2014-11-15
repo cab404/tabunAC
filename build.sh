@@ -14,8 +14,10 @@ cp -f 'res/values/colors.xml' '.colors_cached.xml';
 for F in $(ls themes | grep -Po ".*(?=\Q.xml\E)")
 do
 	cp -f themes/${F}.xml 'res/values/colors.xml';
-	ant release;
+	echo "==== Building "${F}
+	ant release | grep -Po "(?<=\-).*(?=\:)";
 	cp 'bin/ac-release.apk' apk/ac-${F}.apk;
+	echo "==== Built "${F}
 done;
 
 mv -f '.colors_cached.xml' 'res/values/colors.xml';
