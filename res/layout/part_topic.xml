@@ -51,8 +51,8 @@
 				android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent">
-			<ImageView android:layout_width="@dimen/primary_text_size"
-			           android:layout_height="@dimen/primary_text_size"
+			<ImageView android:layout_width="@dimen/title_text_size"
+			           android:layout_height="@dimen/title_text_size"
 			           android:id="@+id/avatar"
 			           android:layout_gravity="center_vertical"
 			           android:src="@color/bg_item_shadow"
