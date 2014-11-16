@@ -33,8 +33,8 @@
 			              android:paddingBottom="@dimen/internal_margins"
 					>
 				<ImageView
-						android:layout_width="@dimen/primary_text_size"
-						android:layout_height="@dimen/primary_text_size"
+						android:layout_width="@dimen/title_text_size"
+						android:layout_height="@dimen/title_text_size"
 						android:id="@+id/avatar"
 						android:layout_gravity="center_vertical"
 						android:src="@color/bg_item_shadow"

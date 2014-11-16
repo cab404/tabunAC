@@ -1,5 +1,5 @@
 #!/bin/bash
-# Собирает все разноцветные версии TabunAC
+# Собирает основную версию TabunAC
 
 # В ant.properties должны быть указаны
 # - Параметры keystore-а (jks) в key.store, key.store.password, key.alias, key.alias.password
@@ -9,13 +9,7 @@
 
 rm -rf bin;
 mkdir -p apk;
-cp -f 'res/values/colors.xml' '.colors_cached.xml';
-
-for F in $(ls themes | grep -Po ".*(?=\Q.xml\E)")
-do
-	cp -f themes/${F}.xml 'res/values/colors.xml';
-	ant release;
-	cp 'bin/ac-release.apk' apk/ac-${F}.apk;
-done;
-
-mv -f '.colors_cached.xml' 'res/values/colors.xml';
+echo "==== Building main"
+ant release
+cp 'bin/ac-release.apk' apk/ac.apk;
+echo "==== Built main"

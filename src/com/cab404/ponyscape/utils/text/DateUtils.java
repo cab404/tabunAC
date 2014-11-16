@@ -27,15 +27,13 @@ public class DateUtils {
 
 	/**
 	 * Преобразует дату в строку. В зависимости от ситуации может выдать
-	 * "20 секунд назад", "7 минут назад", "сегодня в 20:00" и т.д
 	 */
 	public static String convertToString(Calendar calendar, Context context) {
 		Calendar current = Calendar.getInstance();
 
-		long abs_cal = calendar.getTimeInMillis() - calendar.getTimeZone().getOffset(calendar.getTimeInMillis());
-		long abs_cur = current.getTimeInMillis() - current.getTimeZone().getOffset(current.getTimeInMillis());
+		long abs_cal = calendar.getTimeInMillis();
+		long abs_cur = current.getTimeInMillis();
 
-		calendar.setTimeZone(current.getTimeZone());
 		StringBuilder data = new StringBuilder();
 
 		long delta = abs_cur - abs_cal;

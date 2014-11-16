@@ -423,4 +423,18 @@
 		<item>"Иногда мне кажется, что я говорю сама с собой."</item>
 	</string-array>
 
+	<string-array name="default_smiles">
+		<item>http://smiles.smile-o-pack.net/5483.gif</item>
+		<item>http://smiles.smile-o-pack.net/5482.gif</item>
+		<item>http://smiles.smile-o-pack.net/5479.gif</item>
+		<item>http://smiles.smile-o-pack.net/5443.gif</item>
+		<item>http://smiles.smile-o-pack.net/5429.gif</item>
+		<item>http://smiles.smile-o-pack.net/5546.gif</item>
+		<item>http://smiles.smile-o-pack.net/5637.gif</item>
+		<item>http://smiles.smile-o-pack.net/5612.gif</item>
+		<item>http://smiles.smile-o-pack.net/5349.gif</item>
+		<item>http://smiles.smile-o-pack.net/5348.gif</item>
+		<item>http://smiles.smile-o-pack.net/5396.gif</item>
+	</string-array>
+
 </resources>

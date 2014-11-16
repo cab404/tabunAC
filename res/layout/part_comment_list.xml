@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res/com.cab404.ponyscape"
                 android:layout_width="match_parent"
                 android:orientation="vertical"
                 android:layout_height="wrap_content"
                 android:isScrollContainer="true"
                 android:id="@+id/root">
 
-	<com.cab404.ponyscape.utils.views.FollowableListView
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:id="@+id/comment_list"
-			android:smoothScrollbar="false"
-			android:divider="@null"
-			android:scrollingCache="false"/>
-	<include android:layout_width="match_parent"
-	         android:layout_height="wrap_content"
-	         layout="@layout/part_comment_list_bar"
-	         android:id="@+id/bar"
-	         android:layout_alignParentLeft="true"
-	         android:layout_alignParentStart="true"
-			/>
+    <com.cab404.ponyscape.utils.views.LeveledListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/comment_list"
+        android:smoothScrollbar="false"
+        android:divider="@null"
+	    app:leftXScrollMaximum="0dp"
+        android:scrollingCache="false"/>
+
+    <include android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             layout="@layout/part_comment_list_bar"
+             android:id="@+id/bar"
+             android:layout_alignParentLeft="true"
+             android:layout_alignParentStart="true"
+        />
 </RelativeLayout>

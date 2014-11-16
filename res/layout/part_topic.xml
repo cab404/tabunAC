@@ -51,8 +51,8 @@
 				android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent">
-			<ImageView android:layout_width="@dimen/primary_text_size"
-			           android:layout_height="@dimen/primary_text_size"
+			<ImageView android:layout_width="@dimen/title_text_size"
+			           android:layout_height="@dimen/title_text_size"
 			           android:id="@+id/avatar"
 			           android:layout_gravity="center_vertical"
 			           android:src="@color/bg_item_shadow"
@@ -183,7 +183,7 @@
 			           android:layout_height="30dp"
 			           android:layout_gravity="center_vertical|bottom"
 			           android:id="@+id/save"
-			           android:src="@drawable/ic_inception"
+			           android:src="@drawable/ic_save"
 			           android:layout_marginRight="16dp"
 			           android:padding="4dp"
 			           android:tint="@color/bg_item_shadow"/>
