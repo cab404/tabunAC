@@ -261,11 +261,11 @@ public class HtmlRipper {
 						case "sup":
 						case "small":
 						case "sub":
-							int h = 0;
+							BaselineJumpSpan.Gravity h = BaselineJumpSpan.Gravity.BOTTOM;
 							switch (tag.name){
-								case "sup": h = BaselineJumpSpan.TOP; break;
-								case "small": h = BaselineJumpSpan.CENTER; break;
-								case "sub": h = BaselineJumpSpan.BOTTOM; break;
+								case "sup": h = BaselineJumpSpan.Gravity.TOP; break;
+								case "small": h = BaselineJumpSpan.Gravity.CENTER; break;
+								case "sub": h = BaselineJumpSpan.Gravity.BOTTOM; break;
 							}
 							builder.setSpan(
 									new BaselineJumpSpan(h),

@@ -19,7 +19,7 @@
 			android:layout_height="wrap_content">
 		<ImageView
 				android:layout_width="match_parent"
-				android:layout_height="115sp"
+				android:layout_height="220sp"
 				android:scaleType="fitXY"
 				android:id="@+id/background"
 				android:src="@drawable/bg_semitransparent"/>
@@ -119,6 +119,36 @@
 		           android:layout_alignParentEnd="true"
 		           android:layout_marginRight="8dp"
 		           android:layout_marginTop="8dp"/>
+		<LinearLayout
+				android:orientation="vertical"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" android:layout_below="@+id/avatar"
+				android:layout_alignLeft="@+id/avatar" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
+				android:layout_marginRight="20dp">
+			<TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Избранные посты"
+                    android:id="@+id/favTopics" android:textSize="@dimen/primary_text_size"
+                    android:layout_below="@+id/minus" android:layout_alignLeft="@+id/avatar"
+                    android:layout_alignStart="@+id/avatar" android:textColor="#ffffff" android:layout_marginTop="8dp"
+					android:layout_gravity="right"/>
+			<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+					  android:text="Избранные комментарии" android:id="@+id/favComments"
+					  android:textSize="@dimen/primary_text_size" android:layout_below="@+id/minus"
+					  android:layout_alignLeft="@+id/avatar" android:layout_alignStart="@+id/avatar"
+					  android:textColor="#ffffff" android:layout_marginTop="8dp" android:layout_gravity="right"/>
+			<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+					  android:text="Опубликованные посты" android:id="@+id/createdTopics"
+					  android:textSize="@dimen/primary_text_size" android:layout_below="@+id/minus"
+					  android:layout_alignLeft="@+id/avatar" android:layout_alignStart="@+id/avatar"
+					  android:textColor="#ffffff" android:layout_marginTop="8dp" android:layout_gravity="right"/>
+			<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+					  android:text="Опубликованные комментарии" android:id="@+id/createdComments"
+					  android:textSize="@dimen/primary_text_size" android:layout_below="@+id/minus"
+					  android:layout_alignLeft="@+id/avatar" android:layout_alignStart="@+id/avatar"
+					  android:textColor="#ffffff" android:layout_marginTop="8dp" android:layout_gravity="right"/>
+		</LinearLayout>
 	</RelativeLayout>
 	<!--<LinearLayout-->
 			<!--android:orientation="horizontal"-->

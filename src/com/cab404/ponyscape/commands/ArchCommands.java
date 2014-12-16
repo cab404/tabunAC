@@ -129,8 +129,7 @@ public class ArchCommands {
                                     public void run() {
                                         for (Comment comment : dump)
                                             add(comment);
-                                        update();
-                                    }
+                                        update();}
                                 });
                             }
 

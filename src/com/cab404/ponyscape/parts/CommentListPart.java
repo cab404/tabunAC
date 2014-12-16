@@ -169,6 +169,7 @@ public class CommentListPart extends Part {
         else
             listView.setSelectionFromTop(index + 1, getBarHeight());
 
+        adapter.setOffset(levels.get(comments.get(index).id));
     }
 
     /**

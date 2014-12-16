@@ -324,6 +324,7 @@
 		<item>"AMAZING SUPER%S!"</item>
 		<item>"А отсюда %s выглядит как %%s."</item>
 		<item>"Комментарий для %s написать собираешься ты. К мудрости обратись если горит хвост твой."</item>
+		<item>"%s began pestering you"</item>
 		<item>"Восславим Солнце!"</item>
 		<item>"Восславим Луну!"</item>
 	</string-array>
