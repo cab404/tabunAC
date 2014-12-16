@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.bus;
 
-import com.cab404.ponyscape.utils.Static;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.util.concurrent.Executor;
 
@@ -9,8 +10,15 @@ import java.util.concurrent.Executor;
  */
 public class AppContextExecutor implements Executor {
 
-	@Override public void execute(Runnable runnable) {
-		Static.handler.post(runnable);
-	}
+    Looper looper = Looper.getMainLooper();
+    Handler handler = new Handler(looper);
+
+    @Override
+    public void execute(Runnable runnable) {
+        if (Thread.currentThread() != looper.getThread())
+            handler.post(runnable);
+        else
+            runnable.run();
+    }
 
 }

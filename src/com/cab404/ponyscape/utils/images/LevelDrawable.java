@@ -71,7 +71,7 @@ public class LevelDrawable extends Drawable {
 
 			level.setAlpha(alpha);
 
-			canvas.drawRect(i * section_size, 0, (i + 1) * section_size, height, level);
+			canvas.drawRect(i * section_size, 0, i * section_size + 10, height, level);
 
 		}
 
