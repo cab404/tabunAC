@@ -3443,9 +3443,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.28"
-     inkscape:cx="372.96599"
-     inkscape:cy="344.87387"
+     inkscape:zoom="0.90509668"
+     inkscape:cx="190.20972"
+     inkscape:cy="373.32387"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -3455,11 +3455,11 @@
      inkscape:object-nodes="false"
      inkscape:object-paths="false"
      inkscape:snap-intersection-paths="false"
-     inkscape:window-width="940"
-     inkscape:window-height="424"
-     inkscape:window-x="462"
-     inkscape:window-y="110"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
      inkscape:snap-midpoints="false"
      inkscape:snap-nodes="true"
      inkscape:snap-grids="true"
@@ -3940,7 +3940,7 @@
          x="38.539967"
          y="323.74438" /></text>
     <g
-       id="34"
+       id="0"
        inkscape:export-filename="ic_launcher.png"
        inkscape:export-xdpi="657.84174"
        inkscape:export-ydpi="657.84174"
@@ -7055,7 +7055,7 @@
       </g>
     </g>
     <g
-       id="35"
+       id="0-1"
        inkscape:export-filename="/home/cab404/Проекты/Документация/TabunAC/promo.png"
        inkscape:export-xdpi="383.8721"
        inkscape:export-ydpi="383.8721"
@@ -7860,11 +7860,12 @@
        id="g5462"
        inkscape:export-filename="/home/cab404/sceptic-hawk.png"
        inkscape:export-xdpi="2043.7891"
-       inkscape:export-ydpi="2043.7891">
+       inkscape:export-ydpi="2043.7891"
+       transform="translate(-11.048543,0)">
       <g
          id="g4039-6-4-2-9-8"
          transform="matrix(0.01108499,0,0,0.01108499,-67.481896,752.85163)"
-         style="opacity:1;fill:#ffffff;fill-opacity:1">
+         style="fill:#ffffff;fill-opacity:1">
         <g
            id="g4538-9-4-7">
           <path
@@ -7902,7 +7903,7 @@
          sodipodi:end="3.1415927"
          sodipodi:start="0"
          transform="matrix(1.318696,0,0,1.318696,17.169422,-237.41261)"
-         d="m -53.601562,745.16296 a 0.5546875,0.5546875 0 1 1 -1.109375,0"
+         d="m -53.601562,745.16296 c 0,0.30635 -0.248343,0.55469 -0.554688,0.55469 -0.306345,0 -0.554687,-0.24834 -0.554687,-0.55469 0,0 0,0 0,0"
          sodipodi:ry="0.5546875"
          sodipodi:rx="0.5546875"
          sodipodi:cy="745.16296"
@@ -8081,7 +8082,7 @@
        inkscape:export-filename="ic_image_loading.png"
        inkscape:export-xdpi="349"
        inkscape:export-ydpi="349"
-       transform="translate(-166.92272,83.039817)"
+       transform="translate(-165.6472,83.177924)"
        inkscape:label="#g3381-2-3">
       <rect
          rx="11.653729"
@@ -8629,6 +8630,111 @@
                width="34.117901"
                id="rect6955" /></flowRegion><flowPara
              id="flowPara6957">S</flowPara></flowRoot>      </g>
+    </g>
+    <g
+       id="34"
+       inkscape:export-filename="ic_editor_sup.png"
+       inkscape:export-xdpi="349"
+       inkscape:export-ydpi="349"
+       transform="translate(-82.051186,134.4855)"
+       inkscape:label="#g8110">
+      <rect
+         y="613.24225"
+         x="122.50301"
+         height="56.77536"
+         width="56.77536"
+         id="rect5864-0-5"
+         style="opacity:0;fill:#808080;fill-opacity:1;stroke:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text10796-0"
+         y="652.56744"
+         x="139.13287"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-weight:normal;fill:#ffffff;-inkscape-font-specification:Sans"
+           y="652.56744"
+           x="139.13287"
+           id="tspan10798-4"
+           sodipodi:role="line">x</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text10796-0-5"
+         y="630.69244"
+         x="161.49615"
+         style="font-size:11.58311653px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-weight:normal;fill:#ffffff;-inkscape-font-specification:Sans"
+           y="630.69244"
+           x="161.49615"
+           id="tspan10798-4-4"
+           sodipodi:role="line">2</tspan></text>
+    </g>
+    <g
+       id="35"
+       inkscape:export-filename="ic_editor_sub.png"
+       inkscape:export-xdpi="349"
+       inkscape:export-ydpi="349"
+       transform="translate(3.4254722e-6,135.00045)"
+       inkscape:label="#g8110">
+      <rect
+         y="613.24225"
+         x="122.50301"
+         height="56.77536"
+         width="56.77536"
+         id="rect5864-0-5-6"
+         style="opacity:0;fill:#808080;fill-opacity:1;stroke:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text10796-0-3"
+         y="656.19043"
+         x="135.14851"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-weight:normal;fill:#ffffff;-inkscape-font-specification:Sans"
+           y="656.19043"
+           x="135.14851"
+           id="tspan10798-4-0"
+           sodipodi:role="line">O</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text10796-0-5-0"
+         y="662.08521"
+         x="160.85756"
+         style="font-size:11.58311653px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-weight:normal;fill:#ffffff;-inkscape-font-specification:Sans"
+           y="662.08521"
+           x="160.85756"
+           id="tspan10798-4-4-2"
+           sodipodi:role="line">2</tspan></text>
+    </g>
+    <g
+       id="36"
+       inkscape:export-filename="ic_editor_small.png"
+       inkscape:export-xdpi="349"
+       inkscape:export-ydpi="349"
+       transform="translate(83.596035,135.00045)"
+       inkscape:label="#g8110">
+      <rect
+         y="613.24225"
+         x="122.50301"
+         height="56.77536"
+         width="56.77536"
+         id="rect5864-0-5-6-9"
+         style="opacity:0;fill:#808080;fill-opacity:1;stroke:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text10796-0-3-4"
+         y="647.45349"
+         x="149.71199"
+         style="font-size:16.92930222px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-weight:normal;text-align:center;text-anchor:middle;fill:#ffffff;-inkscape-font-specification:Sans"
+           y="647.45349"
+           x="149.71199"
+           id="tspan10798-4-0-4"
+           sodipodi:role="line">wat?</tspan></text>
     </g>
   </g>
 </svg>

@@ -32,6 +32,7 @@ import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.images.Images;
+import com.cab404.ponyscape.utils.spans.BaselineJumpSpan;
 import com.cab404.ponyscape.utils.spans.DoubleClickableSpan;
 import com.cab404.ponyscape.utils.spans.LitespoilerSpan;
 import com.cab404.sjbus.Bus;
@@ -260,6 +261,18 @@ public class HtmlRipper {
 						case "sup":
 						case "small":
 						case "sub":
+							int h = 0;
+							switch (tag.name){
+								case "sup": h = BaselineJumpSpan.TOP; break;
+								case "small": h = BaselineJumpSpan.CENTER; break;
+								case "sub": h = BaselineJumpSpan.BOTTOM; break;
+							}
+							builder.setSpan(
+									new BaselineJumpSpan(h),
+									off + tag.end,
+									off + tree.get(tree.getClosingTag(tag)).start,
+									Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+							);
 							builder.setSpan(
 									new RelativeSizeSpan(0.5f),
 									off + tag.end,
@@ -726,7 +739,7 @@ public class HtmlRipper {
 				code.setBackgroundResource(R.drawable.bg_code);
 				code.setPadding(px_padding, px_padding, px_padding, px_padding);
 				code.setTypeface(Typeface.MONOSPACE);
-				code.setTextSize(code.getTextSize() * 0.9f);
+				code.setTextSize(code.getTextSize() * 0.8f);
 				code.setTextColor(context.getResources().getColor(R.color.code_color));
 
 				group.addView(code);
