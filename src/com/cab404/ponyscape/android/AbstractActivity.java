@@ -21,7 +21,7 @@ import java.util.Locale;
 public class AbstractActivity extends Activity {
 
     /* Темы. ДА. */
-    private final static String[] locales_to_theme = {"en", "ru"};
+    public final static String[] locales_to_theme = {"en", "ru"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

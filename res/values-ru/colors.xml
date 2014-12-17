@@ -4,10 +4,10 @@
 	<color name="font_color_command_line">#ff161616</color>
 	<color name="bg_main">#ffdddddd</color>
 	<color name="bg_tint">#aa000000</color>
-	<color name="bg_item">#fffff6d6</color>
+	<color name="bg_item">#fffffde6</color>
 	<color name="bg_item_shadow">#ffa67c61</color>
 	<color name="bg_item_new">#fff4e1c7</color>
-	<color name="bg_item_fav">#fff3da3a</color>
+	<color name="bg_item_fav">#fff34b4a</color>
 	<color name="bg_item_selected">#ffc5a48e</color>
 	<color name="bg_item_label">#ff26190e</color>
 	<color name="bg_image">#ffffffff</color>

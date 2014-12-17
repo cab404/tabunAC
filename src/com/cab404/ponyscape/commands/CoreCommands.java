@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import com.cab404.jconsol.annotations.Command;
 import com.cab404.jconsol.annotations.CommandClass;
+import com.cab404.jconsol.converters.Int;
 import com.cab404.jconsol.converters.Str;
 import com.cab404.libtabun.data.CommonInfo;
 import com.cab404.libtabun.data.Profile;
@@ -99,6 +100,11 @@ public class CoreCommands {
 	/** Running Luna, yay!*/
 	public void luna() {Static.bus.send(new E.Commands.Clear());}
 
+
+	@Command(command = "theme", params = Int.class)
+	public void setTheme(Integer index){
+		Static.cfg.put("main.theme", index);
+	}
 
 	@Command(command = "aliases")
 	public void aliases() {
