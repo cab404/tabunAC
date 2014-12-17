@@ -3435,6 +3435,16 @@
          id="rect7049-7"
          style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath5779-6">
+      <path
+         id="path5781-1"
+         style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:none"
+         d="m 811.37499,572.96645 c 0,0.90974 -0.73239,1.64213 -1.64214,1.64213 l -13.21572,0 c -0.90975,0 -1.64214,-0.73239 -1.64214,-1.64213 0,-0.90974 0.73239,-1.64214 1.64214,-1.64214 l 13.21572,0 c 0.90975,0 1.64214,0.7324 1.64214,1.64214 m 0,-5.38916 c 0,0.90974 -0.73239,1.64213 -1.64214,1.64213 l -13.21572,0 c -0.90975,0 -1.64214,-0.73239 -1.64214,-1.64213 0,-0.90975 0.73239,-1.64214 1.64214,-1.64214 l 13.21572,0 c 0.90975,0 1.64214,0.73239 1.64214,1.64214 m 0,-5.41663 c 0,0.90975 -0.73239,1.64214 -1.64214,1.64214 l -13.21572,0 c -0.90975,0 -1.64214,-0.73239 -1.64214,-1.64214 0,-0.90974 0.73239,-1.64213 1.64214,-1.64213 l 13.21572,0 c 0.90975,0 1.64214,0.73239 1.64214,1.64213 m 4.93255,-2.70911 c 1.46837,2.36652 2.31574,5.15689 2.31482,8.14319 l -6.3e-4,3.25204 -0.002,12.26544 -15.49473,-2e-5 c -8.56041,-10e-6 -15.5,-6.93959 -15.5,-15.50001 0,-8.56041 6.93959,-15.5 15.5,-15.5 5.56801,0 10.45031,2.93593 13.18254,7.33936"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="csssssccsssssccssssscccccscsc" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -3443,9 +3453,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.90509668"
-     inkscape:cx="190.20972"
-     inkscape:cy="373.32387"
+     inkscape:zoom="1.8505714"
+     inkscape:cx="372.04724"
+     inkscape:cy="580.62217"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -3455,11 +3465,11 @@
      inkscape:object-nodes="false"
      inkscape:object-paths="false"
      inkscape:snap-intersection-paths="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1056"
-     inkscape:window-x="0"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1"
+     inkscape:window-width="779"
+     inkscape:window-height="388"
+     inkscape:window-x="569"
+     inkscape:window-y="172"
+     inkscape:window-maximized="0"
      inkscape:snap-midpoints="false"
      inkscape:snap-nodes="true"
      inkscape:snap-grids="true"
@@ -8735,6 +8745,59 @@
            x="149.71199"
            id="tspan10798-4-0-4"
            sodipodi:role="line">wat?</tspan></text>
+    </g>
+    <g
+       id="37"
+       transform="translate(-381.33828,-107.55231)"
+       inkscape:export-filename="ic_people.png"
+       inkscape:export-xdpi="349"
+       inkscape:export-ydpi="349"
+       inkscape:label="#g5534">
+      <g
+         style="opacity:0.67299996"
+         transform="matrix(-1,0,0,1,1092.541,104.30599)"
+         inkscape:export-ydpi="349"
+         inkscape:export-xdpi="349"
+         inkscape:export-filename="ic_delete.png"
+         id="g3381-2-4-6-3-0-9-2">
+        <g
+           id="g7769-2-3-1-89">
+          <rect
+             inkscape:export-ydpi="349"
+             inkscape:export-xdpi="349"
+             inkscape:export-filename="ic_bar_null.png"
+             ry="11.653729"
+             y="445.75705"
+             x="197.0905"
+             height="65.914024"
+             width="65.914024"
+             id="rect5216-5-1-2-2-8-6-7-6"
+             style="fill:none;stroke:none"
+             rx="11.653729" />
+        </g>
+      </g>
+      <g
+         id="g5184"
+         transform="translate(381.33829,118.25559)">
+        <rect
+           ry="3.9528384"
+           y="466.87851"
+           x="463.87564"
+           height="27.950788"
+           width="34.559116"
+           id="rect4340"
+           style="fill:#f9f9f9;fill-opacity:1;fill-rule:evenodd;stroke:none" />
+        <path
+           transform="translate(-1.5280479,2.2988365)"
+           d="m 496.63204,446.34958 c 0,7.7037 -6.24508,13.94878 -13.94878,13.94878 -7.7037,0 -13.94879,-6.24508 -13.94879,-13.94878 0,-7.7037 6.24509,-13.94879 13.94879,-13.94879 7.7037,0 13.94878,6.24509 13.94878,13.94879 z"
+           sodipodi:ry="13.948786"
+           sodipodi:rx="13.948786"
+           sodipodi:cy="446.34958"
+           sodipodi:cx="482.68326"
+           id="path5182"
+           style="fill:#f9f9f9;fill-opacity:1;stroke:none"
+           sodipodi:type="arc" />
+      </g>
     </g>
   </g>
 </svg>

@@ -161,6 +161,8 @@ public class CommentListPart extends Part {
     }
 
     public void select(int index, int from) {
+        if (index == -1) return;
+
         adapter.selected = index;
         if (Build.VERSION.SDK_INT < 11)
             listView.setSelectionFromTop(index + 1, getBarHeight());
@@ -176,6 +178,7 @@ public class CommentListPart extends Part {
      * Переходит к следующему комментарию (в новых).
      */
     private int last = 0;
+
     private void move() {
         adapter.notifyDataSetChanged();
         for (int i = 0; i < comments.size(); i++)
@@ -344,6 +347,7 @@ public class CommentListPart extends Part {
 
                 return true;
             }
+
             @Override
             public void cancelled() {
 
@@ -416,7 +420,8 @@ public class CommentListPart extends Part {
         /* Ставим для того, чтобы бар не пропускал на нижние вьюхи нажатия.*/
         bar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {}
+            public void onClick(View v) {
+            }
         });
 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
@@ -466,10 +471,12 @@ public class CommentListPart extends Part {
         public int getCount() {
             return comments.size() == 0 ? 1 : comments.size();
         }
+
         @Override
         public Object getItem(int i) {
             return comments.get(i);
         }
+
         @Override
         public long getItemId(int i) {
             return 0;

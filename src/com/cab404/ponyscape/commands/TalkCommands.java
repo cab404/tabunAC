@@ -33,9 +33,7 @@ public class TalkCommands {
 	 */
 	@Command(command = "box")
 	public void list() {
-		Static.history.add("mail box");
-		Static.bus.send(new E.Commands.Finished());
-		Static.bus.send(new E.Commands.Run("page load /talk/inbox"));
+		Simple.redirect("page load /talk/inbox");
 	}
 
 

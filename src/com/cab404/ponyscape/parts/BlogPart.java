@@ -1,6 +1,5 @@
 package com.cab404.ponyscape.parts;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,9 +50,14 @@ public class BlogPart extends Part {
         Static.bus.register(this);
 
         view = inflater.inflate(R.layout.part_blog, viewGroup, false);
+        convert(view);
+        return view;
+    }
 
+    public void convert(View view) {
         ((TextView) view.findViewById(R.id.title)).setText(SU.deEntity(blog.name));
         ((TextView) view.findViewById(R.id.rating)).setText(blog.rating + "");
+//        ((TextView) view.findViewById(R.id.people)).setText(blog.readers + "");
 
         if (blog.id != -1)
             view.findViewById(R.id.create).setOnClickListener(new View.OnClickListener() {
@@ -69,7 +73,6 @@ public class BlogPart extends Part {
         final ImageView fav = (ImageView) view.findViewById(R.id.fav);
         final String url = "page load " + Simple.resolveBlogSimpleUrl(blog);
 
-        System.out.println(url);
         if (Simple.getAliasForCommand(AliasUtils.getAliases(), url) != null)
             Anim.recolorIcon(fav, fav.getResources().getColor(R.color.font_color_green));
         else
@@ -100,9 +103,10 @@ public class BlogPart extends Part {
             }
         });
 
-        Static.img.download(blog.icon);
-
-        return view;
+        if (blog.icon != null)
+            Static.img.download(blog.icon);
+        else
+            view.findViewById(R.id.icon).setVisibility(View.GONE);
     }
 
     @Override

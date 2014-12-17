@@ -16,6 +16,7 @@ import com.cab404.moonlight.parser.HTMLTree;
 import com.cab404.moonlight.parser.Tag;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.parts.BlogsPart;
 import com.cab404.ponyscape.parts.CreditsPart;
 import com.cab404.ponyscape.parts.TimelinePart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
@@ -70,6 +71,15 @@ public class CoreCommands {
 		Static.bus.send(new E.Commands.Finished());
 		Static.bus.send(new E.Commands.Clear());
 	}
+
+
+	@Command(command = "blogs")
+	public void displayBlogs() {
+		Static.bus.send(new E.Parts.Run(new BlogsPart(), true));
+		Static.bus.send(new E.Commands.Finished());
+		Static.bus.send(new E.Commands.Clear());
+	}
+
 
 	@Command(command = "ph")
 	public void ponyhawks() {

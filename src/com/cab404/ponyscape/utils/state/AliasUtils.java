@@ -20,7 +20,6 @@ public class AliasUtils {
 		for (Object string_actually : shortcuts)
 			aliases.add(new Alias(string_actually.toString()));
 
-		Static.cfg.save();
 		return aliases;
 
 	}
