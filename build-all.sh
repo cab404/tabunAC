@@ -7,23 +7,29 @@
 
 # Почему ant? Gradle - чёртов слоупок.
 
-cd img;
-echo "Rendering icons";
-bash "build_icons.sh";
-cd ..;
+# cd img;
+# echo "Rendering icons";
+# bash "build_icons.sh";
+# cd ..;
+mkdir -p apk
 
-rm -rf bin;
-mkdir -p apk;
-cp -f 'res/values/colors.xml' '.colors_cached.xml';
-bash build.sh;
+cp -frT 'res' '.res_cached';
 
-for F in $(ls themes | grep -Po ".*(?=\Q.xml\E)")
+for F in $(ls themes)
 do
-	cp -f themes/${F}.xml 'res/values/colors.xml';
+	echo "==== Copying "${F}
+	cp -frvT themes/${F} res;
+
 	echo "==== Building "${F}
-	ant release;
-	cp 'bin/ac-release.apk' apk/ac-${F}.apk;
+	ant release > /dev/null;
+
+	mv -f bin/ac-release.apk apk/ac-${F}.apk;
 	echo "==== Built "${F}
+
+	echo "==== Restoring initial state"
+	rm -rf bin/res
+	cp -rfT .res_cached res;
+
 done;
 
-mv -f '.colors_cached.xml' 'res/values/colors.xml';
+rm -rf '.res_cached';
