@@ -29,6 +29,7 @@ public class App extends Application {
 		if (!image_storage.exists() && !image_storage.mkdirs())
 			Log.w("Bootstrap", "Images won't be avalible.");
 
+
 		Static.dp = getBaseContext().getResources().getDisplayMetrics().density;
 
         /* Инициализируем статику. */
