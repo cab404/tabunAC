@@ -400,7 +400,7 @@ public class CommentListPart extends Part {
         view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                select(comments.size(), -500);
+                select(comments.size() - 1, 1);
                 adapter.selected = -1;
             }
         });
