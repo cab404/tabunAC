@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.parts;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,10 +74,11 @@ public class BlogPart extends Part {
         final ImageView fav = (ImageView) view.findViewById(R.id.fav);
         final String url = "page load " + Simple.resolveBlogSimpleUrl(blog);
 
-        if (Simple.getAliasForCommand(AliasUtils.getAliases(), url) != null)
-            Anim.recolorIcon(fav, fav.getResources().getColor(R.color.font_color_green));
-        else
-            Anim.recolorIcon(fav, fav.getResources().getColor(R.color.bg_item_label));
+        fav.setColorFilter(
+                fav.getResources().getColor(Simple.getAliasForCommand(AliasUtils.getAliases(), url) != null ?
+                        R.color.font_color_green : R.color.bg_item_label),
+                PorterDuff.Mode.SRC_ATOP
+        );
 
         view.findViewById(R.id.fav).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,9 +95,11 @@ public class BlogPart extends Part {
                         aliases.remove(alias);
 
                 } else {
+
                     Static.bus.send(new E.Commands.Success("Блог добавлен в меню ссылок"));
                     Anim.recolorIcon(fav, v.getResources().getColor(R.color.font_color_green));
                     aliases.add(new AliasUtils.Alias(blog.name, url));
+
                 }
 
                 AliasUtils.setAliases(aliases);
