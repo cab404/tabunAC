@@ -180,6 +180,18 @@
 		\n
 
 
+		&lt;strong&gt;comments.manual_scroll&lt;/strong&gt;:
+		\n
+		\t Можно ли прокручивать дерево комментариев по горизонтали вручную.
+		\n
+		\n
+
+		&lt;strong&gt;comments.show_levels&lt;/strong&gt;:
+		\n
+		\t Показывать ли разноцветные уровни комментариев. Штука большая, и если всё лагает, то лучше отключить.
+		\n
+		\n
+
 		&lt;strong&gt;images.only_over_non_cellular&lt;/strong&gt;:
 		\n
 		\t Если установлено в true, то картинки не будут загружаться при использовании мобильного Интернета.

@@ -25,6 +25,7 @@ import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
+import com.cab404.ponyscape.utils.views.LeveledListView;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class CommentListPart extends Part {
     /**
      * Там, где хранятся комментарии
      */
-    private ListView listView;
+    private LeveledListView listView;
 
     /**
      * Root-батюшка
@@ -165,7 +166,7 @@ public class CommentListPart extends Part {
 
         adapter.selected = index;
         if (Build.VERSION.SDK_INT < 11)
-            listView.setSelectionFromTop(index + 1, getBarHeight());
+            listView.setSelection(index + 1);
         else if (index - from > -30 && index - from < 10)
             listView.smoothScrollToPositionFromTop(index + 1, getBarHeight());
         else
@@ -366,7 +367,8 @@ public class CommentListPart extends Part {
         Static.bus.register(this);
 
         view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
-        listView = (ListView) view.findViewById(R.id.comment_list);
+        listView = (LeveledListView) view.findViewById(R.id.comment_list);
+        listView.setHorisontallyScrollable(Static.cfg.ensure("comments.manual_scroll", false));
 
         view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -528,6 +530,7 @@ public class CommentListPart extends Part {
         double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
         boolean autoshift = Static.cfg.ensure("comments.autoshift", false);
         int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 0);
+        boolean show_levels = Static.cfg.ensure("comments.show_levels", false);
 
         int comment_ladder =
                 (int) (
@@ -578,7 +581,7 @@ public class CommentListPart extends Part {
             View.OnClickListener shiftInvoker = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (listView.getScrollX() == level * comment_pixel_offset)
+                    if (listView.getScrollX() == comment_pixel_offset)
                         setOffset(0);
                     else
                         setOffset(level);
@@ -588,7 +591,7 @@ public class CommentListPart extends Part {
             /**
              *  Сдвигаем всё нафиг.
              */
-//            if (autoshift) autoshift();
+            if (autoshift) autoshift();
 
             view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
             right_margin.setOnClickListener(shiftInvoker);
@@ -614,12 +617,12 @@ public class CommentListPart extends Part {
 
 			/* Ставим размер основы вьюхи комментария, на ней сидит и марджин со всем фонами, и root*/
             view.getLayoutParams().width = rootLayoutParams.width + comment_pixel_offset + dWidth;
-//
-//			/* Ставим цвет всего, что не правый марджин в цвет уровня комментария + 1*/
-//			view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
-//
-//			/* Заморочисто ставим фон правого марджина */
-//			left_margin.setBackgroundDrawable(level_indicator);
+
+			/* Ставим цвет всего, что не правый марджин в цвет уровня комментария + 1*/
+            if (show_levels) {
+                view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
+                left_margin.setBackgroundDrawable(level_indicator);
+            }
 
 			/* Ставим слушалки на кнопки */
             view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {

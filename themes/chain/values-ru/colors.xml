@@ -4,11 +4,11 @@
 	<color name="font_color_command_line">#ff161616</color>
 	<color name="bg_main">#ffdddddd</color>
 	<color name="bg_tint">#aa000000</color>
-	<color name="bg_item">#fffff6d6</color>
 	<color name="bg_item_shadow">#ffa67c61</color>
+	<color name="bg_item">#fffffde6</color>
 	<color name="bg_item_new">#fff4e1c7</color>
-	<color name="bg_item_fav">#fff3da3a</color>
-	<color name="bg_item_selected">#ffc5a48e</color>
+	<color name="bg_item_selected">#ffd2ae98</color>
+	<color name="bg_item_fav">#fff34b4a</color>
 	<color name="bg_item_label">#ff26190e</color>
 	<color name="bg_image">#ffffffff</color>
 	<color name="bg_shortcuts">#ff743d35</color>
@@ -18,8 +18,8 @@
 	<color name="font_color_red">#ff8c0022</color>
 	<color name="font_color_blue">#ff005979</color>
 	<color name="font_color_green">#ff008c3f</color>
-	<color name="comment_ladder_gradient_start">#ffb9d9d2</color>
-	<color name="comment_ladder_gradient_end">#ff3e414c</color>
+	<color name="comment_ladder_gradient_start">#ffd9cbc0</color>
+	<color name="comment_ladder_gradient_end">#ff4c281b</color>
 	<color name="spoiler_bg">#819c9292</color>
 	<color name="spoiler_label">#ff000000</color>
 	<color name="cut_border">#ff628288</color>
