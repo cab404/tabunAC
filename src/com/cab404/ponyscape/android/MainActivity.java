@@ -33,6 +33,7 @@ import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.animation.BounceInterpolator;
 import com.cab404.ponyscape.utils.state.AliasUtils;
+import com.cab404.ponyscape.utils.text.Plurals;
 import com.cab404.ponyscape.utils.views.FollowableScrollView;
 import com.cab404.ponyscape.utils.views.ScrollHandler;
 import com.cab404.sjbus.Bus;
@@ -161,7 +162,7 @@ public class MainActivity extends AbstractActivity {
 									&& Static.last_page.c_inf.new_messages > 0) {
 						luna_quote("У тебя " +
 								Static.last_page.c_inf.new_messages + " " +
-								getResources().getQuantityString(R.plurals.letters, Static.last_page.c_inf.new_messages) +
+								Plurals.get(R.array.letters, Static.last_page.c_inf.new_messages) +
 								" в почтовом ящике. " +
 								"И я буду повторять тебе это постоянно.");
 					}

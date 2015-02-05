@@ -75,8 +75,12 @@ public class TopicPart extends Part {
 			topic.author.fillImages();
 			avatar.setTag(topic.author.small_icon);
 			avatar.setImageDrawable(new ColorDrawable(Static.ctx.getResources().getColor(R.color.bg_item_shadow)));
-
-			Static.img.download(topic.author.small_icon);
+            avatar.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    Static.bus.send(new E.Commands.Run("user load \"" + topic.author.login + "\""));
+                }
+            });
+            Static.img.download(topic.author.small_icon);
 
 		}
 

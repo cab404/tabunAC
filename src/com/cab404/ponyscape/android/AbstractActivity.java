@@ -27,7 +27,22 @@ public class AbstractActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Static.bus.register(this);
+        applyTheme();
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        applyTheme();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        applyTheme();
+    }
+
+    protected void applyTheme() {
         Resources res = getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();

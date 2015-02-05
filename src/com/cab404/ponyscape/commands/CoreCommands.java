@@ -379,6 +379,7 @@ public class CoreCommands {
                 aliases.add(new AliasUtils.Alias("Главная", "page load /"));
                 aliases.add(new AliasUtils.Alias("Помощь", "help"));
                 aliases.add(new AliasUtils.Alias("Архив", "saved posts"));
+                aliases.add(new AliasUtils.Alias("Блоги", "blogs"));
                 aliases.add(new AliasUtils.Alias("Почта", "mailbox"));
                 aliases.add(new AliasUtils.Alias("Вход", "login"));
 

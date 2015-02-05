@@ -14,6 +14,7 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.text.Plurals;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class PaginatorPart extends Part {
 				"Всего тут "
 						+ paginator.maximum_page
 						+ " "
-						+ context.getResources().getQuantityString(R.plurals.pages, paginator.maximum_page)
+						+ Plurals.get(R.array.pages, paginator.maximum_page)
 		);
 
 		if (paginator.page == 1)

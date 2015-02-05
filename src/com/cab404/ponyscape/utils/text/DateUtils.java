@@ -45,14 +45,12 @@ public class DateUtils {
 				data
 						.append(delta / 1000).append(' ')
 						.append(
-								context.getResources()
-										.getQuantityString(R.plurals.seconds_ago, (int) (delta / 1000))
+								Plurals.get(R.array.seconds_ago, (int) (delta / 1000))
 						);
 			} else
 				data.append(delta / 60000).append(' ')
 						.append(
-								context.getResources()
-										.getQuantityString(R.plurals.minutes_ago, (int) (delta / 60000))
+                                Plurals.get(R.array.minutes_ago, (int) (delta / 60000))
 						);
 		} else {
 			if ((current.get(Calendar.YEAR) == calendar.get(Calendar.YEAR))) {

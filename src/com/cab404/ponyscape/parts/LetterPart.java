@@ -18,6 +18,7 @@ import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.state.ArchiveUtils;
 import com.cab404.ponyscape.utils.text.HtmlRipper;
+import com.cab404.ponyscape.utils.text.Plurals;
 import com.cab404.sjbus.Bus;
 
 /**
@@ -132,13 +133,13 @@ public class LetterPart extends Part {
 					.append('\n')
 					.append(letter.comments)
 					.append(" ")
-					.append(context.getResources().getQuantityString(R.plurals.comments, letter.comments));
+					.append(Plurals.get(R.array.comments, letter.comments));
 			if (letter.comments_new != 0)
 				info
 						.append(", ")
 						.append(letter.comments_new)
 						.append(" ")
-						.append(context.getResources().getQuantityString(R.plurals.new_comments, letter.comments_new));
+						.append(Plurals.get(R.array.new_comments, letter.comments_new));
 
 		}
 

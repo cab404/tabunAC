@@ -25,6 +25,7 @@ import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
+import com.cab404.ponyscape.utils.text.Plurals;
 import com.cab404.ponyscape.utils.views.LeveledListView;
 import org.json.simple.JSONObject;
 
@@ -169,7 +170,7 @@ public class CommentListPart extends Part {
             listView.setSelection(index + 1);
         else if (index - from > -30 && index - from < 10)
             listView.smoothScrollToPositionFromTop(index + 1, getBarHeight());
-        else
+        else if (Build.VERSION.SDK_INT > 20)
             listView.setSelectionFromTop(index + 1, getBarHeight());
 
         adapter.setOffset(levels.get(comments.get(index).id));
@@ -209,7 +210,7 @@ public class CommentListPart extends Part {
             view.findViewById(R.id.switch_button).setVisibility(View.VISIBLE);
 
         ((TextView) view.findViewById(R.id.switch_text)).setText(
-                new_c + " " + getContext().getResources().getQuantityString(R.plurals.new_comments, new_c)
+                new_c + " " + Plurals.get(R.array.new_comments, new_c)
         );
     }
 

@@ -14,6 +14,7 @@ import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.text.Plurals;
 
 import java.util.List;
 
@@ -102,10 +103,7 @@ public class TimelinePart extends Part {
 			);
 
 			((TextView) convertView.findViewById(R.id.comment_count)).setText(
-					e.topic.comments + " " + parent
-							.getContext()
-							.getResources()
-							.getQuantityString(R.plurals.comments, e.topic.comments)
+					e.topic.comments + " " + Plurals.get(R.array.comments, e.topic.comments)
 			);
 
 			convertView.setOnClickListener(new View.OnClickListener() {
