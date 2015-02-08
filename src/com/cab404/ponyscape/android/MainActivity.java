@@ -28,6 +28,7 @@ import com.cab404.moonlight.util.RU;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.utils.Keys;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
@@ -76,7 +77,7 @@ public class MainActivity extends AbstractActivity {
 		setContentView(R.layout.activity_main);
 
 		/* Кэшируем константы*/
-		alias_menu_animation_duration = Static.cfg.ensure("main.anim_delay", 20);
+		alias_menu_animation_duration = Static.cfg.ensure(Keys.MAIN_ANIM_DELAY, 20);
 
         /* Привязываем локальные переменные */
 		list = new ACLIList((ViewGroup) findViewById(R.id.data));
@@ -141,10 +142,10 @@ public class MainActivity extends AbstractActivity {
 				});
 
 		/* Пытаемся достать init-команду */
-		Static.bus.send(new E.Commands.Run(Static.cfg.ensure("main.init", "help")));
+		Static.bus.send(new E.Commands.Run(Static.cfg.ensure(Keys.MAIN_INIT, "help")));
 
 		/* Луняшим. */
-		if (Static.cfg.ensure("main.luna_talks", false)) {
+		if (Static.cfg.ensure(Keys.MAIN_LUNA_TALKS, false)) {
 
 			Static.handler.postDelayed(new Runnable() {
 				@Override public void run() {
@@ -168,7 +169,7 @@ public class MainActivity extends AbstractActivity {
 					}
 					int rnd = (int) (15000 * Math.random()) + 40000;
 
-					if (Static.cfg.ensure("main.luna_talks", true))
+					if (Static.cfg.ensure(Keys.MAIN_LUNA_TALKS, true))
 						Static.handler.postDelayed(this, rnd);
 				}
 			}, 10000);
@@ -700,7 +701,7 @@ public class MainActivity extends AbstractActivity {
 							@Override public void run() {
 								Simple.checkNetworkConnection();
 								HttpHead accept = new HttpHead(intent.getData().toString());
-								HttpResponse response = RU.exec(accept, Static.user);
+								HttpResponse response = Static.user.exec(accept);
 								if (response.getStatusLine().getStatusCode() / 100 < 4)
 									Static.bus.send(new E.Commands.Success("Приглашение принято."));
 								else
@@ -713,7 +714,7 @@ public class MainActivity extends AbstractActivity {
 							@Override public void run() {
 								Simple.checkNetworkConnection();
 								HttpHead accept = new HttpHead(intent.getData().toString());
-								HttpResponse response = RU.exec(accept, Static.user);
+								HttpResponse response = Static.user.exec(accept);
 								if (response.getStatusLine().getStatusCode() / 100 < 4)
 									Static.bus.send(new E.Commands.Success("Приглашение отвергнуто."));
 								else

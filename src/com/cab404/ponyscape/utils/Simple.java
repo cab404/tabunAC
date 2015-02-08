@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.utils;
 
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Base64;
@@ -31,6 +32,15 @@ public class Simple {
     public static String imgurl(String url) {
         return url
                 .replace("[", "%5B");
+    }
+
+    public static AnimationDrawable makeLuna() {
+        AnimationDrawable luna = new AnimationDrawable();
+        for (int i = 1; i <= 16; i++) {
+            int id = Static.ctx.getResources().getIdentifier("anim_luna_loading_" + i, "drawable", Static.ctx.getPackageName());
+            luna.addFrame(Static.ctx.getResources().getDrawable(id), 50);
+        }
+        return luna;
     }
 
     public static String buildRecipients(Context context, Letter letter) {

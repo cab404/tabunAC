@@ -1,6 +1,7 @@
 package com.cab404.ponyscape.commands;
 
 import android.content.Context;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,28 +40,6 @@ public class ArchCommands {
     /**
      * Загружает пост из архива.
      */
-    JSONParser parser = new JSONParser();
-
-    private JSONObject jsonLoad(File file) {
-        try {
-            return (JSONObject)
-                    parser.parse(
-                            new BufferedReader(
-                                    new InputStreamReader(
-                                            new GZIPInputStream(
-                                                    new FileInputStream(file)
-                                            )
-                                    )
-                            )
-                    );
-        } catch (IOException | ParseException e) {
-            Static.bus.send(new E.Commands.Failure("Ошибка при загрузке данных из архива: " + file));
-            Log.w("ERR", e);
-            if (!file.delete())
-                Log.wtf("Archive", "Не могу удалить запись из архива: " + file);
-            return null;
-        }
-    }
 
     private void load(int id, final boolean isLetter) {
 
@@ -78,7 +57,7 @@ public class ArchCommands {
                         @Override
                         public void run() {
 							/* Загружаем данные */
-                            final JSONObject post_data = jsonLoad(cached);
+                            final JSONObject post_data = ArchiveUtils.jsonLoad(cached);
                             if (post_data == null) {
                                 Static.bus.send(new E.Commands.Finished());
                                 return;
@@ -195,7 +174,8 @@ public class ArchCommands {
                 final File cache_dir = new File(Static.ctx.getFilesDir(), "saved_posts");
                 if (!cache_dir.exists() && !cache_dir.mkdirs()) throw new RuntimeException("Cannot files :(");
                 for (File file : cache_dir.listFiles()) {
-                    final JSONObject post_data = jsonLoad(file);
+                    final JSONObject post_data = ArchiveUtils.jsonLoad(file);
+
                     if (post_data == null) continue;
 
                     Topic topic = TabunJSON.parseTopic((JSONObject) post_data.get("header"));
@@ -222,7 +202,7 @@ public class ArchCommands {
                 final File cache_dir = new File(Static.ctx.getFilesDir(), "saved_letters");
                 if (!cache_dir.mkdirs()) throw new RuntimeException("Cannot files :(");
                 for (File file : cache_dir.listFiles()) {
-                    final JSONObject talk_data = jsonLoad(file);
+                    final JSONObject talk_data = ArchiveUtils.jsonLoad(file);
                     if (talk_data == null) continue;
 
                     Letter letter = TabunJSON.parseLetter((JSONObject) talk_data.get("header"));

@@ -6,10 +6,12 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.utils.Keys;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
 
@@ -47,7 +49,7 @@ public class AbstractActivity extends Activity {
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();
 
-        Integer theme_index = Static.cfg.ensure("main.theme", 0);
+        Integer theme_index = Static.cfg.ensure(Keys.MAIN_THEME, 0);
         if (theme_index >= locales_to_theme.length) theme_index = locales_to_theme.length - 1;
         if (theme_index < 0) theme_index = 0;
 

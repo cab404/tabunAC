@@ -135,6 +135,7 @@
 				              android:layout_width="wrap_content"
 				              android:layout_height="wrap_content"
 				              android:gravity="center"
+                              android:id="@+id/commentsNumSection"
 						>
 					<ImageView android:layout_width="@dimen/small_text_size"
 					           android:layout_height="@dimen/small_text_size"

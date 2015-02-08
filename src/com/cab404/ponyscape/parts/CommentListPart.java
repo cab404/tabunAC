@@ -21,6 +21,7 @@ import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.editor.EditorPart;
+import com.cab404.ponyscape.utils.Keys;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
@@ -172,6 +173,8 @@ public class CommentListPart extends Part {
             listView.smoothScrollToPositionFromTop(index + 1, getBarHeight());
         else if (Build.VERSION.SDK_INT > 20)
             listView.setSelectionFromTop(index + 1, getBarHeight());
+        else
+            listView.setSelection(index + 1);
 
         adapter.setOffset(levels.get(comments.get(index).id));
     }
@@ -360,7 +363,7 @@ public class CommentListPart extends Part {
 
     }
 
-    boolean bar_on_top = Static.cfg.ensure("comments.bar_on_top", false);
+    boolean bar_on_top = Static.cfg.ensure(Keys.COMMENTS_BAR_ON_TOP, false);
 
     @SuppressLint("NewApi")
     @Override
@@ -369,7 +372,7 @@ public class CommentListPart extends Part {
 
         view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
         listView = (LeveledListView) view.findViewById(R.id.comment_list);
-        listView.setHorisontallyScrollable(Static.cfg.ensure("comments.manual_scroll", false));
+        listView.setHorisontallyScrollable(Static.cfg.ensure(Keys.COMMENTS_MANUAL_SCROLL, false));
 
         view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -390,15 +393,15 @@ public class CommentListPart extends Part {
                 // показываем, что грузим комментарии
                 Anim.swapIcon(
                         ((ImageView) view.findViewById(R.id.update)),
-                        getContext().getResources().getDrawable(R.drawable.anim_luna)
+                        Simple.makeLuna()
                 );
                 invalidateNew();
                 refresh();
             }
         });
 
-        listView.setFastScrollEnabled(Static.cfg.ensure("comments.fast_scroll", false));
-        listView.setScrollingCacheEnabled(Static.cfg.ensure("comments.scroll_cache", false));
+        listView.setFastScrollEnabled(Static.cfg.ensure(Keys.COMMENTS_FAST_SCROLL, false));
+        listView.setScrollingCacheEnabled(Static.cfg.ensure(Keys.COMMENTS_SCROLL_CACHE, false));
 
         view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -528,15 +531,15 @@ public class CommentListPart extends Part {
 
         }
 
-        double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
-        boolean autoshift = Static.cfg.ensure("comments.autoshift", false);
-        int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 0);
-        boolean show_levels = Static.cfg.ensure("comments.show_levels", false);
+        double scaleComment = Static.cfg.ensure(Keys.COMMENTS_SCALE_WIDTH, 1.0d);
+        boolean autoshift = Static.cfg.ensure(Keys.COMMENTS_AUTOSHIFT, false);
+        int autoshift_offset = Static.cfg.ensure(Keys.COMMENTS_AUTOSHIFT_OFFSET, 0);
+        boolean show_levels = Static.cfg.ensure(Keys.COMMENTS_SHOW_LEVELS, false);
 
         int comment_ladder =
                 (int) (
                         Static.ctx.getResources().getDisplayMetrics().density
-                                * Static.cfg.ensure("comments.ladder", 25)
+                                * Static.cfg.ensure(Keys.COMMENTS_LADDER, 25)
                 );
 
         @SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})

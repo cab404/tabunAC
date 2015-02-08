@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.android.AbstractActivity;
 import com.cab404.ponyscape.bus.E;
+import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.views.ViewSugar;
 import com.cab404.sjbus.Bus;
@@ -68,7 +70,9 @@ public class PartActivity extends AbstractActivity implements FragmentedList {
 
 		setContentView(R.layout.activity_part);
 
-		ViewSugar.bind(this);
+        ((ImageView) findViewById(R.id.princess_Luna)).setImageDrawable(Simple.makeLuna());
+
+        ViewSugar.bind(this);
 
 		int part_data_id = getIntent().getIntExtra("part_data_id", -1);
 
