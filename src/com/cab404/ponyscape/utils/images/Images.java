@@ -7,7 +7,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import com.cab404.moonlight.util.SU;
 import com.cab404.ponyscape.bus.E;
-import com.cab404.ponyscape.utils.Keys;
+import com.cab404.ponyscape.utils.state.Keys;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.text.DateUtils;
@@ -181,6 +181,7 @@ public class Images {
 		/* No entry in loading list, so we'll just start it on our own */
         loading.add(src);
         Runnable load_task = new Runnable() {
+            @SuppressWarnings("deprecation")
             @Override
             public void run() {
                 try {

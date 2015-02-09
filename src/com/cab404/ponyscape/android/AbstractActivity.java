@@ -6,12 +6,11 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.AppContextExecutor;
 import com.cab404.ponyscape.bus.E;
-import com.cab404.ponyscape.utils.Keys;
+import com.cab404.ponyscape.utils.state.Keys;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.sjbus.Bus;
 

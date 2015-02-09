@@ -73,7 +73,18 @@ public class ArchiveUtils {
         }
     }
 
-    public class Save {
+    public static Save savePost(int id) {
+        final File cache_dir = new File(Static.ctx.getFilesDir(), POSTS_DIR);
+        return new Save(new File(cache_dir, id + ".json.gz"));
+    }
+
+
+    public static Save saveLetter(int id) {
+        final File cache_dir = new File(Static.ctx.getFilesDir(), MAILS_DIR);
+        return new Save(new File(cache_dir, id + ".json.gz"));
+    }
+
+    public static class Save {
 
         private File where;
         private JSONObject data;
@@ -140,3 +151,4 @@ public class ArchiveUtils {
     }
 
 }
+

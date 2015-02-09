@@ -1,8 +1,6 @@
 package com.cab404.ponyscape.commands;
 
 import android.content.Context;
-import android.util.JsonReader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +19,10 @@ import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.state.ArchiveUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import java.io.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Архив
@@ -56,7 +51,7 @@ public class ArchCommands {
                     new Thread() {
                         @Override
                         public void run() {
-							/* Загружаем данные */
+                            /* Загружаем данные */
                             final JSONObject post_data = ArchiveUtils.jsonLoad(cached);
                             if (post_data == null) {
                                 Static.bus.send(new E.Commands.Finished());
@@ -64,7 +59,7 @@ public class ArchCommands {
                             }
 
                             if (isLetter) {
-									/* Десериализуем заголовок письма*/
+                                    /* Десериализуем заголовок письма*/
                                 final Letter header = TabunJSON.parseLetter((JSONObject) post_data.get("header"));
                                 Static.handler.post(new Runnable() {
                                     @Override
@@ -73,7 +68,7 @@ public class ArchCommands {
                                     }
                                 });
                             } else {
-									/* Десериализуем заголовок поста*/
+                                    /* Десериализуем заголовок поста*/
                                 final Topic header = TabunJSON.parseTopic((JSONObject) post_data.get("header"));
                                 Static.handler.post(new Runnable() {
                                     @Override
@@ -83,10 +78,13 @@ public class ArchCommands {
                                 });
                             }
 
-								/* Десериализуем комментарии, закидывая по 50 за один раз. */
+                            /* Десериализуем комментарии, закидывая по 50 за один раз. */
                             ArrayList<Comment> comments = new ArrayList<>();
                             for (Object o : (JSONArray) post_data.get("comments")) {
                                 Comment cm = TabunJSON.parseComment((JSONObject) o);
+                                /* Workaround для новых комментов*/
+                                cm.is_new = false;
+
                                 comments.add(cm);
                                 if (comments.size() > 50) {
                                     final ArrayList<Comment> dump = comments;
@@ -108,9 +106,16 @@ public class ArchCommands {
                                     public void run() {
                                         for (Comment comment : dump)
                                             add(comment);
-                                        update();}
+                                        update();
+                                    }
                                 });
                             }
+                            Static.handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refresh();
+                                }
+                            });
 
                             Static.bus.send(new E.Commands.Finished());
                             Static.bus.send(new E.Commands.Clear());

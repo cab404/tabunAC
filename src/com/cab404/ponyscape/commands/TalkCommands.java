@@ -117,7 +117,7 @@ public class TalkCommands {
 	public void write() {
 
 		EditorPart part = new EditorPart(
-				"Пишем пост",
+				"Пишем письмо",
 				"Заголовок\n=====\nАдресаты\n=====\nТекст",
 				new EditorPart.EditorActionHandler() {
 					@Override public boolean finished(final CharSequence text) {

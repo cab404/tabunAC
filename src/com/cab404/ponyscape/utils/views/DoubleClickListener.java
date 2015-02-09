@@ -14,7 +14,7 @@ public abstract class DoubleClickListener implements View.OnClickListener {
     byte num_clicked = 0;
 
     static final byte num_to_click = 2;
-    static final int max_delay = 200;
+    static final int max_delay = 300;
 
 
     @Override
@@ -26,10 +26,13 @@ public abstract class DoubleClickListener implements View.OnClickListener {
         else
             num_clicked = 1;
 
+        last_clicked = c_time;
+
         if (num_clicked == num_to_click) {
             num_clicked = 0;
             act(v);
         }
+
     }
 
     public abstract void act(View v);

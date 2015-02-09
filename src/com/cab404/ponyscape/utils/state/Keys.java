@@ -1,4 +1,4 @@
-package com.cab404.ponyscape.utils;
+package com.cab404.ponyscape.utils.state;
 
 /**
  * Sorry for no comments!
@@ -10,14 +10,16 @@ public class Keys {
     public final static String
             COMMENTS_AUTOSHIFT_OFFSET = "comments.autoshift.offset",
             COMMENTS_MANUAL_SCROLL = "comments.manual_scroll",
-            COMMENTS_SCROLL_CACHE = "comments.bar_on_top",
+            COMMENTS_SCROLL_CACHE = "comments.scroll_cache",
             COMMENTS_FAST_SCROLL = "comments.fast_scroll",
             COMMENTS_SCALE_WIDTH = "comments.scale_width",
             COMMENTS_SHOW_LEVELS = "comments.show_levels",
-            COMMENTS_BAR_ON_TOP = "comments.scroll_cache",
+            COMMENTS_BAR_ON_TOP = "comments.bar_on_top",
             COMMENTS_AUTOSHIFT = "comments.autoshift",
             COMMENTS_DOUBLECLICK_SHIFT = "comments.doubleclickshift",
             COMMENTS_LADDER = "comments.ladder",
+
+    POST_AUTOARCHIVE = "post.autoarchive",
 
     IMAGES_ONLY_OVER_NON_CELLULAR = "images.only_over_non_cellular",
             IMAGES_FILE_CACHE_LIMIT = "images.file_cache_limit",

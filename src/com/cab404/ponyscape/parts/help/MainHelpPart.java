@@ -15,7 +15,7 @@ import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.parts.ConfirmPart;
 import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.parts.editor.plugins.EditorPlugin;
-import com.cab404.ponyscape.utils.Keys;
+import com.cab404.ponyscape.utils.state.Keys;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.text.HtmlRipper;
 import com.cab404.sjbus.Bus;

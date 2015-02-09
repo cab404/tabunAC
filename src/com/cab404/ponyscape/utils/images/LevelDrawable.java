@@ -7,7 +7,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import com.cab404.ponyscape.R;
-import com.cab404.ponyscape.utils.Keys;
+import com.cab404.ponyscape.utils.state.Keys;
 import com.cab404.ponyscape.utils.Static;
 
 /**

@@ -20,6 +20,8 @@ import com.cab404.ponyscape.parts.editor.EditorPart;
 import com.cab404.ponyscape.parts.raw_text.ErrorPart;
 import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.state.ArchiveUtils;
+import com.cab404.ponyscape.utils.state.Keys;
 import com.cab404.sjbus.Bus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpHead;
@@ -34,208 +36,244 @@ import java.util.List;
 @CommandClass(prefix = "post")
 public class PostCommands {
 
-	@Command(command = "load", params = Int.class)
-	public void post(final Integer id) {
-		post(id, -1);
-	}
+    @Command(command = "load", params = Int.class)
+    public void post(final Integer id) {
+        post(id, -1);
+    }
 
 
-	@Command(command = "by_comment", params = Int.class)
-	public void postByComment(final Integer id) {
-		if (id < 0) {
-			Static.bus.send(new E.Commands.Finished());
-			return;
-		}
-		new Thread(new Runnable() {
-			@Override public void run() {
-				new Request() {
-					@Override protected HttpRequestBase getRequest(AccessProfile accessProfile) {
-						return new HttpHead("/comments/" + id);
-					}
-					@Override protected void onResponseGain(HttpResponse response) {
-						if (response.getStatusLine().getStatusCode() / 100 >= 4) {
-							cancel();
-							Static.bus.send(new E.Commands.Failure("Ошибка " + response.getStatusLine().getStatusCode()));
-							Static.bus.send(new E.Commands.Finished());
-						}
-					}
-					@Override protected void onRedirect(String to) {
-						Log.v("REDIRECT", to);
-						String address = to.substring(to.lastIndexOf('/') + 1);
-						List<String> split = SU.split(address, ".html#comment");
-						int post = Integer.valueOf(split.get(0));
-						int comment = Integer.valueOf(split.get(1));
+    @Command(command = "by_comment", params = Int.class)
+    public void postByComment(final Integer id) {
+        if (id < 0) {
+            Static.bus.send(new E.Commands.Finished());
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new Request() {
+                    @Override
+                    protected HttpRequestBase getRequest(AccessProfile accessProfile) {
+                        return new HttpHead("/comments/" + id);
+                    }
 
-						Static.bus.send(new E.Commands.Finished());
-						Static.bus.send(new E.Commands.Run("post load " + post + " " + comment));
+                    @Override
+                    protected void onResponseGain(HttpResponse response) {
+                        if (response.getStatusLine().getStatusCode() / 100 >= 4) {
+                            cancel();
+                            Static.bus.send(new E.Commands.Failure("Ошибка " + response.getStatusLine().getStatusCode()));
+                            Static.bus.send(new E.Commands.Finished());
+                        }
+                    }
 
-						cancel();
-					}
-					@Override public void finished() {
-						Static.bus.send(new E.Commands.Finished());
-					}
-				}.fetch(Static.user);
-			}
-		}).start();
+                    @Override
+                    protected void onRedirect(String to) {
+                        Log.v("REDIRECT", to);
+                        String address = to.substring(to.lastIndexOf('/') + 1);
+                        List<String> split = SU.split(address, ".html#comment");
+                        int post = Integer.valueOf(split.get(0));
+                        int comment = Integer.valueOf(split.get(1));
 
-	}
+                        Static.bus.send(new E.Commands.Finished());
+                        Static.bus.send(new E.Commands.Run("post load " + post + " " + comment));
 
+                        cancel();
+                    }
 
-	@Command(command = "load", params = {Int.class, Int.class})
-	public void post(final Integer id, final Integer focusOn) {
-		Simple.checkNetworkConnection();
+                    @Override
+                    public void finished() {
+                        Static.bus.send(new E.Commands.Finished());
+                    }
+                }.fetch(Static.user);
+            }
+        }).start();
 
-		new Thread(new Runnable() {
-			@Override public void run() {
-
-				final CommentListPart list = new CommentListPart(id, false);
-				Static.bus.send(new E.Parts.Run(list, false));
-
-				final TopicPage page = new TopicPage(id) {
-
-					@Override public void handle(final Object object, final int key) {
-						switch (key) {
-							case BLOCK_TOPIC_HEADER:
-								final Topic topic = (Topic) object;
-								Static.handler.post(new Runnable() {
-									@Override public void run() {
-										list.add(topic);
-									}
-								});
-								break;
-
-							case BLOCK_COMMENT:
-								Comment comment = (Comment) object;
-								comments.add(comment);
-
-								if (!comment.deleted)
-									Static.bus.send(new E.Status("Комментарий от " + comment.author.login));
-
-								if (comments.size() > 50) {
-									final List<Comment> dump = comments;
-									comments = new LinkedList<>();
-									Static.handler.post(new Runnable() {
-										@Override public void run() {
-											for (Comment comment : dump)
-												list.add(comment);
-											list.update();
-										}
-									});
-								}
-								break;
-
-							case BLOCK_ERROR:
-								Static.bus.send(new E.Parts.Run(new ErrorPart((TabunError) object), true));
-								cancel();
-								break;
-						}
-
-					}
-
-					{Static.bus.register(this);}
-					@Bus.Handler
-					public void cancel(E.Commands.Abort abort) {
-						super.cancel();
-					}
-				};
+    }
 
 
-				try {
-					page.fetch(Static.user);
+    @Command(command = "load", params = {Int.class, Int.class})
+    public void post(final Integer id, final Integer focusOn) {
+        final boolean SAVE = Static.cfg.ensure(Keys.POST_AUTOARCHIVE, false);
+        if (!(SAVE && !ArchiveUtils.isPostInArchive(id)))
+            Simple.checkNetworkConnection();
 
-					Static.handler.post(new Runnable() {
-						@Override public void run() {
-							while (!page.comments.isEmpty())
-								list.add(page.comments.remove(0));
-							list.update();
-						}
-					});
+        if (SAVE && ArchiveUtils.isPostInArchive(id)) {
+            Simple.redirect("saved post " + id);
+            return;
+        }
 
-				} catch (MoonlightFail f) {
-					Static.bus.send(new E.Commands.Failure("Ошибка при загрузке поста."));
-					Log.w("PageCommands", f);
-				}
+        final
+        ArchiveUtils.Save save =
+                SAVE ? ArchiveUtils.savePost(id) : null;
 
-				if (focusOn != -1)
-					Static.handler.post(new Runnable() {
-						@Override public void run() {
-							list.select(list.indexOf(focusOn), -5000);
-						}
-					});
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-				Static.bus.unregister(page);
-				Static.last_page = page;
+                final CommentListPart list = new CommentListPart(id, false);
+                Static.bus.send(new E.Parts.Run(list, false));
 
-				Static.bus.send(new E.Commands.Clear());
-				Static.bus.send(new E.Commands.Finished());
-			}
-		}).start();
-	}
+                final TopicPage page = new TopicPage(id) {
 
-	@Command(command = "write", params = {Int.class})
-	public void write(final Integer blogID) {
+                    @Override
+                    public void handle(final Object object, final int key) {
+                        switch (key) {
+                            case BLOCK_TOPIC_HEADER:
+                                final Topic topic = (Topic) object;
+                                if (save != null) save.setHeader(topic);
 
-		EditorPart part = new EditorPart(
-				"Пишем пост",
-				"Заголовок\n=====\nТекст\n=====\nэтот тег кто-то прочитал",
-				new EditorPart.EditorActionHandler() {
-					@Override public boolean finished(final CharSequence text) {
-						List<String> split = SU.split(text.toString(), "\n=====");
+                                Static.handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        list.add(topic);
+                                    }
+                                });
+                                break;
 
-						if (split.size() == 3) {
-							final Topic topic = new Topic();
-							topic.title = split.get(0);
-							topic.text = split.get(1);
-							topic.tags = SU.split(split.get(2), ",");
-							topic.blog = new Blog();
-							topic.blog.id = blogID;
-							final EditorPart.EditorActionHandler self = this;
+                            case BLOCK_COMMENT:
+                                Comment comment = (Comment) object;
+                                comments.add(comment);
+                                if (save != null) save.addComment(comment);
 
-							new Thread() {
+                                if (!comment.deleted)
+                                    Static.bus.send(new E.Status("Комментарий от " + comment.author.login));
 
-								@Override public void run() {
-									TopicAddRequest request = new TopicAddRequest(topic);
-									request.exec(Static.user);
-									if (topic.id != 0) {
-										Static.bus.send(new E.Commands.Success("Yay, пост добавлен. ID:" + topic.id));
-										Static.bus.send(new E.Commands.Finished());
-										Static.bus.send(new E.Commands.Run("post load " + topic.id));
+                                if (comments.size() > 50) {
+                                    final List<Comment> dump = comments;
+                                    comments = new LinkedList<>();
+                                    Static.handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            for (Comment comment : dump)
+                                                list.add(comment);
+                                            list.update();
+                                        }
+                                    });
+                                }
+                                break;
 
-									} else {
-										Static.bus.send(new E.Commands.Success("Не удалось создать пост :("));
+                            case BLOCK_ERROR:
+                                Static.bus.send(new E.Parts.Run(new ErrorPart((TabunError) object), true));
+                                cancel();
+                                break;
+                        }
 
-										Static.bus.send(
-												new E.Parts.Run(
-														new EditorPart(
-																"Пишем пост",
-																text,
-																self
-														)
-														, true)
-										);
-									}
+                    }
 
-									super.run();
-								}
+                    {
+                        Static.bus.register(this);
+                    }
 
-							}.start();
+                    @Bus.Handler
+                    public void cancel(E.Commands.Abort abort) {
+                        super.cancel();
+                    }
+                };
 
-							return true;
-						} else {
-							Static.bus.send(new E.Commands.Failure("Не все части поста найдены: " +
-									"проверьте, разделены ли теги, текст и заголовок '====='"));
-							return false;
-						}
 
-					}
+                try {
+                    page.fetch(Static.user);
+                    if (save != null) save.write();
+                    Static.bus.send(new E.GotData.Arch.Topic(id, true));
 
-					@Override public void cancelled() {
-						Static.bus.send(new E.Commands.Finished());
-						Static.bus.send(new E.Commands.Clear());
-					}
-				});
+                    Static.handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (!page.comments.isEmpty())
+                                list.add(page.comments.remove(0));
+                            list.update();
+                        }
+                    });
 
-		Static.bus.send(new E.Parts.Run(part, true));
-	}
+                } catch (MoonlightFail f) {
+                    Static.bus.send(new E.Commands.Failure("Ошибка при загрузке поста."));
+                    Log.w("PageCommands", f);
+                }
+
+                if (focusOn != -1)
+                    Static.handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            list.select(list.indexOf(focusOn), -5000);
+                        }
+                    });
+
+                Static.bus.unregister(page);
+                Static.last_page = page;
+
+                Static.bus.send(new E.Commands.Clear());
+                Static.bus.send(new E.Commands.Finished());
+            }
+        }).start();
+    }
+
+    @Command(command = "write", params = {Int.class})
+    public void write(final Integer blogID) {
+
+        EditorPart part = new EditorPart(
+                "Пишем пост",
+                "Заголовок\n=====\nТекст\n=====\nэтот тег кто-то прочитал",
+                new EditorPart.EditorActionHandler() {
+                    @Override
+                    public boolean finished(final CharSequence text) {
+                        List<String> split = SU.split(text.toString(), "\n=====");
+
+                        if (split.size() == 3) {
+                            final Topic topic = new Topic();
+                            topic.title = split.get(0);
+                            topic.text = split.get(1);
+                            topic.tags = SU.split(split.get(2), ",");
+                            topic.blog = new Blog();
+                            topic.blog.id = blogID;
+                            final EditorPart.EditorActionHandler self = this;
+
+                            new Thread() {
+
+                                @Override
+                                public void run() {
+                                    TopicAddRequest request = new TopicAddRequest(topic);
+                                    request.exec(Static.user);
+                                    if (topic.id != 0) {
+                                        Static.bus.send(new E.Commands.Success("Yay, пост добавлен. ID:" + topic.id));
+                                        Static.bus.send(new E.Commands.Finished());
+                                        Static.bus.send(new E.Commands.Run("post load " + topic.id));
+
+                                    } else {
+                                        Static.bus.send(new E.Commands.Success("Не удалось создать пост :("));
+
+                                        Static.bus.send(
+                                                new E.Parts.Run(
+                                                        new EditorPart(
+                                                                "Пишем пост",
+                                                                text,
+                                                                self
+                                                        )
+                                                        , true)
+                                        );
+                                    }
+
+                                    super.run();
+                                }
+
+                            }.start();
+
+                            return true;
+                        } else {
+                            Static.bus.send(new E.Commands.Failure("Не все части поста найдены: " +
+                                    "проверьте, разделены ли теги, текст и заголовок '====='"));
+                            return false;
+                        }
+
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        Static.bus.send(new E.Commands.Finished());
+                        Static.bus.send(new E.Commands.Clear());
+                    }
+                });
+
+        Static.bus.send(new E.Parts.Run(part, true));
+    }
 
 }
