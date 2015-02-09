@@ -11,6 +11,7 @@ import com.cab404.moonlight.util.exceptions.MoonlightFail;
 import com.cab404.ponyscape.R;
 import com.cab404.ponyscape.bus.E;
 import com.cab404.ponyscape.utils.Static;
+import com.cab404.ponyscape.utils.text.Plurals;
 
 /**
  * @author cab404
@@ -37,7 +38,7 @@ public class MailboxController extends Part {
 				Static.bus.send(new E.Parts.Run(new ConfirmPart(
 						"Вы уверены, что хотите отправить на Луну " +
 								selected.ids.size() + " " +
-								Static.ctx.getResources().getQuantityString(R.plurals.letters, selected.ids.size()) + "?",
+                                Plurals.get(R.array.letters, selected.ids.size()) + "?",
 						new ConfirmPart.ResultHandler() {
 							@Override public void resolved(boolean ok) {
 								if (ok)
@@ -52,7 +53,7 @@ public class MailboxController extends Part {
 
 												Static.bus.send(new E.Commands.Success(
 														selected.ids.size() + " " +
-																Static.ctx.getResources().getQuantityString(R.plurals.letters, selected.ids.size())
+                                                                Plurals.get(R.array.letters, selected.ids.size())
 																+ " уже на пути к Луне."));
 												Static.bus.send(deleted);
 

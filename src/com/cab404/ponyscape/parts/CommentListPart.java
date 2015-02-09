@@ -25,6 +25,11 @@ import com.cab404.ponyscape.utils.Simple;
 import com.cab404.ponyscape.utils.Static;
 import com.cab404.ponyscape.utils.animation.Anim;
 import com.cab404.ponyscape.utils.images.LevelDrawable;
+import com.cab404.ponyscape.utils.state.ArchiveUtils;
+import com.cab404.ponyscape.utils.state.Keys;
+import com.cab404.ponyscape.utils.text.Plurals;
+import com.cab404.ponyscape.utils.views.DoubleClickListener;
+import com.cab404.ponyscape.utils.views.LeveledListView;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -51,7 +56,7 @@ public class CommentListPart extends Part {
     /**
      * Там, где хранятся комментарии
      */
-    private ListView listView;
+    private LeveledListView listView;
 
     /**
      * Root-батюшка
@@ -61,6 +66,14 @@ public class CommentListPart extends Part {
     private final int id;
     private final boolean isLetter;
     private Part topicPart;
+
+    private int max_level = 0;
+    private static final int LADDER_MARGIN = 3;
+    int comment_ladder =
+            (int) (
+                    Static.ctx.getResources().getDisplayMetrics().density
+                            * Static.cfg.ensure(Keys.COMMENTS_LADDER, 25)
+            );
 
     /**
      * То, в чем лежат кнопки управления и пост.
@@ -99,6 +112,7 @@ public class CommentListPart extends Part {
         } else {
             int level = levels.get(comment.parent) + 1;
             levels.put(comment.id, level);
+            max_level = Math.max(level, max_level);
 
             for (int i = indexOf(comment.parent) + 1; i < comments.size(); i++)
                 if (levels.get(comments.get(i).id) < level) {
@@ -150,7 +164,25 @@ public class CommentListPart extends Part {
         if (listView != null)
             adapter.notifyDataSetChanged();
         updateNew();
+
+        listView.setRightMargin((max_level + LADDER_MARGIN) * comment_ladder);
         adapter.selected = -1;
+    }
+
+    public synchronized void updateCache() {
+        if (isLetter ? ArchiveUtils.isLetterInArchive(id) : ArchiveUtils.isPostInArchive(id)) {
+            ArchiveUtils.Save save
+                    = isLetter ? ArchiveUtils.saveLetter(id) : ArchiveUtils.savePost(id);
+            if (isLetter)
+                save.setHeader(((LetterPart) topicPart).letter);
+            else
+                save.setHeader(((TopicPart) topicPart).topic);
+
+            for (Comment cm : comments)
+                save.addComment(cm);
+
+            save.write();
+        }
     }
 
     private int max_comment_id() {
@@ -161,20 +193,26 @@ public class CommentListPart extends Part {
     }
 
     public void select(int index, int from) {
+        if (index == -1) return;
+
         adapter.selected = index;
         if (Build.VERSION.SDK_INT < 11)
-            listView.setSelectionFromTop(index + 1, getBarHeight());
+            listView.setSelection(index + 1);
         else if (index - from > -30 && index - from < 10)
             listView.smoothScrollToPositionFromTop(index + 1, getBarHeight());
-        else
+        else if (Build.VERSION.SDK_INT > 20)
             listView.setSelectionFromTop(index + 1, getBarHeight());
+        else
+            listView.setSelection(index + 1);
 
+        adapter.setOffset(levels.get(comments.get(index).id));
     }
 
     /**
      * Переходит к следующему комментарию (в новых).
      */
     private int last = 0;
+
     private void move() {
         adapter.notifyDataSetChanged();
         for (int i = 0; i < comments.size(); i++)
@@ -204,7 +242,7 @@ public class CommentListPart extends Part {
             view.findViewById(R.id.switch_button).setVisibility(View.VISIBLE);
 
         ((TextView) view.findViewById(R.id.switch_text)).setText(
-                new_c + " " + getContext().getResources().getQuantityString(R.plurals.new_comments, new_c)
+                new_c + " " + Plurals.get(R.array.new_comments, new_c)
         );
     }
 
@@ -236,6 +274,9 @@ public class CommentListPart extends Part {
 
                     for (Comment comment : request.comments)
                         add(comment);
+
+                    if (!request.comments.isEmpty())
+                        updateCache();
 
                     Static.handler.post(new Runnable() {
                         @Override
@@ -343,6 +384,7 @@ public class CommentListPart extends Part {
 
                 return true;
             }
+
             @Override
             public void cancelled() {
 
@@ -353,7 +395,7 @@ public class CommentListPart extends Part {
 
     }
 
-    boolean bar_on_top = Static.cfg.ensure("comments.bar_on_top", false);
+    boolean bar_on_top = Static.cfg.ensure(Keys.COMMENTS_BAR_ON_TOP, false);
 
     @SuppressLint("NewApi")
     @Override
@@ -361,7 +403,8 @@ public class CommentListPart extends Part {
         Static.bus.register(this);
 
         view = (ViewGroup) inflater.inflate(R.layout.part_comment_list, viewGroup, false);
-        listView = (ListView) view.findViewById(R.id.comment_list);
+        listView = (LeveledListView) view.findViewById(R.id.comment_list);
+        listView.setHorisontallyScrollable(Static.cfg.ensure(Keys.COMMENTS_MANUAL_SCROLL, false));
 
         view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -382,20 +425,20 @@ public class CommentListPart extends Part {
                 // показываем, что грузим комментарии
                 Anim.swapIcon(
                         ((ImageView) view.findViewById(R.id.update)),
-                        getContext().getResources().getDrawable(R.drawable.anim_luna)
+                        Simple.makeLuna()
                 );
                 invalidateNew();
                 refresh();
             }
         });
 
-        listView.setFastScrollEnabled(Static.cfg.ensure("comments.fast_scroll", false));
-        listView.setScrollingCacheEnabled(Static.cfg.ensure("comments.scroll_cache", false));
+        listView.setFastScrollEnabled(Static.cfg.ensure(Keys.COMMENTS_FAST_SCROLL, false));
+        listView.setScrollingCacheEnabled(Static.cfg.ensure(Keys.COMMENTS_SCROLL_CACHE, false));
 
         view.findViewById(R.id.down).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                select(comments.size(), -500);
+                select(comments.size() - 1, 1);
                 adapter.selected = -1;
             }
         });
@@ -410,12 +453,14 @@ public class CommentListPart extends Part {
 		/* Настраиваем бар */
         View bar = view.findViewById(R.id.bar);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) bar.getLayoutParams();
-        params.addRule(bar_on_top ? RelativeLayout.ALIGN_PARENT_TOP : RelativeLayout.ALIGN_PARENT_BOTTOM);
+        if (!bar_on_top)
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         bar.getBackground().setAlpha(150);
         /* Ставим для того, чтобы бар не пропускал на нижние вьюхи нажатия.*/
         bar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {}
+            public void onClick(View v) {
+            }
         });
 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
@@ -465,10 +510,12 @@ public class CommentListPart extends Part {
         public int getCount() {
             return comments.size() == 0 ? 1 : comments.size();
         }
+
         @Override
         public Object getItem(int i) {
             return comments.get(i);
         }
+
         @Override
         public long getItemId(int i) {
             return 0;
@@ -517,15 +564,11 @@ public class CommentListPart extends Part {
 
         }
 
-        double scaleComment = Static.cfg.ensure("comments.scale_width", 1.0d);
-        boolean autoshift = Static.cfg.ensure("comments.autoshift", false);
-        int autoshift_offset = Static.cfg.ensure("comments.autoshift.offset", 0);
-
-        int comment_ladder =
-                (int) (
-                        Static.ctx.getResources().getDisplayMetrics().density
-                                * Static.cfg.ensure("comments.ladder", 25)
-                );
+        double scaleComment = Static.cfg.ensure(Keys.COMMENTS_SCALE_WIDTH, 1.0d);
+        boolean autoshift = Static.cfg.ensure(Keys.COMMENTS_AUTOSHIFT, false);
+        boolean doubleclick = Static.cfg.ensure(Keys.COMMENTS_DOUBLECLICK_SHIFT, false);
+        int autoshift_offset = Static.cfg.ensure(Keys.COMMENTS_AUTOSHIFT_OFFSET, 0);
+        boolean show_levels = Static.cfg.ensure(Keys.COMMENTS_SHOW_LEVELS, false);
 
         @SuppressWarnings({"AssignmentToMethodParameter", "deprecation"})
         @Override
@@ -570,17 +613,27 @@ public class CommentListPart extends Part {
             View.OnClickListener shiftInvoker = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (listView.getScrollX() == level * comment_pixel_offset)
+                    if (listView.getScrollX() == comment_pixel_offset)
                         setOffset(0);
                     else
                         setOffset(level);
                 }
             };
+            if (doubleclick) {
+                final View.OnClickListener lst = shiftInvoker;
+                shiftInvoker = new DoubleClickListener() {
+                    @Override
+                    public void act(View v) {
+                        lst.onClick(v);
+                    }
+                };
+            }
+
 
             /**
              *  Сдвигаем всё нафиг.
              */
-//            if (autoshift) autoshift();
+            if (autoshift) autoshift();
 
             view.findViewById(R.id.data).setOnClickListener(shiftInvoker);
             right_margin.setOnClickListener(shiftInvoker);
@@ -599,19 +652,22 @@ public class CommentListPart extends Part {
 
 			/* Проставляем отступы */
             left_margin.getLayoutParams().width = comment_pixel_offset;
-            right_margin.getLayoutParams().width = c_level * comment_ladder + -comment_pixel_offset;
+            right_margin.getLayoutParams().width = ((max_level + LADDER_MARGIN) * comment_ladder - comment_pixel_offset);
 
 			/* Ставим размер самого комментария */
             rootLayoutParams.width = Math.min(dWidth, dHeight);
 
 			/* Ставим размер основы вьюхи комментария, на ней сидит и марджин со всем фонами, и root*/
-            view.getLayoutParams().width = rootLayoutParams.width + comment_pixel_offset + dWidth;
-//
-//			/* Ставим цвет всего, что не правый марджин в цвет уровня комментария + 1*/
-//			view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
-//
-//			/* Заморочисто ставим фон правого марджина */
-//			left_margin.setBackgroundDrawable(level_indicator);
+            view.getLayoutParams().width =
+                    rootLayoutParams.width
+                            + left_margin.getLayoutParams().width
+                            + right_margin.getLayoutParams().width;
+
+			/* Ставим цвет всего, что не правый марджин в цвет уровня комментария + 1*/
+            if (show_levels) {
+                view.setBackgroundColor(level_indicator.getLastColor(left_margin.getLayoutParams().width));
+                left_margin.setBackgroundDrawable(level_indicator);
+            }
 
 			/* Ставим слушалки на кнопки */
             view.findViewById(R.id.reply).setOnClickListener(new View.OnClickListener() {

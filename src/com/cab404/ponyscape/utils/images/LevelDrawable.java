@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import com.cab404.ponyscape.R;
+import com.cab404.ponyscape.utils.state.Keys;
 import com.cab404.ponyscape.utils.Static;
 
 /**
@@ -26,7 +27,7 @@ public class LevelDrawable extends Drawable {
 		this.start = start;
 		section_size = (int) (
 				Static.ctx.getResources().getDisplayMetrics().density
-						* Static.cfg.ensure("comments.ladder", 25)
+						* Static.cfg.ensure(Keys.COMMENTS_LADDER, 25)
 		);
 		limit = res.getInteger(R.integer.maximum_gradient_length);
 
@@ -71,7 +72,8 @@ public class LevelDrawable extends Drawable {
 
 			level.setAlpha(alpha);
 
-			canvas.drawRect(i * section_size, 0, (i + 1) * section_size, height, level);
+			int x = i * section_size;
+			canvas.drawRect(x, 0, x + section_size, height, level);
 
 		}
 

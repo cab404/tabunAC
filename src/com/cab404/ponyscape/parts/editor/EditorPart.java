@@ -45,6 +45,9 @@ public class EditorPart extends Part {
 				new SimpleEditorPlugin(R.drawable.ic_editor_strikethrough, "<s>", "</s>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_quote, "<blockquote>", "</blockquote>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_code, "<pre>", "</pre>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_sub, "<sub>", "</sub>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_small, "<small>", "</small>"),
+				new SimpleEditorPlugin(R.drawable.ic_editor_sup, "<sup>", "</sup>"),
 				new SimpleEditorPlugin(R.drawable.ic_editor_lightspoiler, "<span class=\"spoiler-gray\">", "</span>"),
 				new ParameteredWrapPlugin(R.drawable.ic_editor_link, "<a href=\"%s\">", "</a>", "Введите адрес ссылки."),
 
