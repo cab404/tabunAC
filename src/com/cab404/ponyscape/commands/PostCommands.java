@@ -94,17 +94,14 @@ public class PostCommands {
     @Command(command = "load", params = {Int.class, Int.class})
     public void post(final Integer id, final Integer focusOn) {
         final boolean SAVE = Static.cfg.ensure(Keys.POST_AUTOARCHIVE, false);
-        if (!(SAVE && !ArchiveUtils.isPostInArchive(id)))
-            Simple.checkNetworkConnection();
 
         if (SAVE && ArchiveUtils.isPostInArchive(id)) {
             Simple.redirect("saved post " + id);
             return;
         }
 
-        final
-        ArchiveUtils.Save save =
-                SAVE ? ArchiveUtils.savePost(id) : null;
+        Simple.checkNetworkConnection();
+        final ArchiveUtils.Save save = SAVE ? ArchiveUtils.savePost(id) : null;
 
         new Thread(new Runnable() {
             @Override
@@ -120,7 +117,7 @@ public class PostCommands {
                         switch (key) {
                             case BLOCK_TOPIC_HEADER:
                                 final Topic topic = (Topic) object;
-                                if (save != null) save.setHeader(topic);
+                                if (SAVE) save.setHeader(topic);
 
                                 Static.handler.post(new Runnable() {
                                     @Override
@@ -133,7 +130,7 @@ public class PostCommands {
                             case BLOCK_COMMENT:
                                 Comment comment = (Comment) object;
                                 comments.add(comment);
-                                if (save != null) save.addComment(comment);
+                                if (SAVE) save.addComment(comment);
 
                                 if (!comment.deleted)
                                     Static.bus.send(new E.Status("Комментарий от " + comment.author.login));
@@ -173,8 +170,11 @@ public class PostCommands {
 
                 try {
                     page.fetch(Static.user);
-                    if (save != null) save.write();
-                    Static.bus.send(new E.GotData.Arch.Topic(id, true));
+
+                    if (SAVE) {
+                        save.write();
+                        Static.bus.send(new E.GotData.Arch.Topic(id, true));
+                    }
 
                     Static.handler.post(new Runnable() {
                         @Override
