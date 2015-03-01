@@ -121,7 +121,14 @@ public class CommentListPart extends Part {
                 }
         }
         comments.add(comment);
+        setCommentsNum();
     }
+
+    public void setCommentsNum() {
+        ((TextView) topic_view.findViewById(R.id.comments)).setText(comments.size() + "");
+    }
+
+    View topic_view;
 
     /**
      * Возвращает высоту бара.
@@ -131,7 +138,7 @@ public class CommentListPart extends Part {
     }
 
     public synchronized void add(Topic topic) {
-        View topic_view = ((TopicPart) (topicPart = new TopicPart(topic)))
+        topic_view = ((TopicPart) (topicPart = new TopicPart(topic)))
                 .create(LayoutInflater.from(getContext()), listView, getContext());
         ((TopicPart) topicPart).setLink("");
 
