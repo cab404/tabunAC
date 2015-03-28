@@ -173,7 +173,6 @@ public class CommentListPart extends Part {
         updateNew();
 
         listView.setRightMargin((max_level + LADDER_MARGIN) * comment_ladder);
-        adapter.selected = -1;
     }
 
     public synchronized void updateCache() {
@@ -260,6 +259,7 @@ public class CommentListPart extends Part {
     private void invalidateNew() {
         for (Comment comment : comments)
             comment.is_new = false;
+        adapter.selected = -1;
         update();
     }
 
