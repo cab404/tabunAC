@@ -21,7 +21,7 @@ do
 	cp -frvT themes/${F} res;
 
 	echo "==== Building "${F}
-	ant release | grep BUILD;
+	ant release | sed "s/^/${F}: /g"
 
 	mv -f bin/ac-release.apk apk/ac-${F}.apk;
 	echo "==== Built "${F}

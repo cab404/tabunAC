@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<!-- Сделано для WhiteChain -->
+
+<color name="font_color_command_line">#ffadbec1</color>
+<color name="bg_main">#ff191b1f</color>
+<color name="bg_tint">#aa000000</color>
+<color name="bg_item">#ff2c2c38</color>
+<color name="bg_item_shadow">#ff929292</color>
+<color name="bg_item_new">#ff1b1114</color>
+<color name="bg_item_fav">#ff98972e</color>
+<color name="bg_item_selected">#ff302f30</color>
+
+<color name="bg_item_label">#ffdddddd</color>
+
+<color name="bg_shortcuts">#ff0d1731</color>
+<color name="font_color_shortcuts">#ffa1a4ac</color>
+
+<color name="font_color">#ffe2e2e2</color>
+<color name="font_color_link">#ff319185</color>
+<color name="font_color_red">#ffad473a</color>
+<color name="font_color_blue">#ff0077a0</color>
+<color name="font_color_green">#ff008c43</color>
+
+
+<color name="comment_ladder_gradient_start">#ff101010</color>
+<color name="comment_ladder_gradient_end">#ff9b9a9a</color>
+
+<color name="spoiler_bg">#877b787b</color>
+<color name="spoiler_label">@color/bg_item</color>
+
+<color name="cut_border">#ff5a7c7f</color>
+<color name="cut_bg">#855c5c5c</color>
+
+<color name="code_bg">#ff323232</color>
+<color name="code_color">#a9becdff</color>
+
+</resources>
