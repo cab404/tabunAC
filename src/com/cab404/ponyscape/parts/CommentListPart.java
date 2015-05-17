@@ -125,7 +125,8 @@ public class CommentListPart extends Part {
     }
 
     public void setCommentsNum() {
-        ((TextView) topic_view.findViewById(R.id.comments)).setText(comments.size() + "");
+        if (topic_view != null) // And I like: 'WHAT', and it like: 'NPE, MOTHERBUCKER!'
+            ((TextView) topic_view.findViewById(R.id.comments)).setText(comments.size() + "");
     }
 
     View topic_view;
