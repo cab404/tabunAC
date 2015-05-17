@@ -32,7 +32,7 @@ public class Spider8ite {
 
     }
 
-    public class ReplaceTPr implements TextPr0cess0r {
+    public static class ReplaceTPr implements TextPr0cess0r {
         private final String what;
         private final String to_what;
 
@@ -50,6 +50,33 @@ public class Spider8ite {
         }
     }
 
+    public static class Precedence implements TextPr0cess0r {
 
+        private CharSequence start;
+
+        public Precedence(CharSequence start) {
+            this.start = start;
+        }
+
+        @Override
+        public StringBuilder apply(StringBuilder builder) {
+            return builder.insert(0, start);
+        }
+    }
+
+    public static class Postinsertion implements TextPr0cess0r {
+
+        private CharSequence end;
+
+        public Postinsertion(CharSequence end) {
+            this.end = end;
+        }
+
+        @Override
+        public StringBuilder apply(StringBuilder builder) {
+            return builder.append(end);
+        }
+
+    }
 
 }
