@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.cab404.ponyscape"
-          android:versionCode="16"
+          android:versionCode="17"
           android:versionName="@string/version">
 
 	<uses-sdk android:minSdkVersion="10"
-			  android:targetSdkVersion="21"
+			  android:targetSdkVersion="22"
 		/>
 
 	<uses-permission android:name="android.permission.INTERNET"/>
